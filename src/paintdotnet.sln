@@ -1,5 +1,7 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "paintdotnet", "paintdotnet.csproj", "{34920450-488E-41DF-8565-AA22C2A56902}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2E4E8805-00F7-4B18-A967-C23994BBCE75} = {2E4E8805-00F7-4B18-A967-C23994BBCE75}
@@ -82,7 +84,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resources\Reso
 		{AE3E7C54-B864-4C89-9CC1-89DBE2042E02} = {AE3E7C54-B864-4C89-9CC1-89DBE2042E02}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Strings", "Strings\Strings.vcproj", "{AE3E7C54-B864-4C89-9CC1-89DBE2042E02}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Strings", "Strings\Strings.vcxproj", "{AE3E7C54-B864-4C89-9CC1-89DBE2042E02}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetupFrontEnd", "SetupFrontEnd\SetupFrontEnd.csproj", "{9A2FADDE-15A5-4904-96D3-8ECD113B715C}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -91,13 +93,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SetupFrontEnd", "SetupFront
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SetupShim", "SetupShim\SetupShim.vcproj", "{FD728047-99F5-4CAF-957D-54194AA8D0F0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShellExtension_x86", "ShellExtension\ShellExtension_x86\ShellExtension_x86.vcproj", "{236A7657-45D6-46FF-A221-8E78FA447547}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShellExtension_x86", "ShellExtension\ShellExtension_x86\ShellExtension_x86.vcxproj", "{236A7657-45D6-46FF-A221-8E78FA447547}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShellExtension_x64", "ShellExtension\ShellExtension_x64\ShellExtension_x64.vcproj", "{36F6FD0E-C4A7-45B9-9B7C-7DFC6DE667FE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShellExtension_x64", "ShellExtension\ShellExtension_x64\ShellExtension_x64.vcxproj", "{36F6FD0E-C4A7-45B9-9B7C-7DFC6DE667FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WiaProxy32", "WiaProxy32\WiaProxy32.csproj", "{446DDC4A-1CC8-4F55-BDF2-21BB387574D1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeneratedCode", "GeneratedCode\GeneratedCode.vcproj", "{6D06E18A-6A4A-49FF-BB33-2C722D051BE8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeneratedCode", "GeneratedCode\GeneratedCode.vcxproj", "{6D06E18A-6A4A-49FF-BB33-2C722D051BE8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdnRepair", "PdnRepair\PdnRepair.csproj", "{D4BEAD6A-0A65-4FAC-9ECE-B6A71EA5A884}"
 EndProject
@@ -110,9 +112,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources.mui", "Resources.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Base", "Base\Base.csproj", "{05C4C721-F8E3-42E1-B817-9D165DA1A9FB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x64", "DdsFileType\Squish\Squish_x64\Squish_x64.vcproj", "{EF345808-905D-4738-BC3F-0D0CB3960C4A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x64", "DdsFileType\Squish\Squish_x64\Squish_x64.vcxproj", "{EF345808-905D-4738-BC3F-0D0CB3960C4A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x86", "DdsFileType\Squish\Squish_x86\Squish_x86.vcproj", "{5B4C722D-8469-4B5F-9158-730B75AF68C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x86", "DdsFileType\Squish\Squish_x86\Squish_x86.vcxproj", "{5B4C722D-8469-4B5F-9158-730B75AF68C1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DdsFileType", "DdsFileType\DdsFileType\DdsFileType.csproj", "{8CA4EBFD-46EA-437B-AD52-685C3E0BEC81}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -121,7 +123,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DdsFileType", "DdsFileType\
 		{5B4C722D-8469-4B5F-9158-730B75AF68C2} = {5B4C722D-8469-4B5F-9158-730B75AF68C2}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x86_SSE2", "DdsFileType\Squish\Squish_x86_SSE2\Squish_x86_SSE2.vcproj", "{5B4C722D-8469-4B5F-9158-730B75AF68C2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x86_SSE2", "DdsFileType\Squish\Squish_x86_SSE2\Squish_x86_SSE2.vcxproj", "{5B4C722D-8469-4B5F-9158-730B75AF68C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -276,5 +278,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D2A73E3E-3C7F-4D60-B6AB-88A4DACA1229}
 	EndGlobalSection
 EndGlobal
