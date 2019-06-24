@@ -22,4 +22,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2008 dotPDN LLC, Rick Brewster, Tom Jackson, and past contributors. Portions Copyright © Microsoft Corporation. All Rights Reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: AssemblyVersion("3.36.*")]
+[assembly: AssemblyVersion("3.360.*")]
