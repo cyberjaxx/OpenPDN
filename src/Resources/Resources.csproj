@@ -54,6 +54,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRules>
     </CodeAnalysisRules>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -80,6 +81,7 @@
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRules>
     </CodeAnalysisRules>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
@@ -505,9 +507,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Cursors\MagicWandToolCursorMinus.cur" />
     <EmbeddedResource Include="Cursors\MagicWandToolCursorPlus.cur" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Migrated rules for Resources.ruleset" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
