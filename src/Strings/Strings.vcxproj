@@ -10,6 +10,9 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Strings.resx" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{AE3E7C54-B864-4C89-9CC1-89DBE2042E02}</ProjectGuid>
     <RootNamespace>Strings</RootNamespace>
@@ -29,47 +32,32 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>15.0.28307.705</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>Debug\</OutDir>
-    <IntDir>Debug\</IntDir>
-    <NMakeBuildCommandLine>%40rem compiling English strings
-"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(TargetPath)"
-</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>%40rem compiling English strings
-"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(TargetPath)"
-</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>del "$(TargetPath)"</NMakeCleanCommandLine>
-    <NMakeOutput>$(OutDir)PaintDotNet.Strings.3.resources</NMakeOutput>
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(OutDir)\PaintDotNet.Strings.3.resources"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(OutDir)\PaintDotNet.Strings.3.resources"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>del "$(OutDir)\PaintDotNet.Strings.3.resources"</NMakeCleanCommandLine>
+    <NMakeOutput>PaintDotNet.Strings.3.resources</NMakeOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>Release\</OutDir>
-    <IntDir>Release\</IntDir>
-    <NMakeBuildCommandLine>%40rem compiling English strings
-"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(TargetPath)"
-</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>%40rem compiling English strings
-"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(TargetPath)"
-</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>del "$(TargetPath)"</NMakeCleanCommandLine>
-    <NMakeOutput>$(OutDir)PaintDotNet.Strings.3.resources</NMakeOutput>
+    <OutDir>$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(OutDir)\PaintDotNet.Strings.3.resources"</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>"$(SolutionDir)\BuildTools\resgen.exe" "$(ProjectDir)\Strings.resx" "$(OutDir)\PaintDotNet.Strings.3.resources"</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>del "$(OutDir)\PaintDotNet.Strings.3.resources"</NMakeCleanCommandLine>
+    <NMakeOutput>PaintDotNet.Strings.3.resources</NMakeOutput>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Strings.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

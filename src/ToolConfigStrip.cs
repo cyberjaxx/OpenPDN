@@ -2054,7 +2054,7 @@ namespace PaintDotNet
 
             using (Graphics g = this.CreateGraphics())
             {
-                FontFamily[] families = FontFamily.GetFamilies(g);
+                FontFamily[] families = FontFamily.Families;
 
                 foreach (FontFamily family in families)
                 {

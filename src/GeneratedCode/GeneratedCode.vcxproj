@@ -38,13 +38,13 @@
     <_ProjectFileVersion>15.0.28307.705</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <NMakeBuildCommandLine>set VCInstallDir=$(DevEnvDir)..\..\VC\
-call "%VCInstallDir%vcvarsall.bat"
+call "%VCInstallDir%\Auxiliary\Build\vcvarsall.bat" x86 8.1
 
 pushd "$(SolutionDir)\Data"
-"%VCInstallDir%\bin\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
+"%VCInstallDir%\Tools\MSVC\14.16.27023\bin\Hostx86\x86\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
 fc UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs &gt; nul
 if "%ERRORLEVEL%" == "0" goto done1
 copy UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs
@@ -53,10 +53,10 @@ del UserBlendOps.Generated.cs.temp
 popd
 </NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>set VCInstallDir=$(DevEnvDir)..\..\VC\
-call "%VCInstallDir%vcvarsall.bat"
+call "%VCInstallDir%\Auxiliary\Build\vcvarsall.bat" x86 8.1
 
 pushd "$(SolutionDir)\Data"
-"%VCInstallDir%\bin\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
+"%VCInstallDir%\Tools\MSVC\14.16.27023\bin\Hostx86\x86\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
 fc UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs &gt; nul
 if "%ERRORLEVEL%" == "0" goto done1
 copy UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs
@@ -69,13 +69,13 @@ popd
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <NMakeBuildCommandLine>set VCInstallDir=$(DevEnvDir)..\..\VC\
-call "%VCInstallDir%vcvarsall.bat"
+call "%VCInstallDir%\Auxiliary\Build\vcvarsall.bat" x86 8.1
 
 pushd "$(SolutionDir)\Data"
-"%VCInstallDir%\bin\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
+"%VCInstallDir%\Tools\MSVC\14.16.27023\bin\Hostx86\x86\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
 fc UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs &gt; nul
 if "%ERRORLEVEL%" == "0" goto done1
 copy UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs
@@ -85,10 +85,10 @@ popd
 
 </NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>set VCInstallDir=$(DevEnvDir)..\..\VC\
-call "%VCInstallDir%vcvarsall.bat"
+call "%VCInstallDir%\Auxiliary\Build\vcvarsall.bat" x86 8.1
 
 pushd "$(SolutionDir)\Data"
-"%VCInstallDir%\bin\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
+"%VCInstallDir%\Tools\MSVC\14.16.27023\bin\Hostx86\x86\cl.exe" /nologo /C /EP UserBlendOps.Generated.H.cs &gt; UserBlendOps.Generated.cs.temp
 fc UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs &gt; nul
 if "%ERRORLEVEL%" == "0" goto done1
 copy UserBlendOps.Generated.cs.temp UserBlendOps.Generated.cs

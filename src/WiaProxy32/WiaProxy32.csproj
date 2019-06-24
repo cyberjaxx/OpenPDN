@@ -75,8 +75,8 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>@rem Embed manifest
-call "$(SolutionDir)Manifests\embedManifest.bat" "$(TargetPath)" "$(SolutionDir)Manifests\asInvoker.xml"
-call "$(SolutionDir)Manifests\embedManifest.bat" "$(ProjectDir)obj\$(PlatformName)\$(ConfigurationName)\$(TargetFileName)" "$(SolutionDir)Manifests\asInvoker.xml"
+rem  call "$(SolutionDir)Manifests\embedManifest.bat" "$(TargetPath)" "$(SolutionDir)Manifests\asInvoker.xml"
+rem call "$(SolutionDir)Manifests\embedManifest.bat" "$(ProjectDir)obj\$(PlatformName)\$(ConfigurationName)\$(TargetFileName)" "$(SolutionDir)Manifests\asInvoker.xml"
 
 @rem Sign
 rem call "$(SolutionDir)signfile.bat" "$(ProjectDir)obj\$(PlatformName)\$(ConfigurationName)\$(TargetFileName)"
