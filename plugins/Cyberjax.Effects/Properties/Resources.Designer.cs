@@ -71,11 +71,21 @@ namespace Cyberjax.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Angle Deviance Graph.
+        ///   Looks up a localized string similar to Create Brush.
         /// </summary>
-        internal static string AngleDevianceEffectName {
+        internal static string BrushEffectName {
             get {
-                return ResourceManager.GetString("AngleDevianceEffectName", resourceCulture);
+                return ResourceManager.GetString("BrushEffectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap BulgeEffect {
+            get {
+                object obj = ResourceManager.GetObject("BulgeEffect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -90,29 +100,11 @@ namespace Cyberjax.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color Delta Graph.
+        ///   Looks up a localized string similar to Color Mask.
         /// </summary>
-        internal static string ColorDeltaGraphEffectName {
+        internal static string ColorMaskEffectName {
             get {
-                return ResourceManager.GetString("ColorDeltaGraphEffectName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Color Distance Graph.
-        /// </summary>
-        internal static string ColorDistanceGraphEffectName {
-            get {
-                return ResourceManager.GetString("ColorDistanceGraphEffectName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Color Tolerance Mask.
-        /// </summary>
-        internal static string ColorToleranceEffectName {
-            get {
-                return ResourceManager.GetString("ColorToleranceEffectName", resourceCulture);
+                return ResourceManager.GetString("ColorMaskEffectName", resourceCulture);
             }
         }
         
@@ -126,11 +118,38 @@ namespace Cyberjax.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to X-tract Alpha Channel.
+        ///   Looks up a localized string similar to Distortion Effect.
         /// </summary>
-        internal static string ExtractAlpha2EffectName {
+        internal static string DistortionEffectName {
             get {
-                return ResourceManager.GetString("ExtractAlpha2EffectName", resourceCulture);
+                return ResourceManager.GetString("DistortionEffectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dual Distortion Effect.
+        /// </summary>
+        internal static string DualDistortionEffectName {
+            get {
+                return ResourceManager.GetString("DualDistortionEffectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cyberjax.
+        /// </summary>
+        internal static string EffectSubMenuName {
+            get {
+                return ResourceManager.GetString("EffectSubMenuName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Elliptical Bulge Effect.
+        /// </summary>
+        internal static string EllipticalBulgeEffectName {
+            get {
+                return ResourceManager.GetString("EllipticalBulgeEffectName", resourceCulture);
             }
         }
         
@@ -192,6 +211,43 @@ namespace Cyberjax.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap LineEffect {
+            get {
+                object obj = ResourceManager.GetObject("LineEffect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Draw Line.
+        /// </summary>
+        internal static string LineEffectName {
+            get {
+                return ResourceManager.GetString("LineEffectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Point 0.
+        /// </summary>
+        internal static string LineEffectOffset0Text {
+            get {
+                return ResourceManager.GetString("LineEffectOffset0Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Point 1.
+        /// </summary>
+        internal static string LineEffectOffset1Text {
+            get {
+                return ResourceManager.GetString("LineEffectOffset1Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap MaskEffect {
             get {
                 object obj = ResourceManager.GetObject("MaskEffect", resourceCulture);
@@ -222,6 +278,25 @@ namespace Cyberjax.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap PerformanceEffect {
+            get {
+                object obj = ResourceManager.GetObject("PerformanceEffect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Performace.
+        /// </summary>
+        internal static string PerformanceEffectName {
+            get {
+                return ResourceManager.GetString("PerformanceEffectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ReplaceTransColorEffect {
             get {
                 object obj = ResourceManager.GetObject("ReplaceTransColorEffect", resourceCulture);
@@ -235,6 +310,16 @@ namespace Cyberjax.Properties {
         internal static string ReplaceTransColorEffectName {
             get {
                 return ResourceManager.GetString("ReplaceTransColorEffectName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ResetIcon {
+            get {
+                object obj = ResourceManager.GetObject("ResetIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

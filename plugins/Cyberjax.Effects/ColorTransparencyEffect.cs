@@ -6,8 +6,8 @@ using System.Drawing;
 
 namespace Cyberjax
 {
-    [EffectCategory(EffectCategory.Adjustment)]
-    public sealed class ColorTransparencyEffect
+    [EffectCategory(EffectCategory.Effect)]
+    public class ColorTransparencyEffect
         : PropertyBasedEffect
     {
         private Color2AlphaOp PixelOp { get; set; }
@@ -30,7 +30,7 @@ namespace Cyberjax
         public ColorTransparencyEffect()
             : base(Properties.Resources.ColorTransparencyEffectName,
                    Properties.Resources.MaskEffect3,
-                   null,
+                   "Cyberjax",
                    EffectFlags.None)
         {
             PixelOp = new Color2AlphaOp();

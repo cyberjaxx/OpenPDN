@@ -15,7 +15,7 @@ using System.Drawing;
 
 namespace Cyberjax
 {
-    [EffectCategory(EffectCategory.Adjustment)]
+    [EffectCategory(EffectCategory.Effect)]
     public sealed class HueSaturationEffect
         : PropertyBasedEffect
     {
@@ -27,7 +27,7 @@ namespace Cyberjax
         public HueSaturationEffect()
             : base(Properties.Resources.HueSaturationEffectName,
                    Properties.Resources.HueSaturation,
-                   null,
+                   "Cyberjax",
                    EffectFlags.None)
         {
         }
@@ -35,8 +35,8 @@ namespace Cyberjax
         protected unsafe override void OnRender(Rectangle[] rois, int startIndex, int length)
         {
             Surface dst = DstArgs.Surface;
-            int w = dst.Width - 1;
-            int h = dst.Height - 1;
+            int maxX = dst.Width - 1;
+            int maxY = dst.Height - 1;
 
             for (int r = startIndex; r < startIndex + length; ++r)
             {
@@ -46,11 +46,11 @@ namespace Cyberjax
                 {
                     ColorBgra* dstPtr = dst.GetPointAddressUnchecked(rect.Left, y);
 
-                    float saturation = (float)y / h;
+                    float saturation = (float)y / maxY;
 
                     for (int x = rect.Left; x < rect.Right; ++x)
                     {
-                        float hue = x * 360.0f / w;
+                        float hue = x * 360.0f / maxX;
 
                         *dstPtr++ = ColorBgraExt.FromAhsl(1.0f, hue, 1.0f - saturation, 0.5f);
                     }

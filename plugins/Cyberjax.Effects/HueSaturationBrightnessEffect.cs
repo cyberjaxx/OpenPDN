@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace Cyberjax
 {
-    [EffectCategory(EffectCategory.Adjustment)]
+    [EffectCategory(EffectCategory.Effect)]
     public sealed class HueSaturationBrightnessEffect
         : PropertyBasedEffect
     {
@@ -18,7 +18,7 @@ namespace Cyberjax
         public HueSaturationBrightnessEffect()
             : base(Properties.Resources.HueSaturationBrightnessEffectName,
                    Properties.Resources.HueSaturation,
-                   null,
+                   "Cyberjax",
                    EffectFlags.None)
         {
         }
@@ -26,8 +26,8 @@ namespace Cyberjax
         protected unsafe override void OnRender(Rectangle[] rois, int startIndex, int length)
         {
             Surface dst = DstArgs.Surface;
-            int w = dst.Width - 1;
-            int h = dst.Height - 1;
+            int maxX = dst.Width - 1;
+            int maxY = dst.Height - 1;
             int bands = 8;
 
             for (int r = startIndex; r < startIndex + length; ++r)
@@ -37,12 +37,12 @@ namespace Cyberjax
                 for (int y = rect.Top; y < rect.Bottom; ++y)
                 {
                     ColorBgra* dstPtr = dst.GetPointAddressUnchecked(rect.Left, y);
-                    int band = Math.DivRem(y * bands + h - 1, h, out int rem);
-                    float saturation = (float)rem / h;
+                    int band = Math.DivRem(y * bands + maxY - 1, maxY, out int rem);
+                    float saturation = (float)rem / maxY;
 
                     for (int x = rect.Left; x < rect.Right; ++x)
                     {
-                        float hue = x * 360.0f / w;
+                        float hue = x * 360.0f / maxX;
 
                         *dstPtr++ = ColorBgraExt.FromAhsl(1.0f, hue, 1.0f - saturation, (float)band / bands);
                     }

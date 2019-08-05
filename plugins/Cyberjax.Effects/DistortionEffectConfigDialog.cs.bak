@@ -1,0 +1,476 @@
+﻿/////////////////////////////////////////////////////////////////////////////////
+// Paint.NET                                                                   //
+// Copyright (C) dotPDN LLC, Rick Brewster, Tom Jackson, and contributors.     //
+// Portions Copyright (C) Microsoft Corporation. All Rights Reserved.          //
+// See src/Resources/Files/License.txt for full licensing and attribution      //
+// details.                                                                    //
+// .                                                                           //
+/////////////////////////////////////////////////////////////////////////////////
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+using PaintDotNet;
+using PaintDotNet.Effects;
+
+namespace Cyberjax
+{
+    public sealed class DistortionEffectConfigDialog
+        : EffectConfigDialog
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.Button okButton;
+        private PaintDotNet.HeaderLabel distortionHeader;
+        private Label labelCoordinates;
+        private XYCurveControl curveControl;
+        private CheckBox checkBoxY;
+        private CheckBox checkBoxX;
+        private Button resetButtonMap;
+        private HeaderLabel offsetHeader;
+        private PaintDotNet.Core.PanControl panControl;
+        private PdnNumericUpDown pdnNumericUpDownX;
+        private PdnNumericUpDown pdnNumericUpDownY;
+        private Button resetButtonX;
+        private Button resetButtonY;
+        private Label labelHelpText;
+
+        private double ValueX
+        {
+            get => ((DistortionEffectConfigToken)EffectToken).ValueX;
+            set => ((DistortionEffectConfigToken)EffectToken).ValueX = value;
+        }
+        private double ValueY
+        {
+            get => ((DistortionEffectConfigToken)EffectToken).ValueY;
+            set => ((DistortionEffectConfigToken)EffectToken).ValueY = value;
+        }
+
+        [Browsable(false)]
+        public double MinValueX { get; set; }
+        [Browsable(false)]
+        public double MaxValueX { get; set; }
+
+        [Browsable(false)]
+        public double MinValueY { get; set; }
+        [Browsable(false)]
+        public double MaxValueY { get; set; }
+
+
+        [Browsable(false)]
+        public ImageResource StaticImageUnderlay
+        {
+            get
+            {
+                return panControl.StaticImageUnderlay;
+            }
+
+            set
+            {
+                panControl.StaticImageUnderlay = value;
+
+                if (value == null)
+                {
+                    panControl.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else
+                {
+                    panControl.BorderStyle = BorderStyle.None;
+                }
+            }
+        }
+
+        public DistortionEffectConfigDialog()
+        {
+            InitializeComponent();
+
+            pdnNumericUpDownX.DecimalPlaces = 2;
+            pdnNumericUpDownY.DecimalPlaces = 2;
+        }
+
+        protected override void InitialInitToken()
+        {
+            DistortionEffectConfigToken token = new DistortionEffectConfigToken();
+            theEffectToken = token;
+        }
+
+        protected override void InitTokenFromDialog()
+        {
+            ((DistortionEffectConfigToken)EffectToken).ControlPoints = (SortedList<int, int>[])curveControl.ControlPoints.Clone();
+        }
+
+        protected override void InitDialogFromToken(EffectConfigToken effectToken)
+        {
+            DistortionEffectConfigToken token = (DistortionEffectConfigToken)effectToken;
+
+            curveControl.ControlPoints = (SortedList<int, int>[])token.ControlPoints.Clone();
+            curveControl.Invalidate();
+            curveControl.Update();
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (components != null)
+                {
+                    components.Dispose();
+                    components = null;
+                }
+            }
+
+            base.Dispose(disposing);
+        }
+
+        #region Designer generated code
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DistortionEffectConfigDialog));
+            this.cancelButton = new System.Windows.Forms.Button();
+            this.okButton = new System.Windows.Forms.Button();
+            this.distortionHeader = new PaintDotNet.HeaderLabel();
+            this.labelCoordinates = new System.Windows.Forms.Label();
+            this.labelHelpText = new System.Windows.Forms.Label();
+            this.checkBoxY = new System.Windows.Forms.CheckBox();
+            this.checkBoxX = new System.Windows.Forms.CheckBox();
+            this.resetButtonMap = new System.Windows.Forms.Button();
+            this.offsetHeader = new PaintDotNet.HeaderLabel();
+            this.panControl = new PaintDotNet.Core.PanControl();
+            this.pdnNumericUpDownX = new PaintDotNet.PdnNumericUpDown();
+            this.pdnNumericUpDownY = new PaintDotNet.PdnNumericUpDown();
+            this.curveControl = new Cyberjax.XYCurveControl();
+            this.resetButtonX = new System.Windows.Forms.Button();
+            this.resetButtonY = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.pdnNumericUpDownX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pdnNumericUpDownY)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // cancelButton
+            // 
+            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.cancelButton.Location = new System.Drawing.Point(186, 538);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(81, 23);
+            this.cancelButton.TabIndex = 5;
+            this.cancelButton.Text = "Cancel";
+            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
+            // 
+            // okButton
+            // 
+            this.okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.okButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.okButton.Location = new System.Drawing.Point(9, 538);
+            this.okButton.Name = "okButton";
+            this.okButton.Size = new System.Drawing.Size(81, 23);
+            this.okButton.TabIndex = 4;
+            this.okButton.Text = "OK";
+            this.okButton.Click += new System.EventHandler(this.okButton_Click);
+            // 
+            // distortionHeader
+            // 
+            this.distortionHeader.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.distortionHeader.Location = new System.Drawing.Point(10, 2);
+            this.distortionHeader.Margin = new System.Windows.Forms.Padding(1, 3, 1, 1);
+            this.distortionHeader.Name = "distortionHeader";
+            this.distortionHeader.RightMargin = 0;
+            this.distortionHeader.Size = new System.Drawing.Size(257, 17);
+            this.distortionHeader.TabIndex = 20;
+            this.distortionHeader.TabStop = false;
+            this.distortionHeader.Text = "Distortion Map";
+            // 
+            // labelCoordinates
+            // 
+            this.labelCoordinates.Location = new System.Drawing.Point(199, 20);
+            this.labelCoordinates.Name = "labelCoordinates";
+            this.labelCoordinates.Size = new System.Drawing.Size(68, 17);
+            this.labelCoordinates.TabIndex = 25;
+            this.labelCoordinates.Text = "(199, 199)";
+            this.labelCoordinates.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // labelHelpText
+            // 
+            this.labelHelpText.Location = new System.Drawing.Point(12, 330);
+            this.labelHelpText.Name = "labelHelpText";
+            this.labelHelpText.Size = new System.Drawing.Size(255, 17);
+            this.labelHelpText.TabIndex = 26;
+            this.labelHelpText.Text = "Tip: Right - click to remove control points.";
+            // 
+            // checkBoxY
+            // 
+            this.checkBoxY.AutoSize = true;
+            this.checkBoxY.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.checkBoxY.Location = new System.Drawing.Point(55, 307);
+            this.checkBoxY.Name = "checkBoxY";
+            this.checkBoxY.Size = new System.Drawing.Size(39, 18);
+            this.checkBoxY.TabIndex = 29;
+            this.checkBoxY.Text = "Y";
+            this.checkBoxY.UseVisualStyleBackColor = true;
+            this.checkBoxY.CheckedChanged += new System.EventHandler(this.checkBoxY_CheckedChanged);
+            // 
+            // checkBoxX
+            // 
+            this.checkBoxX.AutoSize = true;
+            this.checkBoxX.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.checkBoxX.Location = new System.Drawing.Point(10, 307);
+            this.checkBoxX.Name = "checkBoxX";
+            this.checkBoxX.Size = new System.Drawing.Size(39, 18);
+            this.checkBoxX.TabIndex = 28;
+            this.checkBoxX.Text = "X";
+            this.checkBoxX.UseVisualStyleBackColor = true;
+            this.checkBoxX.CheckedChanged += new System.EventHandler(this.checkBoxX_CheckedChanged);
+            // 
+            // resetButtonMap
+            // 
+            this.resetButtonMap.Image = global::Cyberjax.Properties.Resources.ResetIcon;
+            this.resetButtonMap.Location = new System.Drawing.Point(100, 307);
+            this.resetButtonMap.Name = "resetButtonMap";
+            this.resetButtonMap.Size = new System.Drawing.Size(20, 20);
+            this.resetButtonMap.TabIndex = 30;
+            this.resetButtonMap.UseVisualStyleBackColor = true;
+            this.resetButtonMap.Click += new System.EventHandler(this.resetButtonMap_Click);
+            // 
+            // offsetHeader
+            // 
+            this.offsetHeader.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.offsetHeader.Location = new System.Drawing.Point(10, 350);
+            this.offsetHeader.Margin = new System.Windows.Forms.Padding(1, 3, 1, 1);
+            this.offsetHeader.Name = "offsetHeader";
+            this.offsetHeader.RightMargin = 0;
+            this.offsetHeader.Size = new System.Drawing.Size(257, 17);
+            this.offsetHeader.TabIndex = 31;
+            this.offsetHeader.TabStop = false;
+            this.offsetHeader.Text = "Offset";
+            // 
+            // panControl
+            // 
+            this.panControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panControl.Location = new System.Drawing.Point(10, 372);
+            this.panControl.Name = "panControl";
+            this.panControl.Position = ((System.Drawing.PointF)(resources.GetObject("panControl.Position")));
+            this.panControl.Size = new System.Drawing.Size(160, 160);
+            this.panControl.StaticImageUnderlay = null;
+            this.panControl.TabIndex = 32;
+            this.panControl.TabStop = false;
+            // 
+            // pdnNumericUpDownX
+            // 
+            this.pdnNumericUpDownX.Location = new System.Drawing.Point(176, 371);
+            this.pdnNumericUpDownX.Name = "pdnNumericUpDownX";
+            this.pdnNumericUpDownX.Size = new System.Drawing.Size(65, 20);
+            this.pdnNumericUpDownX.TabIndex = 33;
+            this.pdnNumericUpDownX.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.pdnNumericUpDownX.ValueChanged += new System.EventHandler(this.pdnNumericUpDownX_ValueChanged);
+            // 
+            // pdnNumericUpDownY
+            // 
+            this.pdnNumericUpDownY.Location = new System.Drawing.Point(176, 397);
+            this.pdnNumericUpDownY.Name = "pdnNumericUpDownY";
+            this.pdnNumericUpDownY.Size = new System.Drawing.Size(65, 20);
+            this.pdnNumericUpDownY.TabIndex = 34;
+            this.pdnNumericUpDownY.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.pdnNumericUpDownY.ValueChanged += new System.EventHandler(this.pdnNumericUpDownY_ValueChanged);
+            // 
+            // curveControl
+            // 
+            this.curveControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.curveControl.ControlPoints = new System.Collections.Generic.SortedList<int, int>[] {
+        ((System.Collections.Generic.SortedList<int, int>)(resources.GetObject("curveControl.ControlPoints"))),
+        ((System.Collections.Generic.SortedList<int, int>)(resources.GetObject("curveControl.ControlPoints1")))};
+            this.curveControl.Location = new System.Drawing.Point(9, 42);
+            this.curveControl.Margin = new System.Windows.Forms.Padding(0);
+            this.curveControl.Name = "curveControl";
+            this.curveControl.Size = new System.Drawing.Size(258, 258);
+            this.curveControl.TabIndex = 27;
+            this.curveControl.TabStop = false;
+            // 
+            // resetButtonX
+            // 
+            this.resetButtonX.Image = global::Cyberjax.Properties.Resources.ResetIcon;
+            this.resetButtonX.Location = new System.Drawing.Point(247, 371);
+            this.resetButtonX.Name = "resetButtonX";
+            this.resetButtonX.Size = new System.Drawing.Size(20, 20);
+            this.resetButtonX.TabIndex = 35;
+            this.resetButtonX.UseVisualStyleBackColor = true;
+            this.resetButtonX.Click += new System.EventHandler(this.resetButtonX_Click);
+            // 
+            // resetButtonY
+            // 
+            this.resetButtonY.Image = global::Cyberjax.Properties.Resources.ResetIcon;
+            this.resetButtonY.Location = new System.Drawing.Point(247, 397);
+            this.resetButtonY.Name = "resetButtonY";
+            this.resetButtonY.Size = new System.Drawing.Size(20, 20);
+            this.resetButtonY.TabIndex = 36;
+            this.resetButtonY.UseVisualStyleBackColor = true;
+            this.resetButtonY.Click += new System.EventHandler(this.resetButtonY_Click);
+            // 
+            // DistortionEffectConfigDialog
+            // 
+            this.AcceptButton = this.okButton;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.CancelButton = this.cancelButton;
+            this.ClientSize = new System.Drawing.Size(276, 573);
+            this.Controls.Add(this.resetButtonY);
+            this.Controls.Add(this.resetButtonX);
+            this.Controls.Add(this.pdnNumericUpDownY);
+            this.Controls.Add(this.pdnNumericUpDownX);
+            this.Controls.Add(this.panControl);
+            this.Controls.Add(this.offsetHeader);
+            this.Controls.Add(this.resetButtonMap);
+            this.Controls.Add(this.checkBoxY);
+            this.Controls.Add(this.checkBoxX);
+            this.Controls.Add(this.curveControl);
+            this.Controls.Add(this.labelHelpText);
+            this.Controls.Add(this.cancelButton);
+            this.Controls.Add(this.okButton);
+            this.Controls.Add(this.distortionHeader);
+            this.Controls.Add(this.labelCoordinates);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.Location = new System.Drawing.Point(0, 0);
+            this.MinimumSize = new System.Drawing.Size(260, 276);
+            this.Name = "DistortionEffectConfigDialog";
+            this.Text = "Distortion Effect";
+            this.Controls.SetChildIndex(this.labelCoordinates, 0);
+            this.Controls.SetChildIndex(this.distortionHeader, 0);
+            this.Controls.SetChildIndex(this.okButton, 0);
+            this.Controls.SetChildIndex(this.cancelButton, 0);
+            this.Controls.SetChildIndex(this.labelHelpText, 0);
+            this.Controls.SetChildIndex(this.curveControl, 0);
+            this.Controls.SetChildIndex(this.checkBoxX, 0);
+            this.Controls.SetChildIndex(this.checkBoxY, 0);
+            this.Controls.SetChildIndex(this.resetButtonMap, 0);
+            this.Controls.SetChildIndex(this.offsetHeader, 0);
+            this.Controls.SetChildIndex(this.panControl, 0);
+            this.Controls.SetChildIndex(this.pdnNumericUpDownX, 0);
+            this.Controls.SetChildIndex(this.pdnNumericUpDownY, 0);
+            this.Controls.SetChildIndex(this.resetButtonX, 0);
+            this.Controls.SetChildIndex(this.resetButtonY, 0);
+            ((System.ComponentModel.ISupportInitialize)(this.pdnNumericUpDownX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pdnNumericUpDownY)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private void resetButtonX_Click(object sender, EventArgs e)
+        {
+            ValueX = 0.0;
+            OnValueChanged();
+        }
+
+        private void resetButtonY_Click(object sender, EventArgs e)
+        {
+            ValueY = 0.0;
+            OnValueChanged();
+        }
+
+        private void resetButtonMap_Click(object sender, EventArgs e)
+        {
+            curveControl.ResetControlPoints();
+            FinishTokenUpdate();
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            okButton.Select();
+            base.OnLoad(e);
+        }
+
+        private void okButton_Click(object sender, System.EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void cancelButton_Click(object sender, System.EventArgs e)
+        {
+            Close();
+        }
+
+        private void curveControl_ValueChanged(object sender, EventArgs e)
+        {
+            FinishTokenUpdate();
+        }
+
+        private void curveControl_CoordinatesChanged(object sender, EventArgs<Point> e)
+        {
+            Point pt = e.Data;
+            string newText;
+
+            if (pt.X >= 0)
+            {
+                newText = string.Format("({0}, {1})", pt.X, pt.Y);
+            }
+            else
+            {
+                newText = string.Empty;
+            }
+
+            if (newText != labelCoordinates.Text)
+            {
+                labelCoordinates.Text = newText;
+                labelCoordinates.Update();
+            }
+        }
+
+        private void checkBoxX_CheckedChanged(object sender, EventArgs e)
+        {
+            curveControl.SetSelected(0, checkBoxX.Checked);
+        }
+
+        private void checkBoxY_CheckedChanged(object sender, EventArgs e)
+        {
+            curveControl.SetSelected(1, checkBoxY.Checked);
+        }
+
+        private void OnValueChanged()
+        {
+            PointF newPos = new PointF((float)ValueX, (float)ValueY);
+            panControl.Position = newPos;
+
+            pdnNumericUpDownX.Value = (decimal)ValueX;
+            pdnNumericUpDownY.Value = (decimal)ValueY;
+
+            FinishTokenUpdate();
+        }
+
+        private void panControl_PositionChanged(object sender, EventArgs e)
+        {
+            PointF pos = panControl.Position;
+
+            PointF clampedPos = new PointF(
+                Utility.Clamp(pos.X, (float)MinValueX, (float)MaxValueX),
+                Utility.Clamp(pos.Y, (float)MinValueY, (float)MaxValueY));
+
+            panControl.Position = clampedPos;
+
+            ValueX = clampedPos.X;
+            ValueY = clampedPos.Y;
+
+            OnValueChanged();
+        }
+
+        private void pdnNumericUpDownX_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pdnNumericUpDownY_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+

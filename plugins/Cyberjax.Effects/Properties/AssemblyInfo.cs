@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Cyberjax.Effects")]
-[assembly: AssemblyDescription("Effects plugin for PaintDotNet")]
+[assembly: AssemblyTitle("Cyberjax")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Cyberjax.com")]
-[assembly: AssemblyProduct("Cyberjax.Effects")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Cyberjax")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

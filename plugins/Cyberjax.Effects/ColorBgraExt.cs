@@ -84,6 +84,18 @@ namespace Cyberjax
         }
 
         /// <summary>
+        /// Returns the color after scaling the sums. Alpha is ignored.
+        /// </summary>
+        /// <returns></returns>
+        public static ColorBgra FromBgrSumScaled(float sumB, float sumG, float sumR, float scale)
+        {
+            byte red = Utility.ClampToByte(Math.Round(sumR * scale));
+            byte green = Utility.ClampToByte(Math.Round(sumG * scale));
+            byte blue = Utility.ClampToByte(Math.Round(sumB * scale));
+            return ColorBgra.FromBgr(blue, green, red);
+        }
+
+        /// <summary>
         /// Returns a Point3D object where X = R, Y = G, & Z = B. Alpha is ignored.
         /// </summary>
         /// <returns></returns>

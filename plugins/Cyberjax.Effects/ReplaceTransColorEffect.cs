@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace Cyberjax
 {
-    [EffectCategory(EffectCategory.Adjustment)]
+    [EffectCategory(EffectCategory.Effect)]
     public sealed class ReplaceTransColorEffect
         : PropertyBasedEffect
     {
@@ -29,7 +29,7 @@ namespace Cyberjax
         public ReplaceTransColorEffect()
             : base(Properties.Resources.ReplaceTransColorEffectName,
                    Properties.Resources.ReplaceTransColorEffect,
-                   null,
+                   "Cyberjax",
                    EffectFlags.None)
         {
             PixelOp = new ReplaceTransColorOp();
