@@ -35,12 +35,7 @@ namespace PaintDotNet
 
         private void Dispose(bool disposing)
         {
-            Procedure callback2 = Interlocked.Exchange(ref this.callback, null);
-
-            if (callback2 != null)
-            {
-                callback2();
-            }
+            Interlocked.Exchange(ref this.callback, null)?.Invoke();
         }
     }
 }

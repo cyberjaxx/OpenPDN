@@ -15,20 +15,13 @@ namespace PaintDotNet
     public sealed class Win32Window
         : IWin32Window
     {
-        private IntPtr handle;
         private object container;
 
-        public IntPtr Handle
-        {
-            get
-            {
-                return this.handle;
-            }
-        }
+        public IntPtr Handle { get; }
 
         public Win32Window(IntPtr handle, object container)
         {
-            this.handle = handle;
+            this.Handle = handle;
             this.container = container;
         }
     }

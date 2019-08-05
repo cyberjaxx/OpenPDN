@@ -15,33 +15,11 @@ namespace PaintDotNet
     [Serializable]
     public struct Triple<T, U, V>
     {
-        private T first;
-        private U second;
-        private V third;
+        public T First { get; }
 
-        public T First
-        {
-            get
-            {
-                return this.first;
-            }
-        }
+        public U Second { get; }
 
-        public U Second
-        {
-            get
-            {
-                return this.second;
-            }
-        }
-
-        public V Third
-        {
-            get
-            {
-                return this.third;
-            }
-        }
+        public V Third { get; }
 
         public override int GetHashCode()
         {
@@ -49,31 +27,31 @@ namespace PaintDotNet
             int secondHash;
             int thirdHash;
 
-            if (object.ReferenceEquals(this.first, null))
+            if (object.ReferenceEquals(this.First, null))
             {
                 firstHash = 0;
             }
             else
             {
-                firstHash = this.first.GetHashCode();
+                firstHash = this.First.GetHashCode();
             }
 
-            if (object.ReferenceEquals(this.second, null))
+            if (object.ReferenceEquals(this.Second, null))
             {
                 secondHash = 0;
             }
             else
             {
-                secondHash = this.second.GetHashCode();
+                secondHash = this.Second.GetHashCode();
             }
 
-            if (object.ReferenceEquals(this.third, null))
+            if (object.ReferenceEquals(this.Third, null))
             {
                 thirdHash = 0;
             }
             else
             {
-                thirdHash = this.third.GetHashCode();
+                thirdHash = this.Third.GetHashCode();
             }
 
             return firstHash ^ secondHash ^ thirdHash;
@@ -139,9 +117,9 @@ namespace PaintDotNet
 
         public Triple(T first, U second, V third)
         {
-            this.first = first;
-            this.second = second;
-            this.third = third;
+            this.First = first;
+            this.Second = second;
+            this.Third = third;
         }
 
         private sealed class TripleComparer

@@ -16,9 +16,6 @@ namespace PaintDotNet
 {
     public sealed class Vector<T>
     {
-        private int count = 0;
-        private T[] array;
-        
         public Vector()
             : this(10)
         {
@@ -26,7 +23,7 @@ namespace PaintDotNet
 
         public Vector(int capacity)
         {
-            this.array = new T[capacity];
+            this.UnsafeArray = new T[capacity];
         }
 
         public Vector(IEnumerable<T> copyMe)
@@ -39,35 +36,35 @@ namespace PaintDotNet
 
         public void Add(T pt)
         {
-            if (this.count >= this.array.Length)
+            if (this.Count >= this.UnsafeArray.Length)
             {
-                Grow(this.count + 1);
+                Grow(this.Count + 1);
             }
 
-            this.array[this.count] = pt;
-            ++this.count;
+            this.UnsafeArray[this.Count] = pt;
+            ++this.Count;
         }
 
         public void Insert(int index, T item)
         {
-            if (this.count >= this.array.Length)
+            if (this.Count >= this.UnsafeArray.Length)
             {
-                Grow(this.count + 1);
+                Grow(this.Count + 1);
             }
 
-            ++this.count;
+            ++this.Count;
 
-            for (int i = this.count - 1; i >= index + 1; --i)
+            for (int i = this.Count - 1; i >= index + 1; --i)
             {
-                this.array[i] = this.array[i - 1];
+                this.UnsafeArray[i] = this.UnsafeArray[i - 1];
             }
 
-            this.array[index] = item;
+            this.UnsafeArray[index] = item;
         }
 
         public void Clear()
         {
-            this.count = 0;
+            this.Count = 0;
         }
 
         public T this[int index]
@@ -85,17 +82,17 @@ namespace PaintDotNet
 
         public T Get(int index)
         {
-            if (index < 0 || index >= this.count)
+            if (index < 0 || index >= this.Count)
             {
                 throw new ArgumentOutOfRangeException("index", index, "0 <= index < count");
             }
 
-            return this.array[index];
+            return this.UnsafeArray[index];
         }
 
         public unsafe T GetUnchecked(int index)
         {
-            return this.array[index];
+            return this.UnsafeArray[index];
         }
 
         public void Set(int index, T pt)
@@ -105,25 +102,19 @@ namespace PaintDotNet
                 throw new ArgumentOutOfRangeException("index", index, "0 <= index");
             }
 
-            if (index >= this.array.Length)
+            if (index >= this.UnsafeArray.Length)
             {
                 Grow(index + 1);
             }
 
-            this.array[index] = pt;
+            this.UnsafeArray[index] = pt;
         }
 
-        public int Count
-        {
-            get
-            {
-                return this.count;
-            }
-        }
+        public int Count { get; private set; } = 0;
 
         private void Grow(int min)
         {
-            int newSize = this.array.Length;
+            int newSize = this.UnsafeArray.Length;
 
             if (newSize <= 0)
             {
@@ -137,33 +128,27 @@ namespace PaintDotNet
 
             T[] replacement = new T[newSize];
 
-            for (int i = 0; i < this.count; i++)
+            for (int i = 0; i < this.Count; i++)
             {
-                replacement[i] = this.array[i];
+                replacement[i] = this.UnsafeArray[i];
             }
 
-            this.array = replacement;
+            this.UnsafeArray = replacement;
         }
 
         public T[] ToArray()
         {
-            T[] ret = new T[this.count];
+            T[] ret = new T[this.Count];
 
-            for (int i = 0; i < this.count; i++)
+            for (int i = 0; i < this.Count; i++)
             {
-                ret[i] = this.array[i];
+                ret[i] = this.UnsafeArray[i];
             }
 
             return ret;
         }
 
-        public unsafe T[] UnsafeArray
-        {
-            get
-            {
-                return this.array;
-            }
-        }
+        public unsafe T[] UnsafeArray { get; private set; }
 
         /// <summary>
         /// Gets direct access to the array held by the Vector.
@@ -174,8 +159,8 @@ namespace PaintDotNet
         /// <remarks>This method is supplied strictly for performance-critical purposes.</remarks>
         public unsafe void GetArrayReadOnly(out T[] arrayResult, out int lengthResult)
         {
-            arrayResult = this.array;
-            lengthResult = this.count;
+            arrayResult = this.UnsafeArray;
+            lengthResult = this.Count;
         }
     }
 }
