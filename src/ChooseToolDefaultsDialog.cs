@@ -11,7 +11,6 @@ using PaintDotNet.SystemLayer;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -34,57 +33,36 @@ namespace PaintDotNet
 
         private sealed class ToolConfigRow
         {
-            private ToolConfigStrip toolConfigStrip;
-            private HeaderLabel headerLabel;
-            private ToolBarConfigItems toolBarConfigItems;
+            public ToolBarConfigItems ToolBarConfigItems { get; }
 
-            public ToolBarConfigItems ToolBarConfigItems
-            {
-                get
-                {
-                    return this.toolBarConfigItems;
-                }
-            }
+            public HeaderLabel HeaderLabel { get; }
 
-            public HeaderLabel HeaderLabel
-            {
-                get
-                {
-                    return this.headerLabel;
-                }
-            }
-
-            public ToolConfigStrip ToolConfigStrip
-            {
-                get
-                {
-                    return this.toolConfigStrip;
-                }
-            }
+            public ToolConfigStrip ToolConfigStrip { get; }
 
             private string GetHeaderResourceName()
             {
-                string resName1 = this.toolBarConfigItems.ToString();
+                string resName1 = this.ToolBarConfigItems.ToString();
                 string resName2 = resName1.Replace(", ", "");
                 return "ChooseToolDefaultsDialog.ToolConfigRow." + resName2 + ".HeaderLabel.Text";
             }
 
             public ToolConfigRow(ToolBarConfigItems toolBarConfigItems)
             {
-                this.toolBarConfigItems = toolBarConfigItems;
+                this.ToolBarConfigItems = toolBarConfigItems;
 
-                this.headerLabel = new HeaderLabel();
-                this.headerLabel.Name = "headerLabel:" + toolBarConfigItems.ToString();
-                this.headerLabel.Text = PdnResources.GetString(GetHeaderResourceName());
-                this.headerLabel.RightMargin = 0;
+                this.HeaderLabel = new HeaderLabel();
+                this.HeaderLabel.Name = "headerLabel:" + toolBarConfigItems.ToString();
+                this.HeaderLabel.Text = PdnResources.GetString(GetHeaderResourceName());
+                this.HeaderLabel.RightMargin = 0;
 
-                this.toolConfigStrip = new ToolConfigStrip();
-                this.toolConfigStrip.Name = "toolConfigStrip:" + toolBarConfigItems.ToString();
-                this.toolConfigStrip.AutoSize = true;
-                this.toolConfigStrip.Dock = DockStyle.None;
-                this.toolConfigStrip.GripStyle = ToolStripGripStyle.Hidden;
-                this.toolConfigStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
-                this.toolConfigStrip.ToolBarConfigItems = this.toolBarConfigItems;
+                this.ToolConfigStrip = new ToolConfigStrip();
+                this.ToolConfigStrip.Name = "toolConfigStrip:" + toolBarConfigItems.ToString();
+                this.ToolConfigStrip.AutoSize = false;
+                this.ToolConfigStrip.Dock = DockStyle.None;
+                this.ToolConfigStrip.GripStyle = ToolStripGripStyle.Hidden;
+                this.ToolConfigStrip.LayoutStyle = ToolStripLayoutStyle.Flow;
+                ((FlowLayoutSettings)this.ToolConfigStrip.LayoutSettings).WrapContents = true;
+                this.ToolConfigStrip.ToolBarConfigItems = this.ToolBarConfigItems;
             }
         }
 
@@ -117,70 +95,70 @@ namespace PaintDotNet
 
             foreach (ToolConfigRow row in this.toolConfigRows)
             {
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.AlphaBlending) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.AlphaBlending))
                 {
                     newAppEnvironment.AlphaBlending = row.ToolConfigStrip.AlphaBlending;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Antialiasing) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Antialiasing))
                 {
                     newAppEnvironment.AntiAliasing = row.ToolConfigStrip.AntiAliasing;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Brush) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Brush))
                 {
                     newAppEnvironment.BrushInfo = row.ToolConfigStrip.BrushInfo;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.ColorPickerBehavior) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.ColorPickerBehavior))
                 {
                     newAppEnvironment.ColorPickerClickBehavior = row.ToolConfigStrip.ColorPickerClickBehavior;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.FloodMode) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.FloodMode))
                 {
                     newAppEnvironment.FloodMode = row.ToolConfigStrip.FloodMode;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Gradient) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Gradient))
                 {
                     newAppEnvironment.GradientInfo = row.ToolConfigStrip.GradientInfo;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Pen) != 0 ||
-                    (row.ToolBarConfigItems & ToolBarConfigItems.PenCaps) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Pen) ||
+                    row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.PenCaps))
                 {
                     newAppEnvironment.PenInfo = row.ToolConfigStrip.PenInfo;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Resampling) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Resampling))
                 {
                     newAppEnvironment.ResamplingAlgorithm = row.ToolConfigStrip.ResamplingAlgorithm;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.SelectionCombineMode) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.SelectionCombineMode))
                 {
                     newAppEnvironment.SelectionCombineMode = row.ToolConfigStrip.SelectionCombineMode;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.SelectionDrawMode) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.SelectionDrawMode))
                 {
                     newAppEnvironment.SelectionDrawModeInfo = row.ToolConfigStrip.SelectionDrawModeInfo;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.ShapeType) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.ShapeType))
                 {
                     newAppEnvironment.ShapeDrawType = row.ToolConfigStrip.ShapeDrawType;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Text) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Text))
                 {
                     newAppEnvironment.FontInfo = row.ToolConfigStrip.FontInfo;
                     newAppEnvironment.FontSmoothing = row.ToolConfigStrip.FontSmoothing;
                     newAppEnvironment.TextAlignment = row.ToolConfigStrip.FontAlignment;
                 }
 
-                if ((row.ToolBarConfigItems & ToolBarConfigItems.Tolerance) != 0)
+                if (row.ToolBarConfigItems.HasFlag(ToolBarConfigItems.Tolerance))
                 {
                     newAppEnvironment.Tolerance = row.ToolConfigStrip.Tolerance;
                 }
@@ -210,7 +188,8 @@ namespace PaintDotNet
 
             InitializeComponent();
 
-            this.toolConfigRows.Add(new ToolConfigRow(ToolBarConfigItems.ShapeType | ToolBarConfigItems.Brush | ToolBarConfigItems.Pen | ToolBarConfigItems.PenCaps));
+            this.toolConfigRows.Add(new ToolConfigRow(ToolBarConfigItems.ShapeType | ToolBarConfigItems.Pen |
+                ToolBarConfigItems.PenCaps | ToolBarConfigItems.Brush));
             this.toolConfigRows.Add(new ToolConfigRow(ToolBarConfigItems.SelectionCombineMode | ToolBarConfigItems.SelectionDrawMode));
             this.toolConfigRows.Add(new ToolConfigRow(ToolBarConfigItems.Text));
             this.toolConfigRows.Add(new ToolConfigRow(ToolBarConfigItems.Gradient));
@@ -248,7 +227,7 @@ namespace PaintDotNet
         public override void LoadResources()
         {
             this.Text = PdnResources.GetString("ChooseToolDefaultsDialog.Text");
-            this.Icon = Utility.ImageToIcon(PdnResources.GetImageResource("Icons.MenuLayersLayerPropertiesIcon.png").Reference);
+            this.Icon = Utility.ImageToIcon(PdnResources.GetImageResource("Icons.SettingsIcon.png").Reference);
 
             this.introText.Text = PdnResources.GetString("ChooseToolDefaultsDialog.IntroText.Text");
             this.defaultToolText.Text = PdnResources.GetString("ChooseToolDefaultsDialog.DefaultToolText.Text");
@@ -289,21 +268,24 @@ namespace PaintDotNet
             int y = vMargin + Math.Max(this.defaultToolText.Bottom, this.toolChooserStrip.Bottom);
             int maxInsetWidth = insetWidth;
 
-            for (int i = 0; i < this.toolConfigRows.Count; ++i)
+            foreach (ToolConfigRow toolConfigRow in this.toolConfigRows)
             {
-                this.toolConfigRows[i].HeaderLabel.Location = new Point(leftMargin, y);
-                this.toolConfigRows[i].HeaderLabel.Width = insetWidth;
-                y = this.toolConfigRows[i].HeaderLabel.Bottom + afterHeaderVMargin;
+                if (!string.IsNullOrEmpty(toolConfigRow.HeaderLabel.Text))
+                {
+                    toolConfigRow.HeaderLabel.Location = new Point(leftMargin, y);
+                    toolConfigRow.HeaderLabel.Width = insetWidth;
+                    y = toolConfigRow.HeaderLabel.Bottom + afterHeaderVMargin;
+                }
 
-                this.toolConfigRows[i].ToolConfigStrip.Location = new Point(leftMargin + 3, y);
-                Size preferredSize = this.toolConfigRows[i].ToolConfigStrip.GetPreferredSize(
-                    new Size(this.toolConfigRows[i].ToolConfigStrip.Width, 1));
+                toolConfigRow.ToolConfigStrip.Location = new Point(leftMargin + 3, y);
+                Size preferredSize = toolConfigRow.ToolConfigStrip.GetPreferredSize(
+                    new Size(maxInsetWidth, 1));
 
-                this.toolConfigRows[i].ToolConfigStrip.Size = preferredSize;
+                toolConfigRow.ToolConfigStrip.Size = preferredSize;
 
-                maxInsetWidth = Math.Max(maxInsetWidth, this.toolConfigRows[i].ToolConfigStrip.Width);
+                maxInsetWidth = Math.Max(maxInsetWidth, toolConfigRow.ToolConfigStrip.Width);
 
-                y = this.toolConfigRows[i].ToolConfigStrip.Bottom + vMargin;
+                y = toolConfigRow.ToolConfigStrip.Bottom + vMargin;
             }
 
             y += vMargin;
@@ -411,7 +393,7 @@ namespace PaintDotNet
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = AutoScaleMode.Dpi;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(448, 173);
+            this.ClientSize = new System.Drawing.Size(450, 173);
             this.Controls.Add(this.resetButton);
             this.Controls.Add(this.loadFromToolBarButton);
             this.Controls.Add(this.introText);
@@ -420,7 +402,7 @@ namespace PaintDotNet
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.toolChooserStrip);
             this.Controls.Add(this.bottomSeparator);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = FormBorderStyle.Sizable;
             this.Location = new System.Drawing.Point(0, 0);
             this.MinimizeBox = false;
             this.MaximizeBox = false;

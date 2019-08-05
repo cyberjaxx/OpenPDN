@@ -9,8 +9,6 @@
 
 using System;
 using System.Drawing;
-using System.Collections;
-using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -18,8 +16,7 @@ namespace PaintDotNet
     internal class HistoryForm
         : FloatingToolForm
     {
-        private PaintDotNet.HistoryControl historyControl;
-        private System.Windows.Forms.ImageList imageList;
+        private ImageList imageList;
         private PaintDotNet.SystemLayer.ToolStripEx toolStrip;
         private ToolStripButton rewindButton;
         private ToolStripButton undoButton;
@@ -27,13 +24,7 @@ namespace PaintDotNet
         private ToolStripButton fastForwardButton;
         private System.ComponentModel.IContainer components;
 
-        public HistoryControl HistoryControl
-        {
-            get
-            {
-                return historyControl;
-            }
-        }
+        public HistoryControl HistoryControl { get; private set; }
 
         public HistoryForm()
         {
@@ -71,9 +62,9 @@ namespace PaintDotNet
 
             // We have to test for null in case Layout is raised before our 
             // InitializeComponent is called (or is finished)
-            if (historyControl != null)
+            if (HistoryControl != null)
             {
-                historyControl.Size = new Size(ClientRectangle.Width, ClientRectangle.Height - (toolStrip.Height + 
+                HistoryControl.Size = new Size(ClientRectangle.Width, ClientRectangle.Height - (toolStrip.Height + 
                     (ClientRectangle.Height - toolStrip.Bottom)));
             }
         }
@@ -103,7 +94,7 @@ namespace PaintDotNet
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.historyControl = new PaintDotNet.HistoryControl();
+            this.HistoryControl = new PaintDotNet.HistoryControl();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.toolStrip = new PaintDotNet.SystemLayer.ToolStripEx();
             this.rewindButton = new System.Windows.Forms.ToolStripButton();
@@ -115,15 +106,15 @@ namespace PaintDotNet
             // 
             // historyControl
             // 
-            this.historyControl.Dock = System.Windows.Forms.DockStyle.Top;
-            this.historyControl.HistoryStack = null;
-            this.historyControl.Location = new System.Drawing.Point(0, 0);
-            this.historyControl.Name = "historyControl";
-            this.historyControl.Size = new System.Drawing.Size(160, 152);
-            this.historyControl.TabIndex = 0;
-            this.historyControl.HistoryChanged += new System.EventHandler(this.HistoryControl_HistoryChanged);
-            this.historyControl.RelinquishFocus += new EventHandler(HistoryControl_RelinquishFocus);
-            this.historyControl.ManagedFocus = true;
+            this.HistoryControl.Dock = System.Windows.Forms.DockStyle.Top;
+            this.HistoryControl.HistoryStack = null;
+            this.HistoryControl.Location = new System.Drawing.Point(0, 0);
+            this.HistoryControl.Name = "historyControl";
+            this.HistoryControl.Size = new System.Drawing.Size(160, 152);
+            this.HistoryControl.TabIndex = 0;
+            this.HistoryControl.HistoryChanged += new System.EventHandler(this.HistoryControl_HistoryChanged);
+            this.HistoryControl.RelinquishFocus += new EventHandler(HistoryControl_RelinquishFocus);
+            this.HistoryControl.ManagedFocus = true;
             // 
             // imageList
             // 
@@ -185,10 +176,10 @@ namespace PaintDotNet
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(165, 158);
             this.Controls.Add(this.toolStrip);
-            this.Controls.Add(this.historyControl);
+            this.Controls.Add(this.HistoryControl);
             this.Name = "HistoryForm";
             this.Enter += new System.EventHandler(this.HistoryForm_Enter);
-            this.Controls.SetChildIndex(this.historyControl, 0);
+            this.Controls.SetChildIndex(this.HistoryControl, 0);
             this.Controls.SetChildIndex(this.toolStrip, 0);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
@@ -211,10 +202,7 @@ namespace PaintDotNet
         public event EventHandler UndoButtonClicked;
         protected virtual void OnUndoButtonClicked()
         {
-            if (UndoButtonClicked != null)
-            {
-                UndoButtonClicked(this, EventArgs.Empty);
-            }
+            UndoButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformUndoClick()
@@ -225,10 +213,7 @@ namespace PaintDotNet
         public event EventHandler RedoButtonClicked;
         protected virtual void OnRedoButtonClicked()
         {
-            if (RedoButtonClicked != null)
-            {
-                RedoButtonClicked(this, EventArgs.Empty);
-            }
+            RedoButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformRedoClick()
@@ -239,10 +224,7 @@ namespace PaintDotNet
         public event EventHandler RewindButtonClicked;
         protected virtual void OnRewindButtonClicked()
         {
-            if (RewindButtonClicked != null)
-            {
-                RewindButtonClicked(this, EventArgs.Empty);
-            }
+            RewindButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformRewindClick()
@@ -253,10 +235,7 @@ namespace PaintDotNet
         public event EventHandler FastForwardButtonClicked;
         protected virtual void OnFastForwardButtonClicked()
         {
-            if (FastForwardButtonClicked != null)
-            {
-                FastForwardButtonClicked(this, EventArgs.Empty);
-            }
+            FastForwardButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformFastForwardClick()
@@ -271,7 +250,7 @@ namespace PaintDotNet
 
         private void UpdateHistoryButtons()
         {
-            if (historyControl.HistoryStack == null)
+            if (HistoryControl.HistoryStack == null)
             {
                 rewindButton.Enabled = false;
                 undoButton.Enabled = false;
@@ -281,7 +260,7 @@ namespace PaintDotNet
             else
             {
                 // Find reasons to disable the rewind and undo buttons
-                if (historyControl.HistoryStack.UndoStack.Count <= 1)
+                if (HistoryControl.HistoryStack.UndoStack.Count <= 1)
                 {
                     rewindButton.Enabled = false;
                     undoButton.Enabled = false;
@@ -293,7 +272,7 @@ namespace PaintDotNet
                 }
 
                 // Find reasons to disable the redo and fast forward buttons
-                if (historyControl.HistoryStack.RedoStack.Count == 0)
+                if (HistoryControl.HistoryStack.RedoStack.Count == 0)
                 {
                     fastForwardButton.Enabled = false;
                     redoButton.Enabled = false;

@@ -29,19 +29,15 @@ namespace PaintDotNet
           ISerializable,
           ICloneable
     {
-        private FontFamily family;
-        private float size;
-        private FontStyle style;
-
         private const string fontFamilyNameTag = "family.Name";
         private const string sizeTag = "size";
         private const string styleTag = "style";
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue(fontFamilyNameTag, this.family.Name);
-            info.AddValue(sizeTag, this.size);
-            info.AddValue(styleTag, (int)this.style);
+            info.AddValue(fontFamilyNameTag, this.FontFamily.Name);
+            info.AddValue(sizeTag, this.Size);
+            info.AddValue(styleTag, (int)this.FontStyle);
         }
 
         protected FontInfo(SerializationInfo info, StreamingContext context)
@@ -50,23 +46,23 @@ namespace PaintDotNet
 
             try
             {
-                this.family = new FontFamily(familyName);
+                this.FontFamily = new FontFamily(familyName);
             }
 
             catch (ArgumentException)
             {
-                this.family = FontFamily.GenericSansSerif;
+                this.FontFamily = FontFamily.GenericSansSerif;
             }
 
-            this.size = info.GetSingle(sizeTag);
+            this.Size = info.GetSingle(sizeTag);
 
             int styleInt = info.GetInt32(styleTag);
-            this.style = (FontStyle)styleInt;
+            this.FontStyle = (FontStyle)styleInt;
         }
 
         public static bool operator ==(FontInfo lhs, FontInfo rhs)
         {
-            if ((lhs.family == rhs.family) && (lhs.size == rhs.size) && (lhs.style == rhs. style))
+            if ((lhs.FontFamily == rhs.FontFamily) && (lhs.Size == rhs.Size) && (lhs.FontStyle == rhs. FontStyle))
             {
                 return true;
             }
@@ -88,7 +84,7 @@ namespace PaintDotNet
 
         public override int GetHashCode()
         {
-            return unchecked(family.GetHashCode() + size.GetHashCode() + style.GetHashCode());
+            return unchecked(FontFamily.GetHashCode() + Size.GetHashCode() + FontStyle.GetHashCode());
         }
         
         /// <summary>
@@ -112,50 +108,17 @@ namespace PaintDotNet
         /// <summary>
         /// The FontFamily property gets and sets the font family.
         /// </summary>
-        public FontFamily FontFamily
-        {
-            get
-            {
-                return family;
-            }
-
-            set
-            {
-                family = value;
-            }
-        }
+        public FontFamily FontFamily { get; set; }
 
         /// <summary>
         /// The Size property gets and sets the size of the text.
         /// </summary>
-        public float Size
-        {
-            get
-            {
-                return this.size;
-            }
-
-            set
-            {
-                this.size = value;
-            }
-        }
+        public float Size { get; set; }
 
         /// <summary>
         /// The FontStyle property gets and sets the font style to bold and or italic and or underline.
         /// </summary>
-        public FontStyle FontStyle
-        {
-            get 
-            {
-                return this.style;
-            }
-
-            set
-            {
-                this.style = value;
-            }
-        }
+        public FontStyle FontStyle { get; set; }
 
         public bool CanCreateFont()
         {
@@ -237,17 +200,17 @@ namespace PaintDotNet
         {
             if (disposing)
             {
-                if (this.family != null)
+                if (this.FontFamily != null)
                 {
-                    this.family.Dispose();
-                    this.family = null;
+                    this.FontFamily.Dispose();
+                    this.FontFamily = null;
                 }
             }
         }
 
         public FontInfo Clone()
         {
-            return new FontInfo(this.family, this.size, this.style);
+            return new FontInfo(this.FontFamily, this.Size, this.FontStyle);
         }
 
         object ICloneable.Clone()

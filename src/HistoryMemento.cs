@@ -42,36 +42,12 @@ namespace PaintDotNet
     /// </summary>
     internal abstract class HistoryMemento
     {
-        private string name;
-        public string Name
-        {
-            get
-            {
-                return this.name;
-            }
+        public string Name { get; set; }
+        public ImageResource Image { get; set; }
 
-            set
-            {
-                this.name = value;
-            }
-        }
-
-        private ImageResource image;
-        public ImageResource Image
-        {
-            get
-            {
-                return this.image;
-            }
-
-            set
-            {
-                this.image = value;
-            }
-        }
+        private static int nextId = 0;
 
         protected int id;
-        private static int nextId = 0;
         public int ID
         {
             get
@@ -84,20 +60,7 @@ namespace PaintDotNet
                 this.id = value;
             }
         }
-
-        private Guid seriesGuid = Guid.Empty;
-        public Guid SeriesGuid
-        {
-            get
-            {
-                return this.seriesGuid;
-            }
-
-            set
-            {
-                this.seriesGuid = value;
-            }
-        }
+        public Guid SeriesGuid { get; set; } = Guid.Empty;
 
         private PersistedObject<HistoryMementoData> historyMementoData = null;
 
@@ -173,8 +136,8 @@ namespace PaintDotNet
         {
             SystemLayer.Tracing.LogFeature("HM(" + GetType().Name + ")");
 
-            this.name = name;
-            this.image = image;
+            this.Name = name;
+            this.Image = image;
             this.id = Interlocked.Increment(ref nextId);
         }
     }

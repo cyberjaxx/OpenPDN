@@ -14,36 +14,19 @@ namespace PaintDotNet
     internal class ExecutingHistoryMementoEventArgs
         : EventArgs
     {
-        private HistoryMemento historyMemento;
-        private bool mayAlterSuspendToolProperty;
+
+        public HistoryMemento HistoryMemento { get; }
+
+        public bool MayAlterSuspendTool { get; }
+
         private bool suspendTool;
-
-        public HistoryMemento HistoryMemento
-        {
-            get
-            {
-                return this.historyMemento;
-            }
-        }
-
-        public bool MayAlterSuspendTool
-        {
-            get
-            {
-                return this.mayAlterSuspendToolProperty;
-            }
-        }
-
         public bool SuspendTool
         {
-            get
-            {
-                return this.suspendTool;
-            }
+            get => suspendTool;
 
             set
             {
-                if (!this.mayAlterSuspendToolProperty)
+                if (!this.MayAlterSuspendTool)
                 {
                     throw new InvalidOperationException("May not alter the SuspendTool property when MayAlterSuspendToolProperty is false");
                 }
@@ -54,8 +37,8 @@ namespace PaintDotNet
 
         public ExecutingHistoryMementoEventArgs(HistoryMemento historyMemento, bool mayAlterSuspendToolProperty, bool suspendTool)
         {
-            this.historyMemento = historyMemento;
-            this.mayAlterSuspendToolProperty = mayAlterSuspendToolProperty;
+            this.HistoryMemento = historyMemento;
+            this.MayAlterSuspendTool = mayAlterSuspendToolProperty;
             this.suspendTool = suspendTool;
         }
     }

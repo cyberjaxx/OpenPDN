@@ -24,7 +24,6 @@ namespace PaintDotNet
         private int ignoreToolClicked = 0;
         private ToolInfo[] toolInfos = null;
         private Type activeTool = null;
-        private bool showChooseDefaults = true;
         private bool useToolNameForLabel = false;
         private string chooseToolLabelText;
 
@@ -34,18 +33,7 @@ namespace PaintDotNet
             InitializeComponent();
         }
 
-        public bool ShowChooseDefaults
-        {
-            get
-            {
-                return this.showChooseDefaults;
-            }
-
-            set
-            {
-                this.showChooseDefaults = value;
-            }
-        }
+        public bool ShowChooseDefaults { get; set; } = true;
 
         public bool UseToolNameForLabel
         {
@@ -97,10 +85,7 @@ namespace PaintDotNet
         public event EventHandler ChooseDefaultsClicked;
         protected virtual void OnChooseDefaultsClicked()
         {
-            if (ChooseDefaultsClicked != null)
-            {
-                ChooseDefaultsClicked(this, EventArgs.Empty);
-            }
+            ChooseDefaultsClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void InitializeComponent()
@@ -138,9 +123,7 @@ namespace PaintDotNet
         
         private void ChooseToolButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            ToolInfo ti = e.ClickedItem.Tag as ToolInfo;
-
-            if (ti != null)
+            if (e.ClickedItem.Tag is ToolInfo ti)
             {
                 Tracing.LogFeature("ToolChooserStrip(itemClicked(" + ti.ToolType.GetType().FullName + "))");
                 OnToolClicked(ti.ToolType);
@@ -156,10 +139,10 @@ namespace PaintDotNet
         {
             this.chooseToolButton.DropDownItems.Clear();
 
-            if (this.showChooseDefaults)
+            if (this.ShowChooseDefaults)
             {
                 string chooseToolText = PdnResources.GetString("ToolChooserStrip.ChooseToolDefaults.Text");
-                ImageResource chooseToolIcon = PdnResources.GetImageResource("Icons.MenuLayersLayerPropertiesIcon.png");
+                ImageResource chooseToolIcon = PdnResources.GetImageResource("Icons.SettingsIcon.png");
 
                 ToolStripMenuItem tsmi = new ToolStripMenuItem(
                     chooseToolText,
@@ -241,10 +224,7 @@ namespace PaintDotNet
             {
                 SetToolButtonLabel();
 
-                if (ToolClicked != null)
-                {
-                    ToolClicked(this, new ToolClickedEventArgs(toolType));
-                }
+                ToolClicked?.Invoke(this, new ToolClickedEventArgs(toolType));
             }
         }
     }

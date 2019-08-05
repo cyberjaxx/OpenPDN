@@ -22,32 +22,25 @@ namespace PaintDotNet
     internal class HistoryFunctionNonFatalException
         : Exception
     {
-        private string localizedErrorText;
-        public string LocalizedErrorText
-        {
-            get
-            {
-                return this.localizedErrorText;
-            }
-        }
+        public string LocalizedErrorText { get; }
 
         private const string message = "Non-fatal exception encountered";
 
         public HistoryFunctionNonFatalException()
         {
-            this.localizedErrorText = null;
+            this.LocalizedErrorText = null;
         }
 
         public HistoryFunctionNonFatalException(string localizedErrorText)
             : base(message)
         {
-            this.localizedErrorText = localizedErrorText;
+            this.LocalizedErrorText = localizedErrorText;
         }
 
         public HistoryFunctionNonFatalException(string localizedErrorText, Exception innerException)
             : base(message, innerException)
         {
-            this.localizedErrorText = localizedErrorText;
+            this.LocalizedErrorText = localizedErrorText;
         }
     }
 }

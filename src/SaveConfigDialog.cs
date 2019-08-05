@@ -233,17 +233,16 @@ namespace PaintDotNet
         private Cursor handIcon = new Cursor(PdnResources.GetResourceStream("Cursors.PanToolCursor.cur"));
         private Cursor handIconMouseDown = new Cursor(PdnResources.GetResourceStream("Cursors.PanToolCursorMouseDown.cur"));
         private Hashtable fileTypeToSaveToken = new Hashtable();
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
         private FileType fileType;
-        private System.Windows.Forms.Button defaultsButton;
-        private Document document;
+        private Button defaultsButton;
         private bool disposeDocument = false;
         private HeaderLabel previewHeader;
-        private PaintDotNet.DocumentView documentView;
-        private PaintDotNet.SaveConfigWidget saveConfigWidget;
-        private System.Windows.Forms.Panel saveConfigPanel;
+        private DocumentView documentView;
+        private SaveConfigWidget saveConfigWidget;
+        private Panel saveConfigPanel;
 
-        private PaintDotNet.HeaderLabel settingsHeader;
+        private HeaderLabel settingsHeader;
 
         private Surface scratchSurface;
         public Surface ScratchSurface
@@ -262,10 +261,7 @@ namespace PaintDotNet
         public event ProgressEventHandler Progress;
         protected virtual void OnProgress(int percent)
         {
-            if (Progress != null)
-            {
-                Progress(this, new ProgressEventArgs((double)percent));
-            }
+            Progress?.Invoke(this, new ProgressEventArgs((double)percent));
         }
 
         /// <summary>
@@ -273,18 +269,7 @@ namespace PaintDotNet
         /// If this is changed after the dialog is shown, the results are undefined.
         /// </summary>
         [Browsable(false)]
-        public Document Document
-        {
-            get
-            {
-                return this.document;
-            }
-
-            set
-            {   
-                this.document = value;
-            }
-        }
+        public Document Document { get; set; }
 
 
         [Browsable(false)]

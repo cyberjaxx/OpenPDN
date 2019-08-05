@@ -106,77 +106,41 @@ namespace PaintDotNet
         private ColorGradientControl greenGradientControl;
         private ColorGradientControl blueGradientControl;
 
-        private PaletteCollection paletteCollection = null;
-
-        public PaletteCollection PaletteCollection
-        {
-            get
-            {
-                return this.paletteCollection;
-            }
-
-            set
-            {
-                this.paletteCollection = value;
-            }
-        }
+        public PaletteCollection PaletteCollection { get; set; } = null;
 
         private bool IgnoreChangedEvents
         {
-            get
-            {
-                return this.ignoreChangedEvents != 0;
-            }
+            get => ignoreChangedEvents != 0;
         }
 
         private class WhichUserColorWrapper
         {
-            private WhichUserColor whichUserColor;
-
-            public WhichUserColor WhichUserColor
-            {
-                get
-                {
-                    return this.whichUserColor;
-                }
-            }
+            public WhichUserColor WhichUserColor { get; }
 
             public override int GetHashCode()
             {
-                return this.whichUserColor.GetHashCode();
+                return WhichUserColor.GetHashCode();
             }
 
             public override bool Equals(object obj)
             {
-                WhichUserColorWrapper rhs = obj as WhichUserColorWrapper;
-
-                if (rhs == null)
-                {
-                    return false;
-                }
-
-                if (rhs.whichUserColor == this.whichUserColor)
-                {
-                    return true;
-                }
-
-                return false;
+                return obj is WhichUserColorWrapper rhs && rhs.WhichUserColor == WhichUserColor;
             }
 
             public override string ToString()
             {
-                return PdnResources.GetString("WhichUserColor." + this.whichUserColor.ToString());
+                return PdnResources.GetString("WhichUserColor." + WhichUserColor.ToString());
             }
 
             public WhichUserColorWrapper(WhichUserColor whichUserColor)
             {
-                this.whichUserColor = whichUserColor;
+                WhichUserColor = whichUserColor;
             }
         }
 
         public void SuspendSetWhichUserColor()
         {
-            ++this.suspendSetWhichUserColor;
+            ++suspendSetWhichUserColor;
         }
 
         public void ResumeSetWhichUserColor()
@@ -1898,14 +1862,14 @@ namespace PaintDotNet
         {
             this.colorPalettesButton.DropDownItems.Clear();
 
-            if (this.paletteCollection != null)
+            if (this.PaletteCollection != null)
             {
                 using (new WaitCursorChanger(this))
                 {
-                    this.paletteCollection.Load();
+                    this.PaletteCollection.Load();
                 }
 
-                string[] paletteNames = this.paletteCollection.PaletteNames;
+                string[] paletteNames = this.PaletteCollection.PaletteNames;
 
                 foreach (string paletteName in paletteNames)
                 {
@@ -1943,16 +1907,16 @@ namespace PaintDotNet
         {
             using (SavePaletteDialog spd = new SavePaletteDialog())
             {
-                spd.PaletteNames = this.paletteCollection.PaletteNames;
+                spd.PaletteNames = this.PaletteCollection.PaletteNames;
                 spd.ShowDialog(this);
 
                 if (spd.DialogResult == DialogResult.OK)
                 {
-                    this.paletteCollection.AddOrUpdate(spd.PaletteName, this.swatchControl.Colors);
+                    this.PaletteCollection.AddOrUpdate(spd.PaletteName, this.swatchControl.Colors);
 
                     using (new WaitCursorChanger(this))
                     {
-                        this.paletteCollection.Save();
+                        this.PaletteCollection.Save();
                     }
                 }
             }
@@ -1965,11 +1929,9 @@ namespace PaintDotNet
 
         private void OnPaletteClickedHandler(object sender, EventArgs e)
         {
-            ToolStripItem tsi = sender as ToolStripItem;
-
-            if (tsi != null)
+            if (sender is ToolStripItem tsi)
             {
-                ColorBgra[] palette = this.paletteCollection.Get(tsi.Text);
+                ColorBgra[] palette = this.PaletteCollection.Get(tsi.Text);
 
                 if (palette != null)
                 {

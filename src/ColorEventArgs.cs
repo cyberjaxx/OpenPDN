@@ -16,18 +16,11 @@ namespace PaintDotNet
     internal class ColorEventArgs
         : System.EventArgs
     {
-        private ColorBgra color;
-        public ColorBgra Color
-        {
-            get
-            {
-                return color;
-            }
-        }
+        public ColorBgra Color { get; }
 
         public ColorEventArgs(ColorBgra color)
         {
-            this.color = color;
+            this.Color = color;
         }
     }
 }

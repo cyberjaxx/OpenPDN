@@ -19,66 +19,35 @@ namespace PaintDotNet
         : ICloneable<SelectionDrawModeInfo>,
           IDeserializationCallback
     {
-        private SelectionDrawMode drawMode;
-        private double width;
-        private double height;
-        private MeasurementUnit units;
+        public SelectionDrawMode DrawMode { get; }
 
-        public SelectionDrawMode DrawMode
-        {
-            get
-            {
-                return this.drawMode;
-            }
-        }
+        public double Width { get; }
 
-        public double Width
-        {
-            get
-            {
-                return this.width;
-            }
-        }
+        public double Height { get; }
 
-        public double Height
-        {
-            get
-            {
-                return this.height;
-            }
-        }
-
-        public MeasurementUnit Units
-        {
-            get
-            {
-                return this.units;
-            }
-        }
+        public MeasurementUnit Units { get; private set; }
 
         public override bool Equals(object obj)
         {
-            SelectionDrawModeInfo asSDMI = obj as SelectionDrawModeInfo;
-
-            if (asSDMI == null)
+            if (!(obj is SelectionDrawModeInfo asSDMI))
             {
                 return false;
             }
 
-            return (asSDMI.drawMode == this.drawMode) && (asSDMI.width == this.width) && (asSDMI.height == this.height) && (asSDMI.units == this.units);
+            return (asSDMI.DrawMode == DrawMode) && (asSDMI.Width == Width) && (asSDMI.Height == Height) && (asSDMI.Units == Units);
         }
 
         public override int GetHashCode()
         {
-            return unchecked(this.drawMode.GetHashCode() ^ this.width.GetHashCode() ^ this.height.GetHashCode() & this.units.GetHashCode());
+            return unchecked(DrawMode.GetHashCode() ^ Width.GetHashCode() ^ Height.GetHashCode() & Units.GetHashCode());
         }
 
         public SelectionDrawModeInfo(SelectionDrawMode drawMode, double width, double height, MeasurementUnit units)
         {
-            this.drawMode = drawMode;
-            this.width = width;
-            this.height = height;
-            this.units = units;
+            DrawMode = drawMode;
+            Width = width;
+            Height = height;
+            Units = units;
         }
 
         public static SelectionDrawModeInfo CreateDefault()
@@ -88,32 +57,32 @@ namespace PaintDotNet
 
         public SelectionDrawModeInfo CloneWithNewDrawMode(SelectionDrawMode newDrawMode)
         {
-            return new SelectionDrawModeInfo(newDrawMode, this.width, this.height, this.units);
+            return new SelectionDrawModeInfo(newDrawMode, Width, Height, Units);
         }
 
         public SelectionDrawModeInfo CloneWithNewWidth(double newWidth)
         {
-            return new SelectionDrawModeInfo(this.drawMode, newWidth, this.height, this.units);
+            return new SelectionDrawModeInfo(DrawMode, newWidth, Height, Units);
         }
 
         public SelectionDrawModeInfo CloneWithNewHeight(double newHeight)
         {
-            return new SelectionDrawModeInfo(this.drawMode, this.width, newHeight, this.units);
+            return new SelectionDrawModeInfo(DrawMode, Width, newHeight, Units);
         }
 
         public SelectionDrawModeInfo CloneWithNewWidthAndHeight(double newWidth, double newHeight)
         {
-            return new SelectionDrawModeInfo(this.drawMode, newWidth, newHeight, this.units);
+            return new SelectionDrawModeInfo(DrawMode, newWidth, newHeight, Units);
         }
 
         public SelectionDrawModeInfo Clone()
         {
-            return new SelectionDrawModeInfo(this.drawMode, this.width, this.height, this.units);
+            return new SelectionDrawModeInfo(DrawMode, Width, Height, Units);
         }
 
         public SelectionDrawModeInfo CloneWithNewUnits(MeasurementUnit newUnits)
         {
-            return new SelectionDrawModeInfo(this.drawMode, this.width, this.height, newUnits);
+            return new SelectionDrawModeInfo(DrawMode, Width, Height, newUnits);
         }
 
         object ICloneable.Clone()
@@ -123,7 +92,7 @@ namespace PaintDotNet
 
         void IDeserializationCallback.OnDeserialization(object sender)
         {
-            switch (this.units)
+            switch (Units)
             {
                 case MeasurementUnit.Centimeter:
                 case MeasurementUnit.Inch:
@@ -131,7 +100,7 @@ namespace PaintDotNet
                     break;
 
                 default:
-                    this.units = MeasurementUnit.Pixel;
+                    Units = MeasurementUnit.Pixel;
                     break;
             }
         }

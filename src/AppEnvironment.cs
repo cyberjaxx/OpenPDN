@@ -153,10 +153,7 @@ namespace PaintDotNet
 
         private void OnTextAlignmentChanging()
         {
-            if (TextAlignmentChanging != null)
-            {
-                TextAlignmentChanging(this, EventArgs.Empty);
-            }
+            TextAlignmentChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -164,10 +161,7 @@ namespace PaintDotNet
 
         private void OnTextAlignmentChanged()
         {
-            if (TextAlignmentChanged != null)
-            {
-                TextAlignmentChanged(this, EventArgs.Empty);
-            }
+            TextAlignmentChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public FontInfo FontInfo
@@ -193,10 +187,7 @@ namespace PaintDotNet
 
         private void OnFontInfoChanging()
         {
-            if (FontInfoChanging != null)
-            {
-                FontInfoChanging(this, EventArgs.Empty);
-            }
+            FontInfoChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -204,10 +195,7 @@ namespace PaintDotNet
 
         private void OnFontInfoChanged()
         {
-            if (FontInfoChanged != null)
-            {
-                FontInfoChanged(this, EventArgs.Empty);
-            }
+            FontInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -215,10 +203,7 @@ namespace PaintDotNet
 
         private void OnFontSmoothingChanging()
         {
-            if (FontSmoothingChanging != null)
-            {
-                FontSmoothingChanging(this, EventArgs.Empty);
-            }
+            FontSmoothingChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -226,10 +211,7 @@ namespace PaintDotNet
 
         private void OnFontSmoothingChanged()
         {
-            if (FontSmoothingChanged != null)
-            {
-                FontSmoothingChanged(this, EventArgs.Empty);
-            }
+            FontSmoothingChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public FontSmoothing FontSmoothing
@@ -257,10 +239,7 @@ namespace PaintDotNet
 
         private void OnGradientInfoChanging()
         {
-            if (GradientInfoChanging != null)
-            {
-                GradientInfoChanging(this, EventArgs.Empty);
-            }
+            GradientInfoChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -268,10 +247,7 @@ namespace PaintDotNet
 
         private void OnGradientInfoChanged()
         {
-            if (GradientInfoChanged != null)
-            {
-                GradientInfoChanged(this, EventArgs.Empty);
-            }
+            GradientInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public GradientInfo GradientInfo
@@ -283,9 +259,12 @@ namespace PaintDotNet
 
             set
             {
-                OnGradientInfoChanging();
-                this.gradientInfo = value;
-                OnGradientInfoChanged();
+                if (this.gradientInfo != value)
+                {
+                    OnGradientInfoChanging();
+                    this.gradientInfo = value;
+                    OnGradientInfoChanged();
+                }
             }
         }
         #endregion
@@ -326,10 +305,7 @@ namespace PaintDotNet
 
         private void OnPenInfoChanging()
         {
-            if (PenInfoChanging != null)
-            {
-                PenInfoChanging(this, EventArgs.Empty);
-            }
+            PenInfoChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -337,10 +313,7 @@ namespace PaintDotNet
 
         private void OnPenInfoChanged()
         {
-            if (PenInfoChanged != null)
-            {
-                PenInfoChanged(this, EventArgs.Empty);
-            }
+            PenInfoChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -377,10 +350,7 @@ namespace PaintDotNet
 
         private void OnBrushInfoChanging()
         {
-            if (BrushInfoChanging != null)
-            {
-                BrushInfoChanging(this, EventArgs.Empty);
-            }
+            BrushInfoChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -388,10 +358,7 @@ namespace PaintDotNet
 
         private void OnBrushInfoChanged()
         {
-            if (BrushInfoChanged != null)
-            {
-                BrushInfoChanged(this, EventArgs.Empty);
-            }
+            BrushInfoChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -419,10 +386,7 @@ namespace PaintDotNet
 
         private void OnPrimaryColorChanging()
         {
-            if (PrimaryColorChanging != null)
-            {
-                PrimaryColorChanging(this, EventArgs.Empty);
-            }
+            PrimaryColorChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -430,10 +394,7 @@ namespace PaintDotNet
 
         private void OnPrimaryColorChanged()
         {
-            if (PrimaryColorChanged != null)
-            {
-                PrimaryColorChanged(this, EventArgs.Empty);
-            }
+            PrimaryColorChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -461,10 +422,7 @@ namespace PaintDotNet
 
         private void OnBackColorChanging()
         {
-            if (SecondaryColorChanging != null)
-            {
-                SecondaryColorChanging(this, EventArgs.Empty);
-            }
+            SecondaryColorChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -472,10 +430,7 @@ namespace PaintDotNet
 
         private void OnSecondaryColorChanged()
         {
-            if (SecondaryColorChanged != null)
-            {
-                SecondaryColorChanged(this, EventArgs.Empty);
-            }
+            SecondaryColorChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -508,10 +463,7 @@ namespace PaintDotNet
 
         private void OnAlphaBlendingChanging()
         {
-            if (AlphaBlendingChanging != null)
-            {
-                AlphaBlendingChanging(this, EventArgs.Empty);
-            }
+            AlphaBlendingChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -519,10 +471,7 @@ namespace PaintDotNet
 
         private void OnAlphaBlendingChanged()
         {
-            if (AlphaBlendingChanged != null)
-            {
-                AlphaBlendingChanged(this, EventArgs.Empty);
-            }
+            AlphaBlendingChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -550,10 +499,7 @@ namespace PaintDotNet
 
         private void OnShapeDrawTypeChanging()
         {
-            if (ShapeDrawTypeChanging != null)
-            {
-                ShapeDrawTypeChanging(this, EventArgs.Empty);
-            }
+            ShapeDrawTypeChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -561,10 +507,7 @@ namespace PaintDotNet
 
         private void OnShapeDrawTypeChanged()
         {
-            if (ShapeDrawTypeChanged != null)
-            {
-                ShapeDrawTypeChanged(this, EventArgs.Empty);
-            }
+            ShapeDrawTypeChanged?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
@@ -574,10 +517,7 @@ namespace PaintDotNet
 
         private void OnAntiAliasingChanging()
         {
-            if (AntiAliasingChanging != null)
-            {
-                AntiAliasingChanging(this, EventArgs.Empty);
-            }
+            AntiAliasingChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -585,10 +525,7 @@ namespace PaintDotNet
 
         private void OnAntiAliasingChanged()
         {
-            if (AntiAliasingChanged != null)
-            {
-                AntiAliasingChanged(this, EventArgs.Empty);
-            }
+            AntiAliasingChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public bool AntiAliasing
@@ -616,10 +553,7 @@ namespace PaintDotNet
 
         private void OnColorPickerClickBehaviorChanging()
         {
-            if (ColorPickerClickBehaviorChanging != null)
-            {
-                ColorPickerClickBehaviorChanging(this, EventArgs.Empty);
-            }
+            ColorPickerClickBehaviorChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -627,10 +561,7 @@ namespace PaintDotNet
 
         private void OnColorPickerClickBehaviorChanged()
         {
-            if (ColorPickerClickBehaviorChanged != null)
-            {
-                ColorPickerClickBehaviorChanged(this, EventArgs.Empty);
-            }
+            ColorPickerClickBehaviorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ColorPickerClickBehavior ColorPickerClickBehavior
@@ -658,10 +589,7 @@ namespace PaintDotNet
 
         private void OnResamplingAlgorithmChanging()
         {
-            if (ResamplingAlgorithmChanging != null)
-            {
-                ResamplingAlgorithmChanging(this, EventArgs.Empty);
-            }
+            ResamplingAlgorithmChanging?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -669,10 +597,7 @@ namespace PaintDotNet
 
         private void OnResamplingAlgorithmChanged()
         {
-            if (ResamplingAlgorithmChanged != null)
-            {
-                ResamplingAlgorithmChanged(this, EventArgs.Empty);
-            }
+            ResamplingAlgorithmChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ResamplingAlgorithm ResamplingAlgorithm
@@ -700,10 +625,7 @@ namespace PaintDotNet
 
         private void OnToleranceChanged()
         {
-            if (ToleranceChanged != null)
-            {
-                ToleranceChanged(this, EventArgs.Empty);
-            }
+            ToleranceChanged?.Invoke(this, EventArgs.Empty);
         }
 
         [field: NonSerialized]
@@ -711,10 +633,7 @@ namespace PaintDotNet
 
         private void OnToleranceChanging()
         {
-            if (ToleranceChanging != null)
-            {
-                ToleranceChanging(this, EventArgs.Empty);
-            }
+            ToleranceChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public float Tolerance
@@ -728,6 +647,7 @@ namespace PaintDotNet
             {
                 if (tolerance != value)
                 {
+                    OnToleranceChanging();
                     tolerance = value;
                     OnToleranceChanged();
                 }
@@ -741,10 +661,7 @@ namespace PaintDotNet
 
         private void OnSelectionCombineModeChanged()
         {
-            if (SelectionCombineModeChanged != null)
-            {
-                SelectionCombineModeChanged(this, EventArgs.Empty);
-            }
+            SelectionCombineModeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public CombineMode SelectionCombineMode
@@ -771,10 +688,7 @@ namespace PaintDotNet
 
         private void OnFloodModeChanged()
         {
-            if (FloodModeChanged != null)
-            {
-                FloodModeChanged(this, EventArgs.Empty);
-            }
+            FloodModeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public FloodMode FloodMode
@@ -801,10 +715,7 @@ namespace PaintDotNet
 
         private void OnSelectionDrawModeInfoChanged()
         {
-            if (SelectionDrawModeInfoChanged != null)
-            {
-                SelectionDrawModeInfoChanged(this, EventArgs.Empty);
-            }
+            SelectionDrawModeInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public SelectionDrawModeInfo SelectionDrawModeInfo

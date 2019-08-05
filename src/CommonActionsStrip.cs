@@ -116,10 +116,7 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<CommonAction>> ButtonClick;
         protected void OnButtonClick(CommonAction action)
         {
-            if (ButtonClick != null)
-            {
-                ButtonClick(this, new EventArgs<CommonAction>(action));
-            }
+            ButtonClick?.Invoke(this, new EventArgs<CommonAction>(action));
         }
 
         protected override void OnItemClicked(ToolStripItemClickedEventArgs e)

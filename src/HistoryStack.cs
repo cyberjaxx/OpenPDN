@@ -22,8 +22,6 @@ namespace PaintDotNet
     [Serializable]
     internal class HistoryStack
     {
-        private List<HistoryMemento> undoStack;
-        private List<HistoryMemento> redoStack;
         private DocumentWorkspace documentWorkspace;
         private int stepGroupDepth;
         private int isExecutingMemento = 0; // 0 -> false, >0 -> true
@@ -46,21 +44,9 @@ namespace PaintDotNet
             --this.isExecutingMemento;
         }
 
-        public List<HistoryMemento> UndoStack
-        {
-            get
-            {
-                return this.undoStack;
-            }
-        }
+        public List<HistoryMemento> UndoStack { get; private set; }
 
-        public List<HistoryMemento> RedoStack
-        {
-            get
-            {
-                return this.redoStack;
-            }
-        }
+        public List<HistoryMemento> RedoStack { get; private set; }
 
         public void BeginStepGroup()
         {
@@ -80,28 +66,19 @@ namespace PaintDotNet
         public event EventHandler FinishedStepGroup;
         protected void OnFinishedStepGroup()
         {
-            if (FinishedStepGroup != null)
-            {
-                FinishedStepGroup(this, EventArgs.Empty);
-            }
+            FinishedStepGroup?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler SteppedBackward;
         protected void OnSteppedBackward()
         {
-            if (SteppedBackward != null)
-            {
-                SteppedBackward(this, EventArgs.Empty);
-            }
+            SteppedBackward?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler SteppedForward;
         protected void OnSteppedForward()
         {
-            if (SteppedForward != null)
-            {
-                SteppedForward(this, EventArgs.Empty);
-            }
+            SteppedForward?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -110,10 +87,7 @@ namespace PaintDotNet
         public event EventHandler NewHistoryMemento;
         protected void OnNewHistoryMemento()
         {
-            if (NewHistoryMemento != null)
-            {
-                NewHistoryMemento(this, EventArgs.Empty);
-            }
+            NewHistoryMemento?.Invoke(this, EventArgs.Empty);
         }
                 
         /// <summary>
@@ -122,46 +96,31 @@ namespace PaintDotNet
         public event EventHandler Changed;
         protected void OnChanged()
         {
-            if (Changed != null)
-            {
-                Changed(this, EventArgs.Empty);
-            }
+            Changed?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler Changing;
         protected void OnChanging()
         {
-            if (Changing != null)
-            {
-                Changing(this, EventArgs.Empty);
-            }
+            Changing?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler HistoryFlushed;
         protected void OnHistoryFlushed()
         {
-            if (HistoryFlushed != null)
-            {
-                HistoryFlushed(this, EventArgs.Empty);
-            }
+            HistoryFlushed?.Invoke(this, EventArgs.Empty);
         }
 
         public event ExecutingHistoryMementoEventHandler ExecutingHistoryMemento;
         protected void OnExecutingHistoryMemento(ExecutingHistoryMementoEventArgs e)
         {
-            if (ExecutingHistoryMemento != null)
-            {
-                ExecutingHistoryMemento(this, e);
-            }
+            ExecutingHistoryMemento?.Invoke(this, e);
         }
 
         public event ExecutedHistoryMementoEventHandler ExecutedHistoryMemento;
         protected void OnExecutedHistoryMemento(ExecutedHistoryMementoEventArgs e)
         {
-            if (ExecutedHistoryMemento != null)
-            {
-                ExecutedHistoryMemento(this, e);
-            }
+            ExecutedHistoryMemento?.Invoke(this, e);
         }
 
         public void PerformChanged()
@@ -172,16 +131,16 @@ namespace PaintDotNet
         public HistoryStack(DocumentWorkspace documentWorkspace)
         {
             this.documentWorkspace = documentWorkspace;
-            undoStack = new List<HistoryMemento>();
-            redoStack = new List<HistoryMemento>();
+            UndoStack = new List<HistoryMemento>();
+            RedoStack = new List<HistoryMemento>();
         }
 
         private HistoryStack(
             List<HistoryMemento> undoStack,
             List<HistoryMemento> redoStack)
         {
-            this.undoStack = new List<HistoryMemento>(undoStack);
-            this.redoStack = new List<HistoryMemento>(redoStack);
+            this.UndoStack = new List<HistoryMemento>(undoStack);
+            this.RedoStack = new List<HistoryMemento>(redoStack);
         }
 
         /// <summary>
@@ -194,7 +153,7 @@ namespace PaintDotNet
             OnChanging();
 
             ClearRedoStack();
-            undoStack.Add(value);
+            UndoStack.Add(value);
             OnNewHistoryMemento();
 
             OnChanged();
@@ -224,7 +183,7 @@ namespace PaintDotNet
 
         private void StepForwardImpl()
         {
-            HistoryMemento topMemento = redoStack[0];
+            HistoryMemento topMemento = RedoStack[0];
             ToolHistoryMemento asToolHistoryMemento = topMemento as ToolHistoryMemento;
 
             if (asToolHistoryMemento != null && asToolHistoryMemento.ToolType != this.documentWorkspace.GetToolType())
@@ -250,7 +209,7 @@ namespace PaintDotNet
                     this.documentWorkspace.PushNullTool();
                 }
             
-                HistoryMemento redoMemento = redoStack[0];
+                HistoryMemento redoMemento = RedoStack[0];
 
                 // Possibly useful invariant here:
                 //     ehaea1.HistoryMemento.SeriesGuid == ehaea2.HistoryMemento.SeriesGuid == ehaea3.HistoryMemento.SeriesGuid
@@ -259,8 +218,8 @@ namespace PaintDotNet
 
                 HistoryMemento undoMemento = redoMemento.PerformUndo();
             
-                redoStack.RemoveAt(0);
-                undoStack.Add(undoMemento);
+                RedoStack.RemoveAt(0);
+                UndoStack.Add(undoMemento);
 
                 ExecutedHistoryMementoEventArgs ehaea3 = new ExecutedHistoryMementoEventArgs(undoMemento);
                 OnExecutedHistoryMemento(ehaea3);
@@ -303,7 +262,7 @@ namespace PaintDotNet
 
         private void StepBackwardImpl()
         {
-            HistoryMemento topMemento = undoStack[undoStack.Count - 1];
+            HistoryMemento topMemento = UndoStack[UndoStack.Count - 1];
             ToolHistoryMemento asToolHistoryMemento = topMemento as ToolHistoryMemento;
 
             if (asToolHistoryMemento != null && asToolHistoryMemento.ToolType != this.documentWorkspace.GetToolType())
@@ -329,14 +288,14 @@ namespace PaintDotNet
                     this.documentWorkspace.PushNullTool();
                 }
 
-                HistoryMemento undoMemento = undoStack[undoStack.Count - 1];
+                HistoryMemento undoMemento = UndoStack[UndoStack.Count - 1];
 
                 ExecutingHistoryMementoEventArgs ehaea2 = new ExecutingHistoryMementoEventArgs(undoMemento, false, ehaea1.SuspendTool);
                 OnExecutingHistoryMemento(ehaea2);
 
-                HistoryMemento redoMemento = undoStack[undoStack.Count - 1].PerformUndo();
-                undoStack.RemoveAt(undoStack.Count - 1);
-                redoStack.Insert(0, redoMemento);
+                HistoryMemento redoMemento = UndoStack[UndoStack.Count - 1].PerformUndo();
+                UndoStack.RemoveAt(UndoStack.Count - 1);
+                RedoStack.Insert(0, redoMemento);
 
                 // Possibly useful invariant here:
                 //     ehaea1.HistoryMemento.SeriesGuid == ehaea2.HistoryMemento.SeriesGuid == ehaea3.HistoryMemento.SeriesGuid
@@ -364,31 +323,31 @@ namespace PaintDotNet
         {
             OnChanging();
 
-            foreach (HistoryMemento ha in undoStack)
+            foreach (HistoryMemento ha in UndoStack)
             {
                 ha.Flush();
             }
 
-            foreach (HistoryMemento ha in redoStack)
+            foreach (HistoryMemento ha in RedoStack)
             {
                 ha.Flush();
             }
 
-            undoStack = new List<HistoryMemento>();
-            redoStack = new List<HistoryMemento>();
+            UndoStack = new List<HistoryMemento>();
+            RedoStack = new List<HistoryMemento>();
             OnChanged();
             OnHistoryFlushed();
         }
 
         public void ClearRedoStack()
         {
-            foreach (HistoryMemento ha in redoStack)
+            foreach (HistoryMemento ha in RedoStack)
             {
                 ha.Flush();
             }
 
             OnChanging();
-            redoStack = new List<HistoryMemento>();
+            RedoStack = new List<HistoryMemento>();
             OnChanged();
         }
     }

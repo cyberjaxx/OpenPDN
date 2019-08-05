@@ -13,7 +13,6 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Drawing;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -42,10 +41,7 @@ namespace PaintDotNet
           IHotKeyTarget
     {
         public static readonly Type DefaultToolType = typeof(Tools.PaintBrushTool);
-
-        private ImageResource toolBarImage;
         private Cursor cursor;
-        private ToolInfo toolInfo;
         private int mouseDown = 0; // incremented for every MouseDown, decremented for every MouseUp
         private int ignoreMouseMove = 0; // when >0, MouseMove is ignored and then this is decremented
 
@@ -58,10 +54,6 @@ namespace PaintDotNet
         private bool panMode = false; // 'true' when the user is holding down the spacebar
         private bool panTracking = false; // 'true' when panMode is true, and when the mouse is down (which is when MouseMove should do panning)
         private MoveNubRenderer trackingNub = null; // when we are in pan-tracking mode, we draw this in the center of the screen
-
-        private DocumentWorkspace documentWorkspace;
-
-        private bool active = false;
         protected bool autoScroll = true;
         private Hashtable keysThatAreDown = new Hashtable();
         private MouseButtons lastButton = MouseButtons.None;
@@ -97,13 +89,7 @@ namespace PaintDotNet
             }
         }
 
-        public DocumentWorkspace DocumentWorkspace
-        {
-            get
-            {
-                return this.documentWorkspace;
-            }
-        }
+        public DocumentWorkspace DocumentWorkspace { get; }
 
         public AppWorkspace AppWorkspace
         {
@@ -125,7 +111,7 @@ namespace PaintDotNet
         {
             get
             {
-                return this.documentWorkspace.AppWorkspace.AppEnvironment;
+                return this.DocumentWorkspace.AppWorkspace.AppEnvironment;
             }
         }
 
@@ -295,20 +281,8 @@ namespace PaintDotNet
         {
             public DateTime KeyDownTime;
             public DateTime LastKeyPressPulse;
-            private int repeats = 0;
 
-            public int Repeats 
-            {
-                get 
-                {
-                    return repeats;
-                }
-
-                set 
-                {
-                    repeats = value;
-                }
-            }
+            public int Repeats { get; set; } = 0;
 
             public KeyTimeInfo()
             {
@@ -322,13 +296,7 @@ namespace PaintDotNet
         /// it is not safe to call any other method besides PerformActivate. All
         /// properties are safe to get values from.
         /// </summary>
-        public bool Active
-        {
-            get
-            {
-                return this.active;
-            }
-        }
+        public bool Active { get; private set; } = false;
 
         /// <summary>
         /// Returns true if the Tool has the input focus, or false if it does not.
@@ -385,30 +353,18 @@ namespace PaintDotNet
         /// <summary>
         /// Represents the Image that is displayed in the toolbar.
         /// </summary>
-        public ImageResource Image
-        {
-            get
-            {
-                return this.toolBarImage;
-            }
-        }
+        public ImageResource Image { get; }
 
         public event EventHandler CursorChanging;
         protected virtual void OnCursorChanging()
         {
-            if (CursorChanging != null)
-            {
-                CursorChanging(this, EventArgs.Empty);
-            }
+            CursorChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler CursorChanged;
         protected virtual void OnCursorChanged()
         {
-            if (CursorChanged != null)
-            {
-                CursorChanged(this, EventArgs.Empty);
-            }
+            CursorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -437,7 +393,7 @@ namespace PaintDotNet
         {
             get
             {
-                return this.toolInfo.Name;
+                return this.Info.Name;
             }
         }
 
@@ -448,23 +404,17 @@ namespace PaintDotNet
         {
             get
             {
-                return this.toolInfo.HelpText;
+                return this.Info.HelpText;
             }
         }
 
-        public ToolInfo Info
-        {
-            get
-            {
-                return this.toolInfo;
-            }
-        }
+        public ToolInfo Info { get; }
 
         public ToolBarConfigItems ToolBarConfigItems
         {
             get
             {
-                return this.toolInfo.ToolBarConfigItems;
+                return this.Info.ToolBarConfigItems;
             }
         }
 
@@ -483,7 +433,7 @@ namespace PaintDotNet
         {
             get
             {
-                return this.toolInfo.HotKey;
+                return this.Info.HotKey;
             }
         }
 
@@ -666,8 +616,8 @@ namespace PaintDotNet
 
         private void Activate()
         {
-            Debug.Assert(this.active != true, "already active!");
-            this.active = true;
+            Debug.Assert(this.Active != true, "already active!");
+            this.Active = true;
 
             this.handCursor = new Cursor(PdnResources.GetResourceStream("Cursors.PanToolCursor.cur"));
             this.handCursorMouseDown = new Cursor(PdnResources.GetResourceStream("Cursors.PanToolCursorMouseDown.cur"));
@@ -718,9 +668,9 @@ namespace PaintDotNet
 
         private void Deactivate()
         {
-            Debug.Assert(this.active != false, "not active!");
+            Debug.Assert(this.Active != false, "not active!");
 
-            this.active = false;
+            this.Active = false;
 
             Selection.Changing -= new EventHandler(SelectionChangingHandler);
             Selection.Changed -= new EventHandler(SelectionChangedHandler);
@@ -1498,13 +1448,13 @@ namespace PaintDotNet
                     bool skipIfActiveOnHotKey,
                     ToolBarConfigItems toolBarConfigItems)
         {
-            this.documentWorkspace = documentWorkspace;
-            this.toolBarImage = toolBarImage;
-            this.toolInfo = new ToolInfo(name, helpText, toolBarImage, hotKey, skipIfActiveOnHotKey, toolBarConfigItems, this.GetType());
+            this.DocumentWorkspace = documentWorkspace;
+            this.Image = toolBarImage;
+            this.Info = new ToolInfo(name, helpText, toolBarImage, hotKey, skipIfActiveOnHotKey, toolBarConfigItems, this.GetType());
 
-            if (this.documentWorkspace != null)
+            if (this.DocumentWorkspace != null)
             {
-                this.documentWorkspace.UpdateStatusBarToToolHelpText(this);
+                this.DocumentWorkspace.UpdateStatusBarToToolHelpText(this);
             }
         }
 
@@ -1521,7 +1471,7 @@ namespace PaintDotNet
 
         protected virtual void Dispose(bool disposing)
         {
-            Debug.Assert(!this.active, "Tool is still active!");
+            Debug.Assert(!this.Active, "Tool is still active!");
 
             if (disposing)
             {
@@ -1538,10 +1488,7 @@ namespace PaintDotNet
         public event EventHandler Disposed;
         private void OnDisposed()
         {
-            if (Disposed != null)
-            {
-                Disposed(this, EventArgs.Empty);
-            }
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         public Form AssociatedForm

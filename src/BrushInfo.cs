@@ -21,47 +21,22 @@ namespace PaintDotNet
     internal class BrushInfo
         : ICloneable
     {
-        private BrushType brushType;
-        private HatchStyle hatchStyle;
-
-        public BrushType BrushType
-        {
-            get
-            {
-                return brushType;
-            }
-
-            set
-            {
-                brushType = value;
-            }
-        }
+        public BrushType BrushType { get; set; }
 
         /// <summary>
         /// If BrushType is equal to BrushType.Hatch, then this info is pertinent.
         /// </summary>
-        public HatchStyle HatchStyle
-        {
-            get
-            {
-                return hatchStyle;
-            }
-
-            set
-            {
-                hatchStyle = value;
-            }
-        }
+        public HatchStyle HatchStyle { get; set; }
 
         public Brush CreateBrush(Color foreColor, Color backColor)
         {
-            if (brushType == BrushType.Solid)
+            if (BrushType == BrushType.Solid)
             {
                 return new SolidBrush(foreColor);
             } 
-            else if (brushType == BrushType.Hatch)
+            else if (BrushType == BrushType.Hatch)
             {
-                return new HatchBrush(hatchStyle, foreColor, backColor);
+                return new HatchBrush(HatchStyle, foreColor, backColor);
             }
 
             throw new InvalidOperationException("BrushType is invalid");
@@ -69,13 +44,13 @@ namespace PaintDotNet
 
         public BrushInfo(BrushType brushType, HatchStyle hatchStyle)
         {
-            this.brushType = brushType;
-            this.hatchStyle = hatchStyle;
+            this.BrushType = brushType;
+            this.HatchStyle = hatchStyle;
         }
 
         public BrushInfo Clone()
         {
-            return new BrushInfo(this.brushType, this.hatchStyle);
+            return new BrushInfo(this.BrushType, this.HatchStyle);
         }
 
         object ICloneable.Clone()

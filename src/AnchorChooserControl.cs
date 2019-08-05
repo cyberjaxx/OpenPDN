@@ -33,10 +33,7 @@ namespace PaintDotNet
         public event EventHandler AnchorEdgeChanged;
         protected virtual void OnAnchorEdgeChanged()
         {
-            if (AnchorEdgeChanged != null)
-            {
-                AnchorEdgeChanged(this, EventArgs.Empty);
-            }
+            AnchorEdgeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         [DefaultValue(AnchorEdge.TopLeft)]

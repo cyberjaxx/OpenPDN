@@ -14,19 +14,11 @@ namespace PaintDotNet
     internal class ExecutedHistoryMementoEventArgs
         : EventArgs
     {
-        private HistoryMemento newHistoryMemento;
-
-        public HistoryMemento NewHistoryMemento
-        {
-            get
-            {
-                return this.newHistoryMemento;
-            }
-        }
+        public HistoryMemento NewHistoryMemento { get; }
 
         public ExecutedHistoryMementoEventArgs(HistoryMemento newHistoryMemento)
         {
-            this.newHistoryMemento = newHistoryMemento;
+            this.NewHistoryMemento = newHistoryMemento;
         }
     }
 }

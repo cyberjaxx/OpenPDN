@@ -20,29 +20,21 @@ namespace PaintDotNet
     internal class MostRecentFiles
     {
         private Queue files; // contains MostRecentFile instances
-        private int maxCount;
         private const int iconSize = 56;
-        private bool loaded = false;
 
         public MostRecentFiles(int maxCount)
         {
-            this.maxCount = maxCount;
+            this.MaxCount = maxCount;
             this.files = new Queue();
         }
 
-        public bool Loaded
-        {
-            get
-            {
-                return this.loaded;
-            }
-        }
+        public bool Loaded { get; private set; } = false;
 
         public int Count
         {
             get
             {
-                if (!this.loaded)
+                if (!this.Loaded)
                 {
                     LoadMruList();
                 }
@@ -51,13 +43,7 @@ namespace PaintDotNet
             }
         }
 
-        public int MaxCount
-        {
-            get
-            {
-                return this.maxCount;
-            }
-        }
+        public int MaxCount { get; }
 
         public int IconSize
         {
@@ -113,7 +99,7 @@ namespace PaintDotNet
             {
                 files.Enqueue(mrf);
 
-                while (files.Count > maxCount)
+                while (files.Count > MaxCount)
                 {
                     files.Dequeue();
                 }
@@ -162,7 +148,7 @@ namespace PaintDotNet
         {
             try
             {
-                this.loaded = true;
+                this.Loaded = true;
                 Clear();
 
                 for (int i = 0; i < MaxCount; ++i)

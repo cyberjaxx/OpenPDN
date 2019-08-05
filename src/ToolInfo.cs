@@ -14,89 +14,33 @@ namespace PaintDotNet
 {
     internal class ToolInfo
     {
-        private string name;
-        private string helpText;
-        private ImageResource image;
-        private bool skipIfActiveOnHotKey;
-        private char hotKey;
-        private Type toolType;
-        private ToolBarConfigItems toolBarConfigItems;
+        public string Name { get; }
 
-        public string Name
-        {
-            get
-            {
-                return this.name;
-            }
-        }
+        public string HelpText { get; }
 
-        public string HelpText
-        {
-            get
-            {
-                return this.helpText;
-            }
-        }
+        public ImageResource Image { get; }
 
-        public ImageResource Image
-        {
-            get
-            {
-                return this.image;
-            }
-        }
+        public bool SkipIfActiveOnHotKey { get; }
 
-        public bool SkipIfActiveOnHotKey
-        {
-            get
-            {
-                return this.skipIfActiveOnHotKey;
-            }
-        }
+        public char HotKey { get; }
 
-        public char HotKey
-        {
-            get
-            {
-                return this.hotKey;
-            }
-        }
+        public Type ToolType { get; }
 
-        public Type ToolType
-        {
-            get
-            {
-                return this.toolType;
-            }
-        }
-
-        public ToolBarConfigItems ToolBarConfigItems
-        {
-            get
-            {
-                return this.toolBarConfigItems;
-            }
-        }
+        public ToolBarConfigItems ToolBarConfigItems { get; }
 
         public override bool Equals(object obj)
         {
-            ToolInfo rhs = obj as ToolInfo;
-
-            if (rhs == null)
-            {
-                return false;
-            }
-
-            return (this.name == rhs.name) &&
-                   (this.helpText == rhs.helpText) &&
-                   (this.hotKey == rhs.hotKey) &&
-                   (this.skipIfActiveOnHotKey == rhs.skipIfActiveOnHotKey) &&
-                   (this.toolType == rhs.toolType);
+            return !(obj is ToolInfo rhs) ? false
+                : (Name == rhs.Name) &&
+                   (HelpText == rhs.HelpText) &&
+                   (HotKey == rhs.HotKey) &&
+                   (SkipIfActiveOnHotKey == rhs.SkipIfActiveOnHotKey) &&
+                   (ToolType == rhs.ToolType);
         }
 
         public override int GetHashCode()
         {
-            return name.GetHashCode();
+            return Name.GetHashCode();
         }
 
         public ToolInfo(
@@ -108,13 +52,13 @@ namespace PaintDotNet
             ToolBarConfigItems toolBarConfigItems, 
             Type toolType)
         {
-            this.name = name;
-            this.helpText = helpText;
-            this.image = image;
-            this.hotKey = hotKey;
-            this.skipIfActiveOnHotKey = skipIfActiveOnHotKey;
-            this.toolBarConfigItems = toolBarConfigItems;
-            this.toolType = toolType;
+            Name = name;
+            HelpText = helpText;
+            Image = image;
+            HotKey = hotKey;
+            SkipIfActiveOnHotKey = skipIfActiveOnHotKey;
+            ToolBarConfigItems = toolBarConfigItems;
+            ToolType = toolType;
         }
     }
 }

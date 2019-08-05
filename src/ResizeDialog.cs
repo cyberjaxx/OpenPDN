@@ -10,12 +10,8 @@
 using PaintDotNet.SystemLayer;
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Diagnostics;
 
 namespace PaintDotNet
 {
@@ -24,7 +20,6 @@ namespace PaintDotNet
     {
         private sealed class ResizeConstrainer
         {
-            private Size originalPixelSize;
             private double newWidth;
             private double newHeight;
             private MeasurementUnit units;
@@ -35,25 +30,16 @@ namespace PaintDotNet
             {
                 get
                 {
-                    return (double)originalPixelSize.Width / (double)originalPixelSize.Height;
+                    return (double)OriginalPixelSize.Width / (double)OriginalPixelSize.Height;
                 }
             }
 
-            public Size OriginalPixelSize
-            {
-                get
-                {
-                    return this.originalPixelSize;
-                }
-            }
+            public Size OriginalPixelSize { get; }
 
             public event EventHandler NewWidthChanged;
             private void OnNewWidthChanged()
             {
-                if (NewWidthChanged != null)
-                {
-                    NewWidthChanged(this, EventArgs.Empty);
-                }
+                NewWidthChanged?.Invoke(this, EventArgs.Empty);
             }
 
             public double NewPixelWidth
@@ -114,10 +100,7 @@ namespace PaintDotNet
             public event EventHandler NewHeightChanged;
             private void OnNewHeightChanged()
             {
-                if (NewHeightChanged != null)
-                {
-                    NewHeightChanged(this, EventArgs.Empty);
-                }
+                NewHeightChanged?.Invoke(this, EventArgs.Empty);
             }
 
             public double NewPixelHeight
@@ -178,10 +161,7 @@ namespace PaintDotNet
             public event EventHandler UnitsChanged;
             private void OnUnitsChanged()
             {
-                if (UnitsChanged != null)
-                {
-                    UnitsChanged(this, EventArgs.Empty);
-                }
+                UnitsChanged?.Invoke(this, EventArgs.Empty);
             }
 
             public MeasurementUnit Units
@@ -264,10 +244,7 @@ namespace PaintDotNet
             public event EventHandler ResolutionChanged;
             private void OnResolutionChanged()
             {
-                if (ResolutionChanged != null)
-                {
-                    ResolutionChanged(this, EventArgs.Empty);
-                }
+                ResolutionChanged?.Invoke(this, EventArgs.Empty);
             }
 
             public const double MinResolution = 0.01;
@@ -309,10 +286,7 @@ namespace PaintDotNet
             public event EventHandler ConstrainToAspectChanged;
             private void OnConstrainToAspectChanged()
             {
-                if (ConstrainToAspectChanged != null)
-                {
-                    ConstrainToAspectChanged(this, EventArgs.Empty);
-                }
+                ConstrainToAspectChanged?.Invoke(this, EventArgs.Empty);
             }
 
             public bool ConstrainToAspect
@@ -355,11 +329,11 @@ namespace PaintDotNet
             public ResizeConstrainer(Size originalPixelSize)
             {
                 this.constrainToAspect = false;
-                this.originalPixelSize = originalPixelSize;
+                this.OriginalPixelSize = originalPixelSize;
                 this.units = Document.DefaultDpuUnit;
                 this.resolution = Document.GetDefaultDpu(this.units);
-                this.newWidth = (double)this.originalPixelSize.Width / this.resolution;
-                this.newHeight = (double)this.originalPixelSize.Height / this.resolution;
+                this.newWidth = (double)this.OriginalPixelSize.Width / this.resolution;
+                this.newHeight = (double)this.OriginalPixelSize.Height / this.resolution;
             }
         }            
 
@@ -411,14 +385,12 @@ namespace PaintDotNet
         {
             get
             {
-                double doubleVal;
-
-                if (!Utility.GetUpDownValueFromText(this.pixelWidthUpDown, out doubleVal))
+                if (!Utility.GetUpDownValueFromText(this.pixelWidthUpDown, out double doubleVal))
                 {
                     doubleVal = Math.Round(constrainer.NewPixelWidth);
                 }
 
-                int intVal = (int)Utility.Clamp(doubleVal, (double)int.MinValue, (double)int.MaxValue);
+                int intVal = (int)Utility.Clamp(doubleVal, int.MinValue, int.MaxValue);
 
                 return intVal;
             }
@@ -436,14 +408,12 @@ namespace PaintDotNet
         {
             get
             {
-                double doubleVal;
-
-                if (!Utility.GetUpDownValueFromText(this.pixelHeightUpDown, out doubleVal))
+                if (!Utility.GetUpDownValueFromText(this.pixelHeightUpDown, out double doubleVal))
                 {
                     doubleVal = Math.Round(constrainer.NewPixelHeight);
                 }
 
-                int intVal = (int)Utility.Clamp(doubleVal, (double)int.MinValue, (double)int.MaxValue);
+                int intVal = (int)Utility.Clamp(doubleVal, int.MinValue, int.MaxValue);
 
                 return intVal;
             }
@@ -1378,9 +1348,7 @@ namespace PaintDotNet
         {
             if (e.KeyCode != Keys.Tab)
             {
-                double val;
-
-                if (Utility.GetUpDownValueFromText((NumericUpDown)sender, out val))
+                if (Utility.GetUpDownValueFromText((NumericUpDown)sender, out double val))
                 {
                     UpdateSizeText();
 
@@ -1436,9 +1404,7 @@ namespace PaintDotNet
 
         private void PopulateAsteriskLabels()
         {
-            ResampleMethod rm = this.resamplingAlgorithmComboBox.SelectedItem as ResampleMethod;
-
-            if (rm == null)
+            if (!(resamplingAlgorithmComboBox.SelectedItem is ResampleMethod rm))
             {
                 return;
             }
@@ -1502,10 +1468,7 @@ namespace PaintDotNet
         {
             ++ignoreUpDownValueChanged;
 
-            double val = 0.0;
-            bool result;
-
-            result = Utility.GetUpDownValueFromText(this.pixelWidthUpDown, out val);
+            bool result = Utility.GetUpDownValueFromText(this.pixelWidthUpDown, out double val);
             if (!result || val != this.constrainer.NewPixelWidth)
             {
                 SafeSetNudValue(this.pixelWidthUpDown, this.constrainer.NewPixelWidth);
@@ -1526,9 +1489,7 @@ namespace PaintDotNet
         {
             ++ignoreUpDownValueChanged;
 
-            double val;
-
-            if (Utility.GetUpDownValueFromText(this.pixelHeightUpDown, out val))
+            if (Utility.GetUpDownValueFromText(this.pixelHeightUpDown, out double val))
             {
                 if (val != this.constrainer.NewPixelHeight)
                 {
@@ -1578,19 +1539,12 @@ namespace PaintDotNet
 
         private void TryToEnableOkButton()
         {
-            double pixelWidth;
-            double pixelHeight;
-            double printWidth;
-            double printHeight;
-            double resolution;
-            double percent;
-
-            bool b1 = Utility.GetUpDownValueFromText(this.pixelWidthUpDown, out pixelWidth);
-            bool b2 = Utility.GetUpDownValueFromText(this.pixelHeightUpDown, out pixelHeight);
-            bool b3 = Utility.GetUpDownValueFromText(this.printWidthUpDown, out printWidth);
-            bool b4 = Utility.GetUpDownValueFromText(this.printHeightUpDown, out printHeight);
-            bool b5 = Utility.GetUpDownValueFromText(this.resolutionUpDown, out resolution);
-            bool b6 = Utility.GetUpDownValueFromText(this.percentUpDown, out percent);
+            bool b1 = Utility.GetUpDownValueFromText(this.pixelWidthUpDown, out double pixelWidth);
+            bool b2 = Utility.GetUpDownValueFromText(this.pixelHeightUpDown, out double pixelHeight);
+            bool b3 = Utility.GetUpDownValueFromText(this.printWidthUpDown, out double printWidth);
+            bool b4 = Utility.GetUpDownValueFromText(this.printHeightUpDown, out double printHeight);
+            bool b5 = Utility.GetUpDownValueFromText(this.resolutionUpDown, out double resolution);
+            bool b6 = Utility.GetUpDownValueFromText(this.percentUpDown, out double percent);
 
             bool b7 = (pixelWidth >= 1.0 && pixelWidth <= 65535.0);
             bool b8 = (pixelHeight >= 1.0 && pixelHeight <= 65535.0);

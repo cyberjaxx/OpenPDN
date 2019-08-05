@@ -42,10 +42,7 @@ namespace PaintDotNet
         {
             if (this.ignoreToolClicked <= 0)
             {
-                if (ToolClicked != null)
-                {
-                    ToolClicked(this, new ToolClickedEventArgs(toolType));
-                }
+                ToolClicked?.Invoke(this, new ToolClickedEventArgs(toolType));
             }
         }
 
@@ -202,10 +199,7 @@ namespace PaintDotNet
         public event EventHandler RelinquishFocus;
         private void OnRelinquishFocus()
         {
-            if (RelinquishFocus != null)
-            {
-                RelinquishFocus(this, EventArgs.Empty);
-            }
+            RelinquishFocus?.Invoke(this, EventArgs.Empty);
         }
 
         private void ToolStripEx_RelinquishFocus(object sender, EventArgs e)

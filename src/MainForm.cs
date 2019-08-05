@@ -8,28 +8,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using PaintDotNet.Actions;
-using PaintDotNet.Effects;
-using PaintDotNet.Menus;
 using PaintDotNet.SystemLayer;
-using PaintDotNet.Tools;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
-using System.Net;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Security;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -141,11 +125,7 @@ namespace PaintDotNet
                 return false;
             }
 
-            ArgumentAction action;
-            string actionParm;
-            bool result;
-            
-            result = SplitMessage(message, out action, out actionParm);
+            bool result = SplitMessage(message, out ArgumentAction action, out string actionParm);
 
             if (!result)
             {
@@ -549,9 +529,7 @@ namespace PaintDotNet
             {
                 foreach (Form form in Application.OpenForms)
                 {
-                    PdnBaseForm asPDF = form as PdnBaseForm;
-
-                    if (asPDF != null)
+                    if (form is PdnBaseForm asPDF)
                     {
                         asPDF.Flash();
                     }
@@ -1301,7 +1279,7 @@ namespace PaintDotNet
         private static void PrintFocus()
         {
             Control c = Utility.FindFocus();
-            Tracing.Ping("Focused: " + GetControlName(c));
+            //Tracing.Ping("Focused: " + GetControlName(c));
         }
 
         private static void FocusPrintThread()

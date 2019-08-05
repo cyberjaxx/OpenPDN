@@ -23,14 +23,7 @@ namespace PaintDotNet
     /// </summary>
     internal abstract class DocumentWorkspaceAction
     {
-        private ActionFlags actionFlags;
-        public ActionFlags ActionFlags
-        {
-            get
-            {
-                return this.actionFlags;
-            }
-        }
+        public ActionFlags ActionFlags { get; }
 
         /// <summary>
         /// Implement this to provide an action. You must return a HistoryMemento so that you
@@ -47,7 +40,7 @@ namespace PaintDotNet
         /// <param name="actionFlags">Flags that describe action behavior or requirements.</param>
         public DocumentWorkspaceAction(ActionFlags actionFlags)
         {
-            this.actionFlags = actionFlags;
+            this.ActionFlags = actionFlags;
             SystemLayer.Tracing.LogFeature("DWAction(" + GetType().Name + ")");
         }
     }

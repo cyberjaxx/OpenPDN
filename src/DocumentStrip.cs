@@ -106,9 +106,8 @@ namespace PaintDotNet
                 for (int i = 0; i < thumbnails.Length; ++i)
                 {
                     DocumentWorkspace dw = this.documents[i];
-                    RenderArgs ra;
 
-                    if (!this.thumbs.TryGetValue(dw, out ra))
+                    if (!this.thumbs.TryGetValue(dw, out RenderArgs ra))
                     {
                         thumbnails[i] = null;
                     }
@@ -133,10 +132,7 @@ namespace PaintDotNet
         public event EventHandler DocumentListChanged;
         protected virtual void OnDocumentListChanged()
         {
-            if (DocumentListChanged != null)
-            {
-                DocumentListChanged(this, EventArgs.Empty);
-            }
+            DocumentListChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public DocumentWorkspace SelectedDocument
@@ -342,9 +338,7 @@ namespace PaintDotNet
         
         protected override void OnItemClicked(Item item, ItemPart itemPart, MouseButtons mouseButtons)
         {
-            DocumentWorkspace dw = item.Tag as DocumentWorkspace;
-
-            if (dw != null)
+            if (item.Tag is DocumentWorkspace dw)
             {
                 switch (itemPart)
                 {
@@ -381,11 +375,8 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<Pair<DocumentWorkspace, DocumentClickAction>>> DocumentClicked;
         protected virtual void OnDocumentClicked(DocumentWorkspace dw, DocumentClickAction action)
         {
-            if (DocumentClicked != null)
-            {
-                DocumentClicked(this, new EventArgs<Pair<DocumentWorkspace, DocumentClickAction>>(
-                    Pair.Create(dw, action)));
-            }
+            DocumentClicked?.Invoke(this, new EventArgs<Pair<DocumentWorkspace, DocumentClickAction>>(
+                Pair.Create(dw, action)));
         }
 
         public void UnlockDocumentWorkspaceDirtyValue(DocumentWorkspace unlockMe)

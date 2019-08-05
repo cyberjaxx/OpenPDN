@@ -21,7 +21,6 @@ namespace PaintDotNet
         : PdnBaseForm
     {
         private HeaderLabel separator1;
-        private ProgressBar progressBar;
         private Button cancelButton;
         private Label itemText;
         private Label operationProgress;
@@ -29,63 +28,32 @@ namespace PaintDotNet
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         public string ItemText
         {
-            get
-            {
-                return this.itemText.Text;
-            }
-
-            set
-            {
-                this.itemText.Text = value;
-            }
+            get => itemText.Text;
+            set => itemText.Text = value;
         }
 
         public string OperationProgress
         {
-            get
-            {
-                return this.operationProgress.Text;
-            }
-
-            set
-            {
-                this.operationProgress.Text = value;
-            }
+            get => operationProgress.Text;
+            set => operationProgress.Text = value;
         }
 
         public event EventHandler CancelClicked;
-
         protected virtual void OnCancelClicked()
         {
-            if (CancelClicked != null)
-            {
-                CancelClicked(this, EventArgs.Empty);
-            }
+            CancelClicked?.Invoke(this, EventArgs.Empty);
         }
 
-        public ProgressBar ProgressBar
-        {
-            get
-            {
-                return this.progressBar;
-            }
-        }
+        public ProgressBar ProgressBar { get; private set; }
 
         public bool CancelEnabled
         {
-            get
-            {
-                return this.cancelButton.Enabled;
-            }
-
-            set
-            {
-                this.cancelButton.Enabled = value;
-            }
+            get => cancelButton.Enabled;
+            set => cancelButton.Enabled = value;
         }
 
         public TransferProgressDialog()
@@ -134,7 +102,7 @@ namespace PaintDotNet
         /// </summary>
         private void InitializeComponent()
         {
-            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.cancelButton = new System.Windows.Forms.Button();
             this.itemText = new System.Windows.Forms.Label();
             this.separator1 = new PaintDotNet.HeaderLabel();
@@ -143,10 +111,10 @@ namespace PaintDotNet
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(10, 51);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(405, 19);
-            this.progressBar.TabIndex = 0;
+            this.ProgressBar.Location = new System.Drawing.Point(10, 51);
+            this.ProgressBar.Name = "progressBar";
+            this.ProgressBar.Size = new System.Drawing.Size(405, 19);
+            this.ProgressBar.TabIndex = 0;
             // 
             // cancelButton
             // 
@@ -192,7 +160,7 @@ namespace PaintDotNet
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(423, 121);
             this.Controls.Add(this.operationProgress);
-            this.Controls.Add(this.progressBar);
+            this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.itemText);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.separator1);
@@ -207,7 +175,7 @@ namespace PaintDotNet
             this.Controls.SetChildIndex(this.separator1, 0);
             this.Controls.SetChildIndex(this.cancelButton, 0);
             this.Controls.SetChildIndex(this.itemText, 0);
-            this.Controls.SetChildIndex(this.progressBar, 0);
+            this.Controls.SetChildIndex(this.ProgressBar, 0);
             this.Controls.SetChildIndex(this.operationProgress, 0);
             this.ResumeLayout(false);
 

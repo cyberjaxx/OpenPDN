@@ -14,24 +14,9 @@ namespace PaintDotNet
 {
     internal class PdnVersionManifest
     {
-        private string downloadPageUrl;
-        private PdnVersionInfo[] versionInfos;
+        public string DownloadPageUrl { get; }
 
-        public string DownloadPageUrl
-        {
-            get
-            {
-                return this.downloadPageUrl;
-            }
-        }
-
-        public PdnVersionInfo[] VersionInfos
-        {
-            get
-            {
-                return (PdnVersionInfo[])this.versionInfos;
-            }
-        }
+        public PdnVersionInfo[] VersionInfos { get; }
 
         private class PdnVersionInfoComparer
             : IComparer
@@ -90,8 +75,8 @@ namespace PaintDotNet
 
         public PdnVersionManifest(string downloadPageUrl, PdnVersionInfo[] versionInfos)
         {
-            this.downloadPageUrl = downloadPageUrl;
-            this.versionInfos = (PdnVersionInfo[])versionInfos.Clone();
+            this.DownloadPageUrl = downloadPageUrl;
+            this.VersionInfos = (PdnVersionInfo[])versionInfos.Clone();
         }
     }
 }

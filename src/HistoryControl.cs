@@ -9,11 +9,8 @@
 
 using PaintDotNet.SystemLayer;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -27,106 +24,69 @@ namespace PaintDotNet
             Redo
         }
 
-        private bool managedFocus = false;
-        private VScrollBar vScrollBar;
-        private HistoryStack historyStack = null;
-        private int itemHeight;
-        private int undoItemHighlight = -1;
-        private int redoItemHighlight = -1;
-        private int scrollOffset = 0;
-        private Point lastMouseClientPt = new Point(-1, -1);
-        private int ignoreScrollOffsetSet = 0;
+        private VScrollBar VScrollBar { get; set; }
+        private int ItemHeight { get; set; }
+        private int UndoItemHighlight { get; set; } = -1;
+        private int RedoItemHighlight { get; set; } = -1;
+        private Point LastMouseClientPt { get; set; } = new Point(-1, -1);
+        private int IgnoreScrollOffsetSet { get; set; } = 0;
 
         private void SuspendScrollOffsetSet()
         {
-            ++this.ignoreScrollOffsetSet;
+            ++IgnoreScrollOffsetSet;
         }
 
         private void ResumeScrollOffsetSet()
         {
-            --this.ignoreScrollOffsetSet;
+            --IgnoreScrollOffsetSet;
         }
 
-        public bool ManagedFocus
-        {
-            get
-            {
-                return this.managedFocus;
-            }
-
-            set
-            {
-                this.managedFocus = value;
-            }
-        }
+        public bool ManagedFocus { get; set; } = false;
 
         public event EventHandler RelinquishFocus;
         private void OnRelinquishFocus()
         {
-            if (RelinquishFocus != null)
-            {
-                RelinquishFocus(this, EventArgs.Empty);
-            }
+            RelinquishFocus?.Invoke(this, EventArgs.Empty);
         }
 
         private int ItemCount
         {
-            get
-            {
-                if (this.historyStack == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return this.historyStack.UndoStack.Count + this.historyStack.RedoStack.Count;
-                }
-            }
+            get => historyStack == null ? 0 :
+                    historyStack.UndoStack.Count + historyStack.RedoStack.Count;
         }
 
         public event EventHandler ScrollOffsetChanged;
         private void OnScrollOffsetChanged()
         {
-            this.vScrollBar.Value = Utility.Clamp(this.scrollOffset, this.vScrollBar.Minimum, this.vScrollBar.Maximum);
+            VScrollBar.Value = Utility.Clamp(ScrollOffset, VScrollBar.Minimum, VScrollBar.Maximum);
 
-            if (ScrollOffsetChanged != null)
-            {
-                ScrollOffsetChanged(this, EventArgs.Empty);
-            }
+            ScrollOffsetChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public int MinScrollOffset
         {
-            get
-            {
-                return 0;
-            }
+            get => 0;
         }
 
         public int MaxScrollOffset
         {
-            get
-            {
-                return Math.Max(0, ViewHeight - ClientSize.Height);
-            }
+            get => Math.Max(0, ViewHeight - ClientSize.Height);
         }
 
+        private int scrollOffset = 0;
         public int ScrollOffset
         {
-            get
-            {
-                return this.scrollOffset;
-            }
+            get => scrollOffset;
 
             set
             {
-                if (this.ignoreScrollOffsetSet <= 0)
+                if (IgnoreScrollOffsetSet <= 0)
                 {
                     int clampedOffset = Utility.Clamp(value, MinScrollOffset, MaxScrollOffset);
 
-                    if (this.scrollOffset != clampedOffset)
+                    if (scrollOffset != clampedOffset)
                     {
-                        this.scrollOffset = clampedOffset;
+                        scrollOffset = clampedOffset;
                         OnScrollOffsetChanged();
                         Invalidate(false);
                     }
@@ -136,10 +96,7 @@ namespace PaintDotNet
 
         public Rectangle ViewRectangle
         {
-            get
-            {
-                return new Rectangle(0, 0, ViewWidth, ViewHeight);
-            }
+            get => new Rectangle(0, 0, ViewWidth, ViewHeight);
         }
 
         public Rectangle ClientRectangleToViewRectangle(Rectangle clientRect)
@@ -150,35 +107,18 @@ namespace PaintDotNet
 
         public int ViewWidth
         {
-            get
-            {
-                int width;
-
-                if (this.vScrollBar.Visible)
-                {
-                    width = ClientSize.Width - this.vScrollBar.Width;
-                }
-                else
-                {
-                    width = ClientSize.Width;
-                }
-
-                return width;
-            }
+            get => VScrollBar.Visible ? ClientSize.Width - VScrollBar.Width : ClientSize.Width;
         }
 
         private int ViewHeight
         {
-            get
-            {
-                return ItemCount * this.itemHeight;
-            }
+            get => ItemCount * ItemHeight;
         }
 
         private void EnsureItemIsFullyVisible(ItemType itemType, int itemIndex)
         {
             Point itemPt = StackIndexToViewPoint(itemType, itemIndex);
-            Rectangle itemRect = new Rectangle(itemPt, new Size(ViewWidth, this.itemHeight));
+            Rectangle itemRect = new Rectangle(itemPt, new Size(ViewWidth, ItemHeight));
 
             int minOffset = itemRect.Bottom - ClientSize.Height;
             int maxOffset = itemRect.Top;
@@ -198,14 +138,14 @@ namespace PaintDotNet
             if (viewPt.Y >= undoRect.Top && viewPt.Y < undoRect.Bottom)
             {
                 itemType = ItemType.Undo;
-                itemIndex = (viewPt.Y - undoRect.Top) / this.itemHeight;
+                itemIndex = (viewPt.Y - undoRect.Top) / ItemHeight;
             }
             else
             {
                 Rectangle redoRect = RedoViewRectangle;
 
                 itemType = ItemType.Redo;
-                itemIndex = (viewPt.Y - redoRect.Top) / this.itemHeight;
+                itemIndex = (viewPt.Y - redoRect.Top) / ItemHeight;
             }
         }
 
@@ -223,52 +163,45 @@ namespace PaintDotNet
                 typeRect = RedoViewRectangle;
             }
 
-            y = (itemIndex * this.itemHeight) + typeRect.Top;
+            y = (itemIndex * ItemHeight) + typeRect.Top;
             return new Point(0, y);
         }
 
         public event EventHandler HistoryChanged;
         private void OnHistoryChanged()
         {
-            this.vScrollBar.Maximum = ViewHeight;
+            VScrollBar.Maximum = ViewHeight;
 
-            if (HistoryChanged != null)
-            {
-                HistoryChanged(this, EventArgs.Empty);
-            }
+            HistoryChanged?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void OnLayout(LayoutEventArgs levent)
         {
-            int totalItems;
+            int totalItems = 0;
 
-            if (this.historyStack == null)
+            if (HistoryStack != null)
             {
-                totalItems = 0;
-            }
-            else
-            {
-                totalItems = this.historyStack.UndoStack.Count + this.historyStack.RedoStack.Count;
+                totalItems = HistoryStack.UndoStack.Count + HistoryStack.RedoStack.Count;
             }
 
-            int totalHeight = totalItems * this.itemHeight;
+            int totalHeight = totalItems * ItemHeight;
 
             if (totalHeight > ClientSize.Height)
             {
-                this.vScrollBar.Visible = true;
-                this.vScrollBar.Location = new Point(ClientSize.Width - this.vScrollBar.Width, 0);
-                this.vScrollBar.Height = ClientSize.Height;
-                this.vScrollBar.Minimum = 0;
-                this.vScrollBar.Maximum = totalHeight;
-                this.vScrollBar.LargeChange = ClientSize.Height;
-                this.vScrollBar.SmallChange = this.itemHeight;
+                VScrollBar.Visible = true;
+                VScrollBar.Location = new Point(ClientSize.Width - VScrollBar.Width, 0);
+                VScrollBar.Height = ClientSize.Height;
+                VScrollBar.Minimum = 0;
+                VScrollBar.Maximum = totalHeight;
+                VScrollBar.LargeChange = ClientSize.Height;
+                VScrollBar.SmallChange = ItemHeight;
             }
             else
             {
-                this.vScrollBar.Visible = false;
+                VScrollBar.Visible = false;
             }
 
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
                 ScrollOffset = Utility.Clamp(ScrollOffset, MinScrollOffset, MaxScrollOffset);
             }
@@ -280,7 +213,7 @@ namespace PaintDotNet
         {
             get
             {
-                return new Rectangle(0, 0, ViewWidth, this.itemHeight * this.historyStack.UndoStack.Count);
+                return new Rectangle(0, 0, ViewWidth, ItemHeight * HistoryStack.UndoStack.Count);
             }
         }
 
@@ -288,21 +221,21 @@ namespace PaintDotNet
         {
             get
             {
-                int undoRectBottom = this.itemHeight * this.historyStack.UndoStack.Count;
-                return new Rectangle(0, undoRectBottom, ViewWidth, this.itemHeight * this.historyStack.RedoStack.Count);
+                int undoRectBottom = ItemHeight * HistoryStack.UndoStack.Count;
+                return new Rectangle(0, undoRectBottom, ViewWidth, ItemHeight * HistoryStack.RedoStack.Count);
             }
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
                 using (SolidBrush backBrush = new SolidBrush(BackColor))
                 {
                     e.Graphics.FillRectangle(backBrush, e.ClipRectangle);
                 }
 
-                e.Graphics.TranslateTransform(0, -this.scrollOffset);
+                e.Graphics.TranslateTransform(0, -ScrollOffset);
 
                 int afterImageHMargin = UI.ScaleWidth(1);
 
@@ -324,8 +257,7 @@ namespace PaintDotNet
                 int endUndoIndex;
                 if (visibleUndoRect.Width > 0 && visibleUndoRect.Height > 0)
                 {
-                    ItemType itemType;
-                    ViewPointToStackIndex(visibleUndoRect.Location, out itemType, out beginUndoIndex);
+                    ViewPointToStackIndex(visibleUndoRect.Location, out ItemType itemType, out beginUndoIndex);
                     ViewPointToStackIndex(new Point(visibleUndoRect.Left, visibleUndoRect.Bottom - 1), out itemType, out endUndoIndex);
                 }
                 else
@@ -338,7 +270,7 @@ namespace PaintDotNet
                 for (int i = beginUndoIndex; i <= endUndoIndex; ++i)
                 {
                     Image image;
-                    ImageResource imageResource = this.historyStack.UndoStack[i].Image;
+                    ImageResource imageResource = HistoryStack.UndoStack[i].Image;
 
                     if (imageResource != null)
                     {
@@ -352,22 +284,22 @@ namespace PaintDotNet
                     int drawWidth;
                     if (image != null)
                     {
-                        drawWidth = (image.Width * this.itemHeight) / image.Height;
+                        drawWidth = (image.Width * ItemHeight) / image.Height;
                     }
                     else
                     {
-                        drawWidth = this.itemHeight;
+                        drawWidth = ItemHeight;
                     }
 
                     Brush textBrush;
 
-                    if (i == this.undoItemHighlight)
+                    if (i == UndoItemHighlight)
                     {
                         Rectangle itemRect = new Rectangle(
                             0,
-                            i * this.itemHeight,
+                            i * ItemHeight,
                             ViewWidth,
-                            this.itemHeight);
+                            ItemHeight);
 
                         e.Graphics.FillRectangle(SystemBrushes.Highlight, itemRect);
                         textBrush = SystemBrushes.HighlightText;
@@ -381,7 +313,7 @@ namespace PaintDotNet
                     {
                         e.Graphics.DrawImage(
                             image,
-                            new Rectangle(0, i * this.itemHeight, drawWidth, this.itemHeight),
+                            new Rectangle(0, i * ItemHeight, drawWidth, ItemHeight),
                             new Rectangle(0, 0, image.Width, image.Height),
                             GraphicsUnit.Pixel);
                     }
@@ -390,12 +322,12 @@ namespace PaintDotNet
 
                     Rectangle textRect = new Rectangle(
                         textX,
-                        i * this.itemHeight,
+                        i * ItemHeight,
                         ViewWidth - textX,
-                        this.itemHeight);
+                        ItemHeight);
 
                     e.Graphics.DrawString(
-                        this.historyStack.UndoStack[i].Name, 
+                        HistoryStack.UndoStack[i].Name, 
                         Font,
                         textBrush, 
                         textRect, 
@@ -416,8 +348,7 @@ namespace PaintDotNet
                 int endRedoIndex;
                 if (visibleRedoRect.Width > 0 && visibleRedoRect.Height > 0)
                 {
-                    ItemType itemType;
-                    ViewPointToStackIndex(visibleRedoRect.Location, out itemType, out beginRedoIndex);
+                    ViewPointToStackIndex(visibleRedoRect.Location, out ItemType itemType, out beginRedoIndex);
                     ViewPointToStackIndex(new Point(visibleRedoRect.Left, visibleRedoRect.Bottom - 1), out itemType, out endRedoIndex);
                 }
                 else
@@ -430,7 +361,7 @@ namespace PaintDotNet
                 for (int i = beginRedoIndex; i <= endRedoIndex; ++i)
                 {
                     Image image;
-                    ImageResource imageResource = this.historyStack.RedoStack[i].Image;
+                    ImageResource imageResource = HistoryStack.RedoStack[i].Image;
 
                     if (imageResource != null)
                     {
@@ -445,23 +376,23 @@ namespace PaintDotNet
 
                     if (image != null)
                     {
-                        drawWidth = (image.Width * this.itemHeight) / image.Height;
+                        drawWidth = (image.Width * ItemHeight) / image.Height;
                     }
                     else
                     {
-                        drawWidth = this.itemHeight;
+                        drawWidth = ItemHeight;
                     }
 
-                    int y = redoRect.Top + i * this.itemHeight;
+                    int y = redoRect.Top + i * ItemHeight;
 
                     Brush textBrush;
-                    if (i == this.redoItemHighlight)
+                    if (i == RedoItemHighlight)
                     {
                         Rectangle itemRect = new Rectangle(
                             0,
                             y,
                             ViewWidth,
-                            this.itemHeight);
+                            ItemHeight);
 
                         e.Graphics.FillRectangle(SystemBrushes.Highlight, itemRect);
                         textBrush = SystemBrushes.HighlightText;
@@ -475,7 +406,7 @@ namespace PaintDotNet
                     {
                         e.Graphics.DrawImage(
                             image,
-                            new Rectangle(0, y, drawWidth, this.itemHeight),
+                            new Rectangle(0, y, drawWidth, ItemHeight),
                             new Rectangle(0, 0, image.Width, image.Height),
                             GraphicsUnit.Pixel);
                     }
@@ -486,10 +417,10 @@ namespace PaintDotNet
                         textX,
                         y,
                         ViewWidth - textX,
-                        this.itemHeight);
+                        ItemHeight);
 
                     e.Graphics.DrawString(
-                        this.historyStack.RedoStack[i].Name,
+                        HistoryStack.RedoStack[i].Name,
                         redoFont,
                         textBrush,
                         textRect,
@@ -502,40 +433,37 @@ namespace PaintDotNet
                 stringFormat.Dispose();
                 stringFormat = null;
 
-                e.Graphics.TranslateTransform(0, this.scrollOffset);
+                e.Graphics.TranslateTransform(0, ScrollOffset);
             }
 
             base.OnPaint(e);
         }
-
+        private HistoryStack historyStack = null;
         public HistoryStack HistoryStack
         {
-            get
-            {
-                return this.historyStack;
-            }
+            get => historyStack;
 
             set
             {
-                if (this.historyStack != null)
+                if (historyStack != null)
                 {
-                    this.historyStack.Changed -= History_Changed;
-                    this.historyStack.SteppedForward -= History_SteppedForward;
-                    this.historyStack.SteppedBackward -= History_SteppedBackward;
-                    this.historyStack.HistoryFlushed -= History_HistoryFlushed;
-                    this.historyStack.NewHistoryMemento -= History_NewHistoryMemento;
+                    historyStack.Changed -= History_Changed;
+                    historyStack.SteppedForward -= History_SteppedForward;
+                    historyStack.SteppedBackward -= History_SteppedBackward;
+                    historyStack.HistoryFlushed -= History_HistoryFlushed;
+                    historyStack.NewHistoryMemento -= History_NewHistoryMemento;
                 }
 
-                this.historyStack = value;
+                historyStack = value;
                 PerformLayout();
 
-                if (this.historyStack != null)
+                if (HistoryStack != null)
                 {
-                    this.historyStack.Changed += History_Changed;
-                    this.historyStack.SteppedForward += History_SteppedForward;
-                    this.historyStack.SteppedBackward += History_SteppedBackward;
-                    this.historyStack.HistoryFlushed += History_HistoryFlushed;
-                    this.historyStack.NewHistoryMemento += History_NewHistoryMemento;
+                    HistoryStack.Changed += History_Changed;
+                    HistoryStack.SteppedForward += History_SteppedForward;
+                    HistoryStack.SteppedBackward += History_SteppedBackward;
+                    HistoryStack.HistoryFlushed += History_HistoryFlushed;
+                    HistoryStack.NewHistoryMemento += History_NewHistoryMemento;
                     EnsureLastUndoItemIsFullyVisible();
                 }
 
@@ -546,7 +474,7 @@ namespace PaintDotNet
 
         private void EnsureLastUndoItemIsFullyVisible()
         {
-            int index = this.historyStack.UndoStack.Count - 1;
+            int index = HistoryStack.UndoStack.Count - 1;
             EnsureItemIsFullyVisible(ItemType.Undo, index);
         }
 
@@ -570,8 +498,8 @@ namespace PaintDotNet
                 return;
             }
 
-            this.undoItemHighlight = -1;
-            this.redoItemHighlight = -1;
+            UndoItemHighlight = -1;
+            RedoItemHighlight = -1;
             EnsureLastUndoItemIsFullyVisible();
             PerformMouseMove();
             PerformLayout();
@@ -585,8 +513,8 @@ namespace PaintDotNet
                 return;
             }
 
-            this.undoItemHighlight = -1;
-            this.redoItemHighlight = -1;
+            UndoItemHighlight = -1;
+            RedoItemHighlight = -1;
             EnsureLastUndoItemIsFullyVisible();
             PerformMouseMove();
             PerformLayout();
@@ -622,7 +550,7 @@ namespace PaintDotNet
         public HistoryControl()
         {
             UI.InitScaling(this);
-            this.itemHeight = UI.ScaleHeight(16);
+            ItemHeight = UI.ScaleHeight(16);
 
             SetStyle(ControlStyles.StandardDoubleClick, false);
 
@@ -631,7 +559,7 @@ namespace PaintDotNet
 
         private void KeyUpHandler(object sender, KeyEventArgs e)
         {
-            this.OnKeyUp(e);
+            OnKeyUp(e);
         }
 
         private void OnItemClicked(ItemType itemType, int itemIndex)
@@ -640,9 +568,9 @@ namespace PaintDotNet
 
             if (itemType == ItemType.Undo)
             {
-                if (itemIndex >= 0 && itemIndex < this.historyStack.UndoStack.Count)
+                if (itemIndex >= 0 && itemIndex < HistoryStack.UndoStack.Count)
                 {
-                    hm = this.historyStack.UndoStack[itemIndex];
+                    hm = HistoryStack.UndoStack[itemIndex];
                 }
                 else
                 {
@@ -651,9 +579,9 @@ namespace PaintDotNet
             }
             else
             {
-                if (itemIndex >= 0 && itemIndex < this.historyStack.RedoStack.Count)
+                if (itemIndex >= 0 && itemIndex < HistoryStack.RedoStack.Count)
                 {
-                    hm = this.historyStack.RedoStack[itemIndex];
+                    hm = HistoryStack.RedoStack[itemIndex];
                 }
                 else
                 {
@@ -674,28 +602,28 @@ namespace PaintDotNet
 
             if (itemType == ItemType.Undo)
             {
-                if (hmID == this.historyStack.UndoStack[historyStack.UndoStack.Count - 1].ID)
+                if (hmID == HistoryStack.UndoStack[HistoryStack.UndoStack.Count - 1].ID)
                 {
-                    if (historyStack.UndoStack.Count > 1)
+                    if (HistoryStack.UndoStack.Count > 1)
                     {
-                        this.historyStack.StepBackward();
+                        HistoryStack.StepBackward();
                     }
                 }
                 else
                 {
                     SuspendScrollOffsetSet();
 
-                    this.historyStack.BeginStepGroup();
+                    HistoryStack.BeginStepGroup();
 
                     using (new WaitCursorChanger(this))
                     {
-                        while (this.historyStack.UndoStack[this.historyStack.UndoStack.Count - 1].ID != hmID)
+                        while (HistoryStack.UndoStack[HistoryStack.UndoStack.Count - 1].ID != hmID)
                         {
-                            this.historyStack.StepBackward();
+                            HistoryStack.StepBackward();
                         }
                     }
 
-                    this.historyStack.EndStepGroup();
+                    HistoryStack.EndStepGroup();
 
                     ResumeScrollOffsetSet();
                 }
@@ -705,17 +633,17 @@ namespace PaintDotNet
                 SuspendScrollOffsetSet();
 
                 // Step forward to redo
-                this.historyStack.BeginStepGroup();
+                HistoryStack.BeginStepGroup();
 
                 using (new WaitCursorChanger(this))
                 {
-                    while (this.historyStack.UndoStack[this.historyStack.UndoStack.Count - 1].ID != hmID)
+                    while (HistoryStack.UndoStack[HistoryStack.UndoStack.Count - 1].ID != hmID)
                     {
-                        this.historyStack.StepForward();
+                        HistoryStack.StepForward();
                     }
                 }
 
-                this.historyStack.EndStepGroup();
+                HistoryStack.EndStepGroup();
 
                 ResumeScrollOffsetSet();
             }
@@ -737,9 +665,9 @@ namespace PaintDotNet
 
         protected override void OnMouseEnter(EventArgs e)
         {
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
-                if (this.managedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive)
+                if (ManagedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive)
                 {
                     Focus();
                 }
@@ -750,40 +678,38 @@ namespace PaintDotNet
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
                 Point clientPt = new Point(e.X, e.Y);
                 Point viewPt = ClientPointToViewPoint(clientPt);
 
-                ItemType itemType;
-                int itemIndex;
-                ViewPointToStackIndex(viewPt, out itemType, out itemIndex);
+                ViewPointToStackIndex(viewPt, out ItemType itemType, out int itemIndex);
 
                 switch (itemType)
                 {
                     case ItemType.Undo:
-                        if (itemIndex >= 0 && itemIndex < this.historyStack.UndoStack.Count)
+                        if (itemIndex >= 0 && itemIndex < HistoryStack.UndoStack.Count)
                         {
-                            this.undoItemHighlight = itemIndex;
+                            UndoItemHighlight = itemIndex;
                         }
                         else
                         {
-                            this.undoItemHighlight = -1;
+                            UndoItemHighlight = -1;
                         }
 
-                        this.redoItemHighlight = -1;
+                        RedoItemHighlight = -1;
                         break;
 
                     case ItemType.Redo:
-                        this.undoItemHighlight = -1;
+                        UndoItemHighlight = -1;
 
-                        if (itemIndex >= 0 && itemIndex < this.historyStack.RedoStack.Count)
+                        if (itemIndex >= 0 && itemIndex < HistoryStack.RedoStack.Count)
                         {
-                            this.redoItemHighlight = itemIndex;
+                            RedoItemHighlight = itemIndex;
                         }
                         else
                         {
-                            this.redoItemHighlight = -1;
+                            RedoItemHighlight = -1;
                         } 
                         break;
 
@@ -792,7 +718,7 @@ namespace PaintDotNet
                 }
 
                 Refresh();
-                this.lastMouseClientPt = clientPt;
+                LastMouseClientPt = clientPt;
             }
 
             base.OnMouseMove(e);
@@ -800,13 +726,11 @@ namespace PaintDotNet
 
         protected override void OnClick(EventArgs e)
         {
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
-                Point viewPt = ClientPointToViewPoint(this.lastMouseClientPt);
+                Point viewPt = ClientPointToViewPoint(LastMouseClientPt);
 
-                ItemType itemType;
-                int itemIndex;
-                ViewPointToStackIndex(viewPt, out itemType, out itemIndex);
+                ViewPointToStackIndex(viewPt, out ItemType itemType, out int itemIndex);
 
                 OnItemClicked(itemType, itemIndex);
             }
@@ -816,10 +740,10 @@ namespace PaintDotNet
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
                 int items = (e.Delta * SystemInformation.MouseWheelScrollLines) / SystemInformation.MouseWheelScrollDelta;
-                int pixels = items * this.itemHeight;
+                int pixels = items * ItemHeight;
                 ScrollOffset -= pixels;
 
                 PerformMouseMove();
@@ -841,13 +765,13 @@ namespace PaintDotNet
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            if (this.historyStack != null)
+            if (HistoryStack != null)
             {
-                this.undoItemHighlight = -1;
-                this.redoItemHighlight = -1;
+                UndoItemHighlight = -1;
+                RedoItemHighlight = -1;
                 Refresh();
 
-                if (this.Focused && this.managedFocus)
+                if (Focused && ManagedFocus)
                 {
                     OnRelinquishFocus();
                 }
@@ -863,21 +787,21 @@ namespace PaintDotNet
         /// </summary>
         private void InitializeComponent()
         {
-            this.vScrollBar = new VScrollBar();
+            VScrollBar = new VScrollBar();
             SuspendLayout();
             //
             // vScrollBar
             //
-            this.vScrollBar.Name = "vScrollBar";
-            this.vScrollBar.ValueChanged += new EventHandler(VScrollBar_ValueChanged);
+            VScrollBar.Name = "vScrollBar";
+            VScrollBar.ValueChanged += new EventHandler(VScrollBar_ValueChanged);
             //
             // HistoryControl
             //
-            this.Name = "HistoryControl";
-            this.TabStop = false;
-            this.Controls.Add(this.vScrollBar);
-            this.ResizeRedraw = true;
-            this.DoubleBuffered = true;
+            Name = "HistoryControl";
+            TabStop = false;
+            Controls.Add(VScrollBar);
+            ResizeRedraw = true;
+            DoubleBuffered = true;
             ResumeLayout();
             PerformLayout();
         }
@@ -885,7 +809,7 @@ namespace PaintDotNet
 
         private void VScrollBar_ValueChanged(object sender, EventArgs e)
         {
-            ScrollOffset = this.vScrollBar.Value;
+            ScrollOffset = VScrollBar.Value;
         }
     }
 }

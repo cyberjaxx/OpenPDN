@@ -21,161 +21,39 @@ namespace PaintDotNet
     /// </summary>
     internal class WorkspaceWidgets
     {
-        private AppWorkspace workspace;
-
-        private DocumentStrip documentStrip;
-        public DocumentStrip DocumentStrip
-        {
-            get
-            {
-                return this.documentStrip;
-            }
-
-            set
-            {
-                this.documentStrip = value;
-            }
-        }
-
-        private ViewConfigStrip viewConfigStrip;
-        public ViewConfigStrip ViewConfigStrip
-        {
-            get
-            {
-                return this.viewConfigStrip;
-            }
-
-            set
-            {
-                this.viewConfigStrip = value;
-            }
-        }
-
-        private ToolConfigStrip toolConfigStrip;
-        public ToolConfigStrip ToolConfigStrip
-        {
-            get
-            {
-                return this.toolConfigStrip;
-            }
-
-            set
-            {
-                this.toolConfigStrip = value;
-            }
-        }
-
-        private CommonActionsStrip commonActionsStrip;
-        public CommonActionsStrip CommonActionsStrip
-        {
-            get
-            {
-                return this.commonActionsStrip;
-            }
-
-            set
-            {
-                this.commonActionsStrip = value;
-            }
-        }
-
-        private ToolsForm toolsForm;
-        public ToolsForm ToolsForm
-        {
-            get
-            {
-                return this.toolsForm;
-            }
-
-            set
-            {
-                this.toolsForm = value;
-            }
-        }
+        private AppWorkspace Workspace { get; }
+        public DocumentStrip DocumentStrip { get; set; }
+        public ViewConfigStrip ViewConfigStrip { get; set; }
+        public ToolConfigStrip ToolConfigStrip { get; set; }
+        public CommonActionsStrip CommonActionsStrip { get; set; }
+        public ToolsForm ToolsForm { get; set; }
 
         public ToolsControl ToolsControl
         {
-            get
-            {
-                return this.toolsForm.ToolsControl;
-            }
+            get => ToolsForm.ToolsControl;
         }
 
-        private LayerForm layerForm;
-        public LayerForm LayerForm
-        {
-            get
-            {
-                return layerForm;
-            }
-
-            set
-            {
-                layerForm = value;
-            }
-        }
+        public LayerForm LayerForm { get; set; }
 
         public LayerControl LayerControl
         {
-            get
-            {
-                return this.layerForm.LayerControl;
-            }
+            get => LayerForm.LayerControl;
         }
 
-        private HistoryForm historyForm;
-        public HistoryForm HistoryForm
-        {
-            get
-            {
-                return this.historyForm;
-            }
-
-            set
-            {
-                this.historyForm = value;
-            }
-        }
+        public HistoryForm HistoryForm { get; set; }
 
         public HistoryControl HistoryControl
         {
-            get
-            {
-                return this.historyForm.HistoryControl;
-            }
+            get => HistoryForm.HistoryControl;
         }
 
-        private ColorsForm colorsForm;
-        public ColorsForm ColorsForm
-        {
-            get
-            {
-                return this.colorsForm;
-            }
+        public ColorsForm ColorsForm { get; set; }
 
-            set
-            {
-                this.colorsForm = value;
-            }
-        }
-
-        private IStatusBarProgress statusBarProgress;
-        public IStatusBarProgress StatusBarProgress
-        {
-            get
-            {
-                return this.statusBarProgress;
-            }
-
-            set
-            {
-                this.statusBarProgress = value;
-            }
-        }
+        public IStatusBarProgress StatusBarProgress { get; set; }
 
         public WorkspaceWidgets(AppWorkspace workspace)
         {
-            this.workspace = workspace;
+            Workspace = workspace;
         }
     }
 }

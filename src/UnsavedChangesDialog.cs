@@ -284,10 +284,7 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<DocumentWorkspace>> DocumentClicked;
         protected virtual void OnDocumentClicked(DocumentWorkspace dw)
         {
-            if (DocumentClicked != null)
-            {
-                DocumentClicked(this, new EventArgs<DocumentWorkspace>(dw));
-            }
+            DocumentClicked?.Invoke(this, new EventArgs<DocumentWorkspace>(dw));
         }
 
         private void DocumentList_DocumentClicked(

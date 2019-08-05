@@ -21,12 +21,10 @@ namespace PaintDotNet
         private string dialogDescription;
         private int progress;
         private Thread thread;
-        private Control owner;
         private ThreadStart threadCallback;
         private Exception exception = null;
         private Point startPos = Point.Empty;
         private bool setStartPos = false;
-        private Icon icon = null;
         private bool cancelled = false;
 
         /// <summary>
@@ -47,26 +45,9 @@ namespace PaintDotNet
             }
         }
 
-        public Icon Icon
-        {
-            get
-            {
-                return icon;
-            }
+        public Icon Icon { get; set; } = null;
 
-            set
-            {
-                icon = value;
-            }
-        }
-
-        protected Control Owner
-        {
-            get
-            {
-                return this.owner;
-            }
-        }
+        protected Control Owner { get; }
 
         protected int Progress
         {
@@ -164,7 +145,7 @@ namespace PaintDotNet
 
         public CallbackWithProgressDialog(Control owner, string dialogTitle, string dialogDescription)
         {
-            this.owner = owner;
+            this.Owner = owner;
             this.dialogTitle = dialogTitle;
             this.dialogDescription = dialogDescription;
         }
@@ -185,9 +166,9 @@ namespace PaintDotNet
                     dialog.MarqueeMode = true;
                 }
 
-                if (icon != null)
+                if (Icon != null)
                 {
-                    dialog.Icon = icon;
+                    dialog.Icon = Icon;
                 }
 
                 EventHandler leh = new EventHandler(dialog_Load);
@@ -212,7 +193,7 @@ namespace PaintDotNet
                     dialog.StartPosition = FormStartPosition.CenterParent;
                 }
 
-                dr = dialog.ShowDialog(owner);
+                dr = dialog.ShowDialog(Owner);
                 dialog.Load -= leh;
 
                 if (cancellable)

@@ -204,10 +204,7 @@ namespace PaintDotNet
         public event EventHandler ColorChanged;
         protected virtual void OnColorChanged()
         {
-            if (ColorChanged != null)
-            {
-                ColorChanged(this, EventArgs.Empty);
-            }
+            ColorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void GrabColor(Point mouseXY)

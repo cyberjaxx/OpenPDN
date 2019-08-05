@@ -16,64 +16,21 @@ namespace PaintDotNet
     /// </summary>
     internal class PdnVersionInfo
     {
-        private Version version;
-        private string friendlyName;
-        private int netFxMajorVersion;
-        private int netFxMinorVersion;
-        private int netFxServicePack;
-        private string infoUrl;
         private string[] downloadUrls;
         private string[] fullDownloadUrls;
-        private bool isFinal;
 
-        public Version Version
-        {
-            get
-            {
-                return this.version;
-            }
-        }
+        public Version Version { get; }
 
-        public string FriendlyName
-        {
-            get
-            {
-                return this.friendlyName;
-            }
-        }
+        public string FriendlyName { get; }
 
-        public int NetFxMajorVersion
-        {
-            get
-            {
-                return this.netFxMajorVersion;
-            }
-        }
+        public int NetFxMajorVersion { get; }
 
-        public int NetFxMinorVersion
-        {
-            get
-            {
-                return this.netFxMinorVersion;
-            }
-        }
+        public int NetFxMinorVersion { get; }
 
-        public int NetFxServicePack
-        {
-            get
-            {
-                return this.netFxServicePack;
-            }
-        }
+        public int NetFxServicePack { get; }
 
-        public string InfoUrl
-        {
-            get
-            {
-                return this.infoUrl;
-            }
-        }
-        
+        public string InfoUrl { get; }
+
         public string[] DownloadUrls
         {
             get
@@ -90,13 +47,7 @@ namespace PaintDotNet
             }
         }
 
-        public bool IsFinal
-        {
-            get
-            {
-                return this.isFinal;
-            }
-        }
+        public bool IsFinal { get; }
 
         public string ChooseDownloadUrl(bool full)
         {
@@ -127,15 +78,15 @@ namespace PaintDotNet
             string[] fullDownloadUrls, 
             bool isFinal)
         {
-            this.version = version;
-            this.friendlyName = friendlyName;
-            this.netFxMajorVersion = netFxMajorVersion;
-            this.netFxMinorVersion = netFxMinorVersion;
-            this.netFxServicePack = netFxServicePack;
-            this.infoUrl = infoUrl;
+            this.Version = version;
+            this.FriendlyName = friendlyName;
+            this.NetFxMajorVersion = netFxMajorVersion;
+            this.NetFxMinorVersion = netFxMinorVersion;
+            this.NetFxServicePack = netFxServicePack;
+            this.InfoUrl = infoUrl;
             this.downloadUrls = (string[])downloadUrls.Clone();
             this.fullDownloadUrls = (string[])fullDownloadUrls.Clone();
-            this.isFinal = isFinal;
+            this.IsFinal = isFinal;
         }
     }
 }

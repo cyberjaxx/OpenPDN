@@ -8,10 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -26,10 +23,7 @@ namespace PaintDotNet
         public event EventHandler CursorChanged;
         protected virtual void OnCursorChanged()
         {
-            if (CursorChanged != null)
-            {
-                CursorChanged(this, EventArgs.Empty);
-            }
+            CursorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public Cursor Cursor
@@ -52,19 +46,13 @@ namespace PaintDotNet
         public event EventHandler LocationChanging;
         protected virtual void OnLocationChanging()
         {
-            if (LocationChanging != null)
-            {
-                LocationChanging(this, EventArgs.Empty);
-            }
+            LocationChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler LocationChanged;
         protected virtual void OnLocationChanged()
         {
-            if (LocationChanged != null)
-            {
-                LocationChanged(this, EventArgs.Empty);
-            }
+            LocationChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public PointF Location
@@ -88,19 +76,13 @@ namespace PaintDotNet
         public event EventHandler SizeChanging;
         protected virtual void OnSizeChanging()
         {
-            if (SizeChanging != null)
-            {
-                SizeChanging(this, EventArgs.Empty);
-            }
+            SizeChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler SizeChanged;
         protected virtual void OnSizeChanged()
         {
-            if (SizeChanged != null)
-            {
-                SizeChanged(this, EventArgs.Empty);
-            }
+            SizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public SizeF Size

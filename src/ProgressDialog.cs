@@ -19,14 +19,12 @@ namespace PaintDotNet
     internal class ProgressDialog 
         : PdnBaseForm
     {
-        private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.Label percentText;
-        private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.Label descriptionLabel;
-        private System.ComponentModel.IContainer components;
+        private ProgressBar progressBar;
+        private Label percentText;
+        private Button cancelButton;
+        private Label descriptionLabel;
+        private IContainer components;
         private WaitCursorChanger waitCursorChanger;
-        private bool cancelled;
-
         private int normalHeight;
         private int noButtonHeight;
         private bool cancellable = true;
@@ -51,24 +49,14 @@ namespace PaintDotNet
 
         public string Description
         {
-            get
-            {
-                return descriptionLabel.Text;
-            }
-
-            set
-            {
-                descriptionLabel.Text = value;
-            }
+            get => descriptionLabel.Text;
+            set => descriptionLabel.Text = value;
         }
 
         private bool marquee = false;
         public bool MarqueeMode
         {
-            get
-            {
-                return this.marquee;
-            }
+            get => marquee;
 
             set
             {
@@ -79,35 +67,25 @@ namespace PaintDotNet
 
         public bool PercentTextVisible
         {
-            get
-            {
-                return this.percentText.Visible;
-            }
-
-            set
-            {
-                this.percentText.Visible = value;
-            }
+            get => percentText.Visible;
+            set => percentText.Visible = value;
         }
 
         public bool Cancellable
         {
-            get
-            {
-                return cancelButton.Visible;
-            }
+            get => cancelButton.Visible;
 
             set
             {
                 if (value)
                 {
                     this.Height = normalHeight;
-                    this.Cursor = System.Windows.Forms.Cursors.Default;
+                    this.Cursor = Cursors.Default;
                 }
                 else
                 {
                     this.Height = noButtonHeight;
-                    this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+                    this.Cursor = Cursors.WaitCursor;
                 }
 
                 this.cancelButton.Visible = value;
@@ -115,13 +93,7 @@ namespace PaintDotNet
             }
         }
 
-        public bool Cancelled
-        {
-            get
-            {
-                return this.cancelled;
-            }
-        }
+        public bool Cancelled { get; private set; }
 
         public double Value
         {
@@ -291,15 +263,12 @@ namespace PaintDotNet
         public event EventHandler CancelClick;
         protected virtual void OnCancelClick()
         {
-            if (CancelClick != null)
-            {
-                CancelClick(this, EventArgs.Empty);
-            }
+            CancelClick?.Invoke(this, EventArgs.Empty);
         }
 
         private void CancelButton_Click(object sender, System.EventArgs e)
         {
-            this.cancelled = true;
+            this.Cancelled = true;
             OnCancelClick();
             DialogResult = DialogResult.Cancel;
             Close();

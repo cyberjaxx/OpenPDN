@@ -27,12 +27,6 @@ namespace PaintDotNet
         private DateTime ignoreShowDocumentListUntil = DateTime.MinValue;
 
         private AppWorkspace appWorkspace;
-        private PdnMainMenu mainMenu;
-        private ToolStripPanel toolStripPanel;
-        private CommonActionsStrip commonActionsStrip;
-        private ViewConfigStrip viewConfigStrip;
-        private ToolChooserStrip toolChooserStrip;
-        private ToolConfigStrip toolConfigStrip;
         private OurDocumentStrip documentStrip;
         private ArrowButton documentListButton;
         private ImageListMenu imageListMenu;
@@ -114,12 +108,10 @@ namespace PaintDotNet
 
             public void PaintBackground(Graphics g, Rectangle clipRect)
             {
-                IPaintBackground asIpb = this.Parent as IPaintBackground;
-
-                if (asIpb != null)
+                if (this.Parent is IPaintBackground asIpb)
                 {
                     Rectangle newClipRect = new Rectangle(
-                        clipRect.Left + Left, clipRect.Top + Top, 
+                        clipRect.Left + Left, clipRect.Top + Top,
                         clipRect.Width, clipRect.Height);
 
                     g.TranslateTransform(-Left, -Top, MatrixOrder.Append);
@@ -152,57 +144,21 @@ namespace PaintDotNet
             set
             {
                 this.appWorkspace = value;
-                this.mainMenu.AppWorkspace = value;
+                this.MainMenu.AppWorkspace = value;
             }
         }
 
-        public PdnMainMenu MainMenu
-        {
-            get
-            {
-                return this.mainMenu;
-            }
-        }
+        public PdnMainMenu MainMenu { get; private set; }
 
-        public ToolStripPanel ToolStripContainer
-        {
-            get
-            {
-                return this.toolStripPanel;
-            }
-        }
+        public ToolStripPanel ToolStripContainer { get; private set; }
 
-        public CommonActionsStrip CommonActionsStrip
-        {
-            get
-            {
-                return this.commonActionsStrip;
-            }
-        }
+        public CommonActionsStrip CommonActionsStrip { get; private set; }
 
-        public ViewConfigStrip ViewConfigStrip
-        {
-            get
-            {
-                return this.viewConfigStrip;
-            }
-        }
+        public ViewConfigStrip ViewConfigStrip { get; private set; }
 
-        public ToolChooserStrip ToolChooserStrip
-        {
-            get
-            {
-                return this.toolChooserStrip;
-            }
-        }
+        public ToolChooserStrip ToolChooserStrip { get; private set; }
 
-        public ToolConfigStrip ToolConfigStrip
-        {
-            get
-            {
-                return this.toolConfigStrip;
-            }
-        }
+        public ToolConfigStrip ToolConfigStrip { get; private set; }
 
         public DocumentStrip DocumentStrip
         {
@@ -217,15 +173,17 @@ namespace PaintDotNet
             SuspendLayout();
             InitializeComponent();
 
-            this.toolChooserStrip.SetTools(DocumentWorkspace.ToolInfos);
+            ToolInfo[] toolInfos = DocumentWorkspace.ToolInfos;
+
+            this.ToolChooserStrip.SetTools(toolInfos);
 
             this.otsr = new OurToolStripRenderer();
-            this.commonActionsStrip.Renderer = otsr;
-            this.viewConfigStrip.Renderer = otsr;
-            this.toolStripPanel.Renderer = otsr;
-            this.toolChooserStrip.Renderer = otsr;
-            this.toolConfigStrip.Renderer = otsr;
-            this.mainMenu.Renderer = otsr;
+            this.CommonActionsStrip.Renderer = otsr;
+            this.ViewConfigStrip.Renderer = otsr;
+            this.ToolStripContainer.Renderer = otsr;
+            this.ToolChooserStrip.Renderer = otsr;
+            this.ToolConfigStrip.Renderer = otsr;
+            this.MainMenu.Renderer = otsr;
 
             ResumeLayout(true);
         }
@@ -236,11 +194,11 @@ namespace PaintDotNet
         protected override void OnLayout(LayoutEventArgs e)
         {
             bool plentyWidthBefore =
-                (this.mainMenu.Width >= this.mainMenu.PreferredSize.Width) &&
-                (this.commonActionsStrip.Width >= this.commonActionsStrip.PreferredSize.Width) &&
-                (this.viewConfigStrip.Width >= this.viewConfigStrip.PreferredSize.Width) &&
-                (this.toolChooserStrip.Width >= this.toolChooserStrip.PreferredSize.Width) &&
-                (this.toolConfigStrip.Width >= this.toolConfigStrip.PreferredSize.Width);
+                (this.MainMenu.Width >= this.MainMenu.PreferredSize.Width) &&
+                (this.CommonActionsStrip.Width >= this.CommonActionsStrip.PreferredSize.Width) &&
+                (this.ViewConfigStrip.Width >= this.ViewConfigStrip.PreferredSize.Width) &&
+                (this.ToolChooserStrip.Width >= this.ToolChooserStrip.PreferredSize.Width) &&
+                (this.ToolConfigStrip.Width >= this.ToolConfigStrip.PreferredSize.Width);
 
             if (!plentyWidthBefore)
             {
@@ -252,59 +210,59 @@ namespace PaintDotNet
                 UI.SuspendControlPainting(this.documentStrip);
             }
 
-            this.mainMenu.Location = new Point(0, 0);
-            this.mainMenu.Height = this.mainMenu.PreferredSize.Height;
-            this.toolStripPanel.Location = new Point(0, this.mainMenu.Bottom);
+            this.MainMenu.Location = new Point(0, 0);
+            this.MainMenu.Height = this.MainMenu.PreferredSize.Height;
+            this.ToolStripContainer.Location = new Point(0, this.MainMenu.Bottom);
 
-            this.toolStripPanel.RowMargin = new Padding(0);
-            this.mainMenu.Padding = new Padding(0, this.mainMenu.Padding.Top, 0, this.mainMenu.Padding.Bottom);
+            this.ToolStripContainer.RowMargin = new Padding(0);
+            this.MainMenu.Padding = new Padding(0, this.MainMenu.Padding.Top, 0, this.MainMenu.Padding.Bottom);
 
-            this.commonActionsStrip.Width = this.commonActionsStrip.PreferredSize.Width;
-            this.viewConfigStrip.Width = this.viewConfigStrip.PreferredSize.Width;
-            this.toolChooserStrip.Width = this.toolChooserStrip.PreferredSize.Width;
-            this.toolConfigStrip.Width = this.toolConfigStrip.PreferredSize.Width;
+            this.CommonActionsStrip.Width = this.CommonActionsStrip.PreferredSize.Width;
+            this.ViewConfigStrip.Width = this.ViewConfigStrip.PreferredSize.Width;
+            this.ToolChooserStrip.Width = this.ToolChooserStrip.PreferredSize.Width;
+            this.ToolConfigStrip.Width = this.ToolConfigStrip.PreferredSize.Width;
 
             if (!this.computedMaxRowHeight)
             {
-                ToolBarConfigItems oldTbci = this.toolConfigStrip.ToolBarConfigItems;
-                this.toolConfigStrip.ToolBarConfigItems = ToolBarConfigItems.All;
-                this.toolConfigStrip.PerformLayout();
+                ToolBarConfigItems oldTbci = this.ToolConfigStrip.ToolBarConfigItems;
+                this.ToolConfigStrip.ToolBarConfigItems = ToolBarConfigItems.All;
+                this.ToolConfigStrip.PerformLayout();
 
                 this.maxRowHeight =
-                    Math.Max(this.commonActionsStrip.PreferredSize.Height,
-                    Math.Max(this.viewConfigStrip.PreferredSize.Height,
-                    Math.Max(this.toolChooserStrip.PreferredSize.Height, this.toolConfigStrip.PreferredSize.Height)));
+                    Math.Max(this.CommonActionsStrip.PreferredSize.Height,
+                    Math.Max(this.ViewConfigStrip.PreferredSize.Height,
+                    Math.Max(this.ToolChooserStrip.PreferredSize.Height, this.ToolConfigStrip.PreferredSize.Height)));
 
-                this.toolConfigStrip.ToolBarConfigItems = oldTbci;
-                this.toolConfigStrip.PerformLayout();
+                this.ToolConfigStrip.ToolBarConfigItems = oldTbci;
+                this.ToolConfigStrip.PerformLayout();
 
                 this.computedMaxRowHeight = true;
             }
 
-            this.commonActionsStrip.Height = this.maxRowHeight;
-            this.viewConfigStrip.Height = this.maxRowHeight;
-            this.toolChooserStrip.Height = this.maxRowHeight;
-            this.toolConfigStrip.Height = this.maxRowHeight;
+            this.CommonActionsStrip.Height = this.maxRowHeight;
+            this.ViewConfigStrip.Height = this.maxRowHeight;
+            this.ToolChooserStrip.Height = this.maxRowHeight;
+            this.ToolConfigStrip.Height = this.maxRowHeight;
 
-            this.commonActionsStrip.Location = new Point(0, 0);
-            this.viewConfigStrip.Location = new Point(this.commonActionsStrip.Right, this.commonActionsStrip.Top);
-            this.toolChooserStrip.Location = new Point(0, this.viewConfigStrip.Bottom);
-            this.toolConfigStrip.Location = new Point(this.toolChooserStrip.Right, this.toolChooserStrip.Top);
+            this.CommonActionsStrip.Location = new Point(0, 0);
+            this.ViewConfigStrip.Location = new Point(this.CommonActionsStrip.Right, this.CommonActionsStrip.Top);
+            this.ToolChooserStrip.Location = new Point(0, this.ViewConfigStrip.Bottom);
+            this.ToolConfigStrip.Location = new Point(this.ToolChooserStrip.Right, this.ToolChooserStrip.Top);
 
-            this.toolStripPanel.Height =
-                Math.Max(this.commonActionsStrip.Bottom,
-                Math.Max(this.viewConfigStrip.Bottom,
-                Math.Max(this.toolChooserStrip.Bottom,
-                         this.toolConfigStrip.Visible ? this.toolConfigStrip.Bottom : this.toolChooserStrip.Bottom)));
+            this.ToolStripContainer.Height =
+                Math.Max(this.CommonActionsStrip.Bottom,
+                Math.Max(this.ViewConfigStrip.Bottom,
+                Math.Max(this.ToolChooserStrip.Bottom,
+                         this.ToolConfigStrip.Visible ? this.ToolConfigStrip.Bottom : this.ToolChooserStrip.Bottom)));
 
             // Compute how wide the toolStripContainer would like to be
             int widthRow1 =
-                this.commonActionsStrip.Left + this.commonActionsStrip.PreferredSize.Width + this.commonActionsStrip.Margin.Horizontal +
-                this.viewConfigStrip.PreferredSize.Width + this.viewConfigStrip.Margin.Horizontal;
+                this.CommonActionsStrip.Left + this.CommonActionsStrip.PreferredSize.Width + this.CommonActionsStrip.Margin.Horizontal +
+                this.ViewConfigStrip.PreferredSize.Width + this.ViewConfigStrip.Margin.Horizontal;
 
             int widthRow2 =
-                this.toolChooserStrip.Left + this.toolChooserStrip.PreferredSize.Width + this.toolChooserStrip.Margin.Horizontal +
-                this.toolConfigStrip.PreferredSize.Width + this.toolConfigStrip.Margin.Horizontal;
+                this.ToolChooserStrip.Left + this.ToolChooserStrip.PreferredSize.Width + this.ToolChooserStrip.Margin.Horizontal +
+                this.ToolConfigStrip.PreferredSize.Width + this.ToolConfigStrip.Margin.Horizontal;
 
             int preferredMinTscWidth = Math.Max(widthRow1, widthRow2);
 
@@ -350,14 +308,14 @@ namespace PaintDotNet
 
             // Finish setting up widths and heights
             int oldDsHeight = this.documentStrip.Height;
-            this.documentStrip.Height = this.toolStripPanel.Bottom;
+            this.documentStrip.Height = this.ToolStripContainer.Bottom;
             this.documentListButton.Height = this.documentStrip.Height;
 
             int tsWidth = ClientSize.Width - (this.documentStrip.Width + this.documentListButton.Width);
-            this.mainMenu.Width = tsWidth;
-            this.toolStripPanel.Width = tsWidth;
+            this.MainMenu.Width = tsWidth;
+            this.ToolStripContainer.Width = tsWidth;
 
-            this.Height = this.toolStripPanel.Bottom;
+            this.Height = this.ToolStripContainer.Bottom;
 
             // Now get stuff to paint right
             this.documentStrip.PerformLayout();
@@ -375,7 +333,7 @@ namespace PaintDotNet
 
             if (this.documentStrip.Width == 0)
             {
-                this.mainMenu.Invalidate();
+                this.MainMenu.Invalidate();
             }
 
             if (oldDsHeight != this.documentStrip.Height)
@@ -395,75 +353,75 @@ namespace PaintDotNet
         private void InitializeComponent()
         {
             this.SuspendLayout();
-            this.mainMenu = new PdnMainMenu();
-            this.toolStripPanel = new ToolStripPanel();
-            this.commonActionsStrip = new CommonActionsStrip();
-            this.viewConfigStrip = new ViewConfigStrip();
-            this.toolChooserStrip = new ToolChooserStrip();
-            this.toolConfigStrip = new ToolConfigStrip();
+            this.MainMenu = new PdnMainMenu();
+            this.ToolStripContainer = new ToolStripPanel();
+            this.CommonActionsStrip = new CommonActionsStrip();
+            this.ViewConfigStrip = new ViewConfigStrip();
+            this.ToolChooserStrip = new ToolChooserStrip();
+            this.ToolConfigStrip = new ToolConfigStrip();
             this.documentStrip = new OurDocumentStrip();
             this.documentListButton = new ArrowButton();
             this.imageListMenu = new ImageListMenu();
-            this.toolStripPanel.BeginInit();
-            this.toolStripPanel.SuspendLayout();
+            this.ToolStripContainer.BeginInit();
+            this.ToolStripContainer.SuspendLayout();
             // 
             // mainMenu
             // 
-            this.mainMenu.Name = "mainMenu";
+            this.MainMenu.Name = "mainMenu";
             //
             // toolStripContainer
             //
-            this.toolStripPanel.AutoSize = true;
-            this.toolStripPanel.Name = "toolStripPanel";
-            this.toolStripPanel.TabIndex = 0;
-            this.toolStripPanel.TabStop = false;
-            this.toolStripPanel.Join(this.viewConfigStrip);
-            this.toolStripPanel.Join(this.commonActionsStrip);
-            this.toolStripPanel.Join(this.toolConfigStrip);
-            this.toolStripPanel.Join(this.toolChooserStrip);
+            this.ToolStripContainer.AutoSize = true;
+            this.ToolStripContainer.Name = "toolStripPanel";
+            this.ToolStripContainer.TabIndex = 0;
+            this.ToolStripContainer.TabStop = false;
+            this.ToolStripContainer.Join(this.ViewConfigStrip);
+            this.ToolStripContainer.Join(this.CommonActionsStrip);
+            this.ToolStripContainer.Join(this.ToolConfigStrip);
+            this.ToolStripContainer.Join(this.ToolChooserStrip);
             //
             // commonActionsStrip
             //
-            this.commonActionsStrip.Name = "commonActionsStrip";
-            this.commonActionsStrip.AutoSize = false;
-            this.commonActionsStrip.TabIndex = 0;
-            this.commonActionsStrip.Dock = DockStyle.None;
-            this.commonActionsStrip.GripStyle = toolStripsGripStyle;
+            this.CommonActionsStrip.Name = "commonActionsStrip";
+            this.CommonActionsStrip.AutoSize = false;
+            this.CommonActionsStrip.TabIndex = 0;
+            this.CommonActionsStrip.Dock = DockStyle.None;
+            this.CommonActionsStrip.GripStyle = toolStripsGripStyle;
             //
             // viewConfigStrip
             //
-            this.viewConfigStrip.Name = "viewConfigStrip";
-            this.viewConfigStrip.AutoSize = false;
-            this.viewConfigStrip.ZoomBasis = PaintDotNet.ZoomBasis.FitToWindow;
-            this.viewConfigStrip.TabStop = false;
-            this.viewConfigStrip.DrawGrid = false;
-            this.viewConfigStrip.TabIndex = 1;
-            this.viewConfigStrip.Dock = DockStyle.None;
-            this.viewConfigStrip.GripStyle = toolStripsGripStyle;
+            this.ViewConfigStrip.Name = "viewConfigStrip";
+            this.ViewConfigStrip.AutoSize = false;
+            this.ViewConfigStrip.ZoomBasis = PaintDotNet.ZoomBasis.FitToWindow;
+            this.ViewConfigStrip.TabStop = false;
+            this.ViewConfigStrip.DrawGrid = false;
+            this.ViewConfigStrip.TabIndex = 1;
+            this.ViewConfigStrip.Dock = DockStyle.None;
+            this.ViewConfigStrip.GripStyle = toolStripsGripStyle;
             //
             // toolChooserStrip
             //
-            this.toolChooserStrip.Name = "toolChooserStrip";
-            this.toolChooserStrip.AutoSize = false;
-            this.toolChooserStrip.TabIndex = 2;
-            this.toolChooserStrip.Dock = DockStyle.None;
-            this.toolChooserStrip.GripStyle = toolStripsGripStyle;
-            this.toolChooserStrip.ChooseDefaultsClicked += new EventHandler(ToolChooserStrip_ChooseDefaultsClicked);
+            this.ToolChooserStrip.Name = "toolChooserStrip";
+            this.ToolChooserStrip.AutoSize = false;
+            this.ToolChooserStrip.TabIndex = 2;
+            this.ToolChooserStrip.Dock = DockStyle.None;
+            this.ToolChooserStrip.GripStyle = toolStripsGripStyle;
+            this.ToolChooserStrip.ChooseDefaultsClicked += new EventHandler(ToolChooserStrip_ChooseDefaultsClicked);
             //
             // toolConfigStrip
             //
-            this.toolConfigStrip.Name = "drawConfigStrip";
-            this.toolConfigStrip.AutoSize = false;
-            this.toolConfigStrip.ShapeDrawType = PaintDotNet.ShapeDrawType.Outline;
-            this.toolConfigStrip.TabIndex = 3;
-            this.toolConfigStrip.Dock = DockStyle.None;
-            this.toolConfigStrip.GripStyle = toolStripsGripStyle;
-            this.toolConfigStrip.Layout +=
+            this.ToolConfigStrip.Name = "drawConfigStrip";
+            this.ToolConfigStrip.AutoSize = false;
+            this.ToolConfigStrip.ShapeDrawType = PaintDotNet.ShapeDrawType.Outline;
+            this.ToolConfigStrip.TabIndex = 3;
+            this.ToolConfigStrip.Dock = DockStyle.None;
+            this.ToolConfigStrip.GripStyle = toolStripsGripStyle;
+            this.ToolConfigStrip.Layout +=
                 delegate(object sender, LayoutEventArgs e)
                 {
                     PerformLayout();
                 };
-            this.toolConfigStrip.SelectionDrawModeInfoChanged +=
+            this.ToolConfigStrip.SelectionDrawModeInfoChanged +=
                 delegate(object sender, EventArgs e)
                 {
                     BeginInvoke(new Procedure(PerformLayout));
@@ -496,11 +454,11 @@ namespace PaintDotNet
             //
             this.Controls.Add(this.documentListButton);
             this.Controls.Add(this.documentStrip);
-            this.Controls.Add(this.toolStripPanel);
-            this.Controls.Add(this.mainMenu);
+            this.Controls.Add(this.ToolStripContainer);
+            this.Controls.Add(this.MainMenu);
             this.Controls.Add(this.imageListMenu);
-            this.toolStripPanel.ResumeLayout(false);
-            this.toolStripPanel.EndInit();
+            this.ToolStripContainer.ResumeLayout(false);
+            this.ToolStripContainer.EndInit();
             this.ResumeLayout(false);
         }
 
@@ -653,15 +611,15 @@ namespace PaintDotNet
 
             if (this.documentStrip.DocumentCount == 0)
             {
-                this.viewConfigStrip.Enabled = false;
-                this.toolChooserStrip.Enabled = false;
-                this.toolConfigStrip.Enabled = false;
+                this.ViewConfigStrip.Enabled = false;
+                this.ToolChooserStrip.Enabled = false;
+                this.ToolConfigStrip.Enabled = false;
             }
             else
             {
-                this.viewConfigStrip.Enabled = true;
-                this.toolChooserStrip.Enabled = true;
-                this.toolConfigStrip.Enabled = true;
+                this.ViewConfigStrip.Enabled = true;
+                this.ToolChooserStrip.Enabled = true;
+                this.ToolConfigStrip.Enabled = true;
             }
         }
     }

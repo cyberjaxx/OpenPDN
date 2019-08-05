@@ -123,9 +123,7 @@ namespace PaintDotNet
         {
             foreach (ToolStripItem item in this.DropDownItems)
             {
-                PdnMenuItem asPMI = item as PdnMenuItem;
-
-                if (asPMI != null)
+                if (item is PdnMenuItem asPMI)
                 {
                     asPMI.AppWorkspace = null;
                 }
@@ -136,9 +134,7 @@ namespace PaintDotNet
         {
             foreach (ToolStripItem item in this.DropDownItems)
             {
-                PdnMenuItem asPMI = item as PdnMenuItem;
-
-                if (asPMI != null)
+                if (item is PdnMenuItem asPMI)
                 {
                     asPMI.AppWorkspace = AppWorkspace;
                 }
@@ -228,8 +224,7 @@ namespace PaintDotNet
                     item.Text = text;
                 }
 
-                PdnMenuItem pmi = item as PdnMenuItem;
-                if (pmi != null)
+                if (item is PdnMenuItem pmi)
                 {
                     pmi.textResourceName = itemNameText;
                     pmi.LoadNames(itemNameBase);

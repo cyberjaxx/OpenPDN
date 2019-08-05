@@ -7,14 +7,13 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
+using PaintDotNet.Tools;
 using PaintDotNet.SystemLayer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Globalization;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -203,19 +202,13 @@ namespace PaintDotNet
         public event EventHandler SelectionDrawModeUnitsChanging;
         protected void OnSelectionDrawModeUnitsChanging()
         {
-            if (SelectionDrawModeUnitsChanging != null)
-            {
-                SelectionDrawModeUnitsChanging(this, EventArgs.Empty);
-            }
+            SelectionDrawModeUnitsChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler SelectionDrawModeUnitsChanged;
         protected void OnSelectionDrawModeUnitsChanged()
         {
-            if (SelectionDrawModeUnitsChanged != null)
-            {
-                SelectionDrawModeUnitsChanged(this, EventArgs.Empty);
-            }
+            SelectionDrawModeUnitsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void LoadFromAppEnvironment(AppEnvironment appEnvironment)
@@ -240,10 +233,7 @@ namespace PaintDotNet
         public event EventHandler BrushInfoChanged;
         protected virtual void OnBrushChanged()
         {
-            if (BrushInfoChanged != null)
-            {
-                BrushInfoChanged(this, EventArgs.Empty);
-            }
+            BrushInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public BrushInfo BrushInfo
@@ -284,10 +274,7 @@ namespace PaintDotNet
 
         protected virtual void OnGradientInfoChanged()
         {
-            if (GradientInfoChanged != null)
-            {
-                GradientInfoChanged(this, EventArgs.Empty);
-            }
+            GradientInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformGradientInfoChanged()
@@ -308,10 +295,12 @@ namespace PaintDotNet
                 {
                     throw new ArgumentNullException();
                 }
-
-                this.gradientInfo = value;
-                OnGradientInfoChanged();
-                SyncGradientInfo();
+                if (this.gradientInfo != value)
+                {
+                    this.gradientInfo = value;
+                    OnGradientInfoChanged();
+                    SyncGradientInfo();
+                }
             }
         }
 
@@ -490,7 +479,7 @@ namespace PaintDotNet
             this.brushStyleComboBox.DropDownWidth = UI.ScaleWidth(this.brushStyleComboBox.DropDownWidth);
             this.brushStyleComboBox.DropDownHeight = UI.ScaleHeight(this.brushStyleComboBox.DropDownHeight);
 
-            this.toleranceLabel.Text = PdnResources.GetString("ToleranceConfig.ToleranceLabel.Text");
+            this.toleranceLabel.Text = PdnResources.GetString("ToolConfigStrip.ToleranceLabel.Text");
             this.toleranceSlider.Tolerance = 0.5f;
 
             this.fontSizeComboBox.ComboBox.SuspendLayout();
@@ -607,7 +596,7 @@ namespace PaintDotNet
             this.colorPickerComboBox.Items.AddRange(colorPickerBehaviorNames);
             this.colorPickerComboBox.SelectedIndex = 0;
 
-            this.colorPickerComboBox.Size = new Size(UI.ScaleWidth(this.colorPickerComboBox.Width), colorPickerComboBox.Height);
+            this.colorPickerComboBox.Size = new Size(UI.ScaleWidth(this.colorPickerComboBox.Width), this.colorPickerComboBox.Height);
             this.colorPickerComboBox.DropDownWidth = UI.ScaleWidth(this.colorPickerComboBox.DropDownWidth);
 
             this.toleranceSlider.Size = UI.ScaleSize(this.toleranceSlider.Size);
@@ -649,7 +638,7 @@ namespace PaintDotNet
 
         protected override void OnHandleCreated(EventArgs e)
         {
-            if ((this.toolBarConfigItems & ToolBarConfigItems.Text) == ToolBarConfigItems.Text)
+            if (this.toolBarConfigItems.HasFlag(ToolBarConfigItems.Text))
             {
                 AsyncInitFontNames();
             }
@@ -1192,8 +1181,7 @@ namespace PaintDotNet
                 {
                     Tracing.LogFeature("ToolConfigStrip(selectionDrawModeWidthTextBox.Leave)");
 
-                    double newWidth;
-                    if (double.TryParse(this.selectionDrawModeWidthTextBox.Text, out newWidth))
+                    if (double.TryParse(this.selectionDrawModeWidthTextBox.Text, out double newWidth))
                     {
                         this.SelectionDrawModeInfo = this.selectionDrawModeInfo.CloneWithNewWidth(newWidth);
                     }
@@ -1230,13 +1218,12 @@ namespace PaintDotNet
                 {
                     this.selectionDrawModeHeightTextBox.TextBox.Select(0, this.selectionDrawModeHeightTextBox.TextBox.Text.Length);
                 };
-            this.selectionDrawModeHeightTextBox.Leave +=
+           this.selectionDrawModeHeightTextBox.Leave +=
                 delegate(object sender, EventArgs e)
                 {
                     Tracing.LogFeature("ToolConfigStrip(selectionDrawModeHeightTextBox.Leave)");
 
-                    double newHeight;
-                    if (double.TryParse(this.selectionDrawModeHeightTextBox.Text, out newHeight))
+                    if (double.TryParse(this.selectionDrawModeHeightTextBox.Text, out double newHeight))
                     {
                         this.SelectionDrawModeInfo = this.selectionDrawModeInfo.CloneWithNewHeight(newHeight);
                     }
@@ -1317,6 +1304,7 @@ namespace PaintDotNet
                     this.penSizeDecButton,
                     this.penSizeComboBox,
                     this.penSizeIncButton,
+
                     this.penStyleLabel,
                     this.penStartCapSplitButton,
                     this.penDashStyleSplitButton,
@@ -1332,7 +1320,7 @@ namespace PaintDotNet
 
                     this.blendingSeparator,
                     this.antiAliasingSplitButton,
-                    this.alphaBlendingSplitButton
+                    this.alphaBlendingSplitButton,
                 });
 
             this.ResumeLayout(false);            
@@ -1487,10 +1475,7 @@ namespace PaintDotNet
         public event EventHandler ShapeDrawTypeChanged;
         protected virtual void OnShapeDrawTypeChanged()
         {
-            if (ShapeDrawTypeChanged != null)
-            {
-                ShapeDrawTypeChanged(this, EventArgs.Empty);
-            }
+            ShapeDrawTypeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformShapeDrawTypeChanged()
@@ -1594,10 +1579,7 @@ namespace PaintDotNet
         public event EventHandler PenInfoChanged;
         protected virtual void OnPenChanged()
         {
-            if (PenInfoChanged != null)
-            {
-                PenInfoChanged(this, EventArgs.Empty);
-            }
+            PenInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformPenChanged()
@@ -1607,7 +1589,7 @@ namespace PaintDotNet
 
         public void AddToPenSize(float delta)
         {
-            if ((this.toolBarConfigItems & ToolBarConfigItems.Pen) == ToolBarConfigItems.Pen)
+            if (this.toolBarConfigItems.HasFlag(ToolBarConfigItems.Pen))
             {
                 float newWidth = Utility.Clamp(PenInfo.Width + delta, minPenSize, maxPenSize);
                 PenInfo newPenInfo = PenInfo.Clone();
@@ -1687,8 +1669,7 @@ namespace PaintDotNet
 
         private void BrushSizeComboBox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            float penSize;
-            bool valid = float.TryParse(this.penSizeComboBox.Text, out penSize);
+            bool valid = float.TryParse(this.penSizeComboBox.Text, out float penSize);
 
             if (!valid)
             {
@@ -1726,10 +1707,7 @@ namespace PaintDotNet
         public event EventHandler AlphaBlendingChanged;
         protected virtual void OnAlphaBlendingChanged()
         {
-            if (AlphaBlendingChanged != null)
-            {
-                AlphaBlendingChanged(this, EventArgs.Empty);
-            }
+            AlphaBlendingChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformAlphaBlendingChanged()
@@ -1832,10 +1810,7 @@ namespace PaintDotNet
         public event EventHandler AntiAliasingChanged;
         protected virtual void OnAntiAliasingChanged()
         {
-            if (AntiAliasingChanged != null)
-            {
-                AntiAliasingChanged(this, EventArgs.Empty);
-            }
+            AntiAliasingChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformAntiAliasingChanged()
@@ -2052,18 +2027,15 @@ namespace PaintDotNet
         {
             List<string> fontNames = new List<string>();
 
-            using (Graphics g = this.CreateGraphics())
-            {
-                FontFamily[] families = FontFamily.Families;
+            FontFamily[] families = FontFamily.Families;
 
-                foreach (FontFamily family in families)
+            foreach (FontFamily family in families)
+            {
+                using (FontInfo fi = new FontInfo(family, 10, FontStyle.Regular))
                 {
-                    using (FontInfo fi = new FontInfo(family, 10, FontStyle.Regular))
+                    if (!fontNames.Contains(family.Name) && fi.CanCreateFont())
                     {
-                        if (!fontNames.Contains(family.Name) && fi.CanCreateFont())
-                        {
-                            fontNames.Add(family.Name);
-                        }
+                        fontNames.Add(family.Name);
                     }
                 }
             }
@@ -2075,28 +2047,19 @@ namespace PaintDotNet
         public event EventHandler FontInfoChanged;
         protected virtual void OnFontInfoChanged()
         {
-            if (FontInfoChanged != null)
-            {
-                FontInfoChanged(this, EventArgs.Empty);
-            }
+            FontInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler FontAlignmentChanged;
         protected virtual void OnTextAlignmentChanged()
         {
-            if (FontAlignmentChanged != null)
-            {
-                FontAlignmentChanged(this, EventArgs.Empty);
-            }
+            FontAlignmentChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler FontSmoothingChanged;
         protected virtual void OnFontSmoothingChanged()
         {
-            if (FontSmoothingChanged != null)
-            {
-                FontSmoothingChanged(this, EventArgs.Empty);
-            }
+            FontSmoothingChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public FontSmoothing FontSmoothing
@@ -2579,21 +2542,21 @@ namespace PaintDotNet
                 this.gradientSeparator2.Visible = showGradient;
                 this.gradientChannelsSplitButton.Visible = showGradient;
 
-                bool showAA = ((value & ToolBarConfigItems.Antialiasing) != ToolBarConfigItems.None);
+                bool showAA = value.HasFlag(ToolBarConfigItems.Antialiasing);
                 this.antiAliasingSplitButton.Visible = showAA;
 
-                bool showAB = ((value & ToolBarConfigItems.AlphaBlending) != ToolBarConfigItems.None);
+                bool showAB = value.HasFlag(ToolBarConfigItems.AlphaBlending);
                 this.alphaBlendingSplitButton.Visible = showAB;
 
-                bool showBlendingSep = ((value & (ToolBarConfigItems.AlphaBlending | ToolBarConfigItems.Antialiasing)) != ToolBarConfigItems.None);
+                bool showBlendingSep = value.HasFlag(ToolBarConfigItems.AlphaBlending) || value.HasFlag(ToolBarConfigItems.AlphaBlending);
                 this.blendingSeparator.Visible = showBlendingSep;
 
-                bool showTolerance = ((value & ToolBarConfigItems.Tolerance) != ToolBarConfigItems.None);
+                bool showTolerance = value.HasFlag(ToolBarConfigItems.Tolerance);
                 this.toleranceSeparator.Visible = showTolerance;
                 this.toleranceLabel.Visible = showTolerance;
                 this.toleranceSliderStrip.Visible = showTolerance;
 
-                bool showText = ((value & ToolBarConfigItems.Text) != ToolBarConfigItems.None);
+                bool showText = value.HasFlag(ToolBarConfigItems.Text);
                 this.fontSeparator.Visible = showText;
                 this.fontLabel.Visible = showText;
                 this.fontFamilyComboBox.Visible = showText;
@@ -2613,27 +2576,27 @@ namespace PaintDotNet
                     AsyncInitFontNames();
                 }
 
-                bool showResampling = ((value & ToolBarConfigItems.Resampling) != ToolBarConfigItems.None);
+                bool showResampling = value.HasFlag(ToolBarConfigItems.Resampling);
                 this.resamplingSeparator.Visible = showResampling;
                 this.resamplingLabel.Visible = showResampling;
                 this.resamplingComboBox.Visible = showResampling;
 
-                bool showColorPicker = ((value & ToolBarConfigItems.ColorPickerBehavior) != ToolBarConfigItems.None);
+                bool showColorPicker = value.HasFlag(ToolBarConfigItems.ColorPickerBehavior);
                 this.colorPickerSeparator.Visible = showColorPicker;
                 this.colorPickerLabel.Visible = showColorPicker;
                 this.colorPickerComboBox.Visible = showColorPicker;
 
-                bool showSelectionCombineMode = ((value & ToolBarConfigItems.SelectionCombineMode) != ToolBarConfigItems.None);
+                bool showSelectionCombineMode = value.HasFlag(ToolBarConfigItems.SelectionCombineMode);
                 this.selectionCombineModeSeparator.Visible = showSelectionCombineMode;
                 this.selectionCombineModeLabel.Visible = showSelectionCombineMode;
                 this.selectionCombineModeSplitButton.Visible = showSelectionCombineMode;
 
-                bool showFloodMode = ((value & ToolBarConfigItems.FloodMode) != ToolBarConfigItems.None);
+                bool showFloodMode = value.HasFlag(ToolBarConfigItems.FloodMode);
                 this.floodModeSeparator.Visible = showFloodMode;
                 this.floodModeLabel.Visible = showFloodMode;
                 this.floodModeSplitButton.Visible = showFloodMode;
 
-                bool showSelectionDrawMode = ((value & ToolBarConfigItems.SelectionDrawMode) != ToolBarConfigItems.None);
+                bool showSelectionDrawMode = value.HasFlag(ToolBarConfigItems.SelectionDrawMode);
                 this.selectionDrawModeSeparator.Visible = showSelectionDrawMode;
                 this.selectionDrawModeModeLabel.Visible = showSelectionDrawMode;
                 this.selectionDrawModeSplitButton.Visible = showSelectionDrawMode;
@@ -2654,6 +2617,12 @@ namespace PaintDotNet
                 ResumeLayout();
                 PerformLayout();
             }
+        }
+
+        public event EventHandler ToleranceChanged;
+        protected void OnToleranceChanged()
+        {
+            ToleranceChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void ToleranceSlider_ToleranceChanged(object sender, EventArgs e)
@@ -2682,22 +2651,10 @@ namespace PaintDotNet
             }
         }
 
-        public event EventHandler ToleranceChanged;
-        protected void OnToleranceChanged()
-        {
-            if (ToleranceChanged != null)
-            {
-                ToleranceChanged(this, EventArgs.Empty);
-            }
-        }
-
         public event EventHandler ColorPickerClickBehaviorChanged;
         protected void OnColorPickerClickBehaviorChanged()
         {
-            if (ColorPickerClickBehaviorChanged != null)
-            {
-                ColorPickerClickBehaviorChanged(this, EventArgs.Empty);
-            }
+            ColorPickerClickBehaviorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ColorPickerClickBehavior ColorPickerClickBehavior
@@ -2736,10 +2693,7 @@ namespace PaintDotNet
         public event EventHandler ResamplingAlgorithmChanged;
         protected void OnResamplingAlgorithmChanged()
         {
-            if (ResamplingAlgorithmChanged != null)
-            {
-                ResamplingAlgorithmChanged(this, EventArgs.Empty);
-            }
+            ResamplingAlgorithmChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ResamplingAlgorithm ResamplingAlgorithm
@@ -2774,10 +2728,7 @@ namespace PaintDotNet
 
         protected void OnSelectionCombineModeChanged()
         {
-            if (SelectionCombineModeChanged != null)
-            {
-                SelectionCombineModeChanged(this, EventArgs.Empty);
-            }
+            SelectionCombineModeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public CombineMode SelectionCombineMode
@@ -2887,10 +2838,7 @@ namespace PaintDotNet
 
         protected void OnFloodModeChanged()
         {
-            if (FloodModeChanged != null)
-            {
-                FloodModeChanged(this, EventArgs.Empty);
-            }
+            FloodModeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public FloodMode FloodMode
@@ -2979,10 +2927,7 @@ namespace PaintDotNet
 
         protected void OnSelectionDrawModeInfoChanged()
         {
-            if (SelectionDrawModeInfoChanged != null)
-            {
-                SelectionDrawModeInfoChanged(this, EventArgs.Empty);
-            }
+            SelectionDrawModeInfoChanged?.Invoke(this, EventArgs.Empty);
         }
 
         // syncs this.SelectionDrawModeInfo into the controls

@@ -283,28 +283,19 @@ namespace PaintDotNet
         public event EventHandler DrawGridChanged;
         private void OnDrawGridChanged()
         {
-            if (DrawGridChanged != null)
-            {
-                DrawGridChanged(this, EventArgs.Empty);
-            }
+            DrawGridChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler RulersEnabledChanged;
         private void OnRulersEnabledChanged()
         {
-            if (RulersEnabledChanged != null)
-            {
-                RulersEnabledChanged(this, EventArgs.Empty);
-            }
+            RulersEnabledChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler UnitsChanged;
         private void OnUnitsChanged()
         {
-            if (UnitsChanged != null)
-            {
-                UnitsChanged(this, EventArgs.Empty);
-            }
+            UnitsChanged?.Invoke(this, EventArgs.Empty);
         }
         
         public event EventHandler ZoomScaleChanged;
@@ -314,29 +305,20 @@ namespace PaintDotNet
             {
                 SetZoomText();
 
-                if (ZoomScaleChanged != null)
-                {
-                    ZoomScaleChanged(this, EventArgs.Empty);
-                }
+                ZoomScaleChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
         public event EventHandler ZoomIn;
         private void OnZoomIn()
         {
-            if (ZoomIn != null)
-            {
-                ZoomIn(this, EventArgs.Empty);
-            }
+            ZoomIn?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler ZoomOut;
         private void OnZoomOut()
         {
-            if (ZoomOut != null)
-            {
-                ZoomOut(this, EventArgs.Empty);
-            }
+            ZoomOut?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformZoomBasisChanged()
@@ -349,10 +331,7 @@ namespace PaintDotNet
         {
             SetZoomText();
 
-            if (ZoomBasisChanged != null)
-            {
-                ZoomBasisChanged(this, EventArgs.Empty);
-            }
+            ZoomBasisChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void PerformZoomScaleChanged()

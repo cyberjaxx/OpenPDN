@@ -14,23 +14,16 @@ namespace PaintDotNet
     internal class ToolClickedEventArgs
         : System.EventArgs
     {
-        private Type toolType;
-        public Type ToolType
-        {
-            get
-            {
-                return toolType;
-            }
-        }
+        public Type ToolType { get; }
 
         public ToolClickedEventArgs(Tool tool)
         {
-            this.toolType = tool.GetType();
+            this.ToolType = tool.GetType();
         }
 
         public ToolClickedEventArgs(Type toolType)
         {
-            this.toolType = toolType;
+            this.ToolType = toolType;
         }
     }
 }

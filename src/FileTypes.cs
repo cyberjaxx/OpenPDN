@@ -10,11 +10,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace PaintDotNet

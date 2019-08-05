@@ -297,8 +297,7 @@ namespace PaintDotNet
                     break;
                 }
 
-                ColorBgra color;
-                bool gotColor = ParsePaletteLine(line, out color);
+                bool gotColor = ParsePaletteLine(line, out ColorBgra color);
 
                 if (gotColor && palette.Count < PaletteColorCount)
                 {
@@ -520,8 +519,7 @@ namespace PaintDotNet
 
         public ColorBgra[] Get(string name)
         {
-            string existingKeyName;
-            bool contains = Contains(name, out existingKeyName);
+            bool contains = Contains(name, out string existingKeyName);
 
             if (contains)
             {
@@ -562,8 +560,7 @@ namespace PaintDotNet
 
         public bool Delete(string name)
         {
-            string existingKeyName;
-            bool contains = Contains(name, out existingKeyName);
+            bool contains = Contains(name, out string existingKeyName);
 
             if (contains)
             {

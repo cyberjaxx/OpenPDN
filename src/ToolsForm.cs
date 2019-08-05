@@ -18,15 +18,7 @@ namespace PaintDotNet
     internal class ToolsForm 
         : FloatingToolForm
     {
-        private ToolsControl toolsControl = null;
-
-        public ToolsControl ToolsControl
-        {
-            get
-            {
-                return this.toolsControl;
-            }
-        }
+        public ToolsControl ToolsControl { get; private set; } = null;
 
         /// <summary>
         /// Required designer variable.
@@ -36,7 +28,7 @@ namespace PaintDotNet
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            this.ClientSize = new Size(toolsControl.Width, toolsControl.Height);
+            this.ClientSize = new Size(ToolsControl.Width, ToolsControl.Height);
         }
 
         public ToolsForm()
@@ -72,25 +64,25 @@ namespace PaintDotNet
         /// </summary>
         private void InitializeComponent()
         {
-            this.toolsControl = new PaintDotNet.ToolsControl();
+            this.ToolsControl = new PaintDotNet.ToolsControl();
             this.SuspendLayout();
             // 
             // toolsControl
             // 
-            this.toolsControl.Location = new System.Drawing.Point(0, 0);
-            this.toolsControl.Name = "toolsControl";
-            this.toolsControl.Size = new System.Drawing.Size(50, 88);
-            this.toolsControl.TabIndex = 0;
-            this.toolsControl.RelinquishFocus += new EventHandler(ToolsControl_RelinquishFocus);
+            this.ToolsControl.Location = new System.Drawing.Point(0, 0);
+            this.ToolsControl.Name = "toolsControl";
+            this.ToolsControl.Size = new System.Drawing.Size(50, 88);
+            this.ToolsControl.TabIndex = 0;
+            this.ToolsControl.RelinquishFocus += new EventHandler(ToolsControl_RelinquishFocus);
             // 
             // MainToolBarForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(50, 273);
-            this.Controls.Add(this.toolsControl);
+            this.Controls.Add(this.ToolsControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "ToolsForm";
-            this.Controls.SetChildIndex(this.toolsControl, 0);
+            this.Controls.SetChildIndex(this.ToolsControl, 0);
             this.ResumeLayout(false);
         }
         #endregion

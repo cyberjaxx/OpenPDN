@@ -38,10 +38,7 @@ namespace PaintDotNet
         public event EventHandler UserPrimaryColorChanged;
         protected virtual void OnUserPrimaryColorChanged()
         {
-            if (UserPrimaryColorChanged != null)
-            {
-                UserPrimaryColorChanged(this, EventArgs.Empty);
-            }
+            UserPrimaryColorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private ColorBgra userPrimaryColor;
@@ -65,10 +62,7 @@ namespace PaintDotNet
         public event EventHandler UserSecondaryColorChanged;
         protected virtual void OnUserSecondaryColorChanged()
         {
-            if (UserSecondaryColorChanged != null)
-            {
-                UserSecondaryColorChanged(this, EventArgs.Empty);
-            }
+            UserSecondaryColorChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private ColorBgra userSecondaryColor;
@@ -212,10 +206,7 @@ namespace PaintDotNet
         public event EventHandler SwapColorsClicked;
         protected virtual void OnSwapColorsClicked()
         {
-            if (SwapColorsClicked != null)
-            {
-                SwapColorsClicked(this, EventArgs.Empty);
-            }
+            SwapColorsClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void SwapIconBox_Click(object sender, System.EventArgs e)
@@ -226,10 +217,7 @@ namespace PaintDotNet
         public event EventHandler BlackAndWhiteButtonClicked;
         protected virtual void OnBlackAndWhiteButtonClicked()
         {
-            if (BlackAndWhiteButtonClicked != null)
-            {
-                BlackAndWhiteButtonClicked(this, EventArgs.Empty);
-            }
+            BlackAndWhiteButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void BlackAndWhiteIconBox_Click(object sender, System.EventArgs e)
@@ -240,10 +228,7 @@ namespace PaintDotNet
         public event EventHandler UserPrimaryColorClick;
         protected virtual void OnUserPrimaryColorClick()
         {
-            if (UserPrimaryColorClick != null)
-            {
-                UserPrimaryColorClick(this, EventArgs.Empty);
-            }
+            UserPrimaryColorClick?.Invoke(this, EventArgs.Empty);
         }
 
         private void PrimaryColorRectangle_Click(object sender, System.EventArgs e)
@@ -254,10 +239,7 @@ namespace PaintDotNet
         public event EventHandler UserSecondaryColorClick;
         protected virtual void OnUserSecondaryColorClick()
         {
-            if (UserSecondaryColorClick != null)
-            {
-                UserSecondaryColorClick(this, EventArgs.Empty);
-            }
+            UserSecondaryColorClick?.Invoke(this, EventArgs.Empty);
         }
 
         private void SecondaryColorRectangle_Click(object sender, System.EventArgs e)

@@ -17,7 +17,6 @@ namespace PaintDotNet
     {
         private int criticalRegionCount = 0;
         private bool executed = false;
-        private volatile bool pleaseCancel = false;
         private ISynchronizeInvoke eventSink = null;
 
         public bool IsAsync
@@ -43,27 +42,14 @@ namespace PaintDotNet
 
         public bool Cancellable
         {
-            get
-            {
-                return ((this.actionFlags & ActionFlags.Cancellable) == ActionFlags.Cancellable);
-            }
+            get => (ActionFlags & ActionFlags.Cancellable) == ActionFlags.Cancellable;
         }
+        public ActionFlags ActionFlags { get; }
 
-        private ActionFlags actionFlags;
-        public ActionFlags ActionFlags
-        {
-            get
-            {
-                return this.actionFlags;
-            }
-        }
-
+        private volatile bool pleaseCancel = false;
         protected bool PleaseCancel
         {
-            get
-            {
-                return this.pleaseCancel;
-            }
+            get => pleaseCancel;
         }
 
         private void ExecuteTrampoline(object context)
@@ -201,10 +187,7 @@ namespace PaintDotNet
                     throw new WorkerThreadException(exception);
                 }
 
-                if (Finished != null)
-                {
-                    Finished(this, new EventArgs<HistoryMemento>(memento));
-                }
+                Finished?.Invoke(this, new EventArgs<HistoryMemento>(memento));
             }
         }
 
@@ -221,7 +204,7 @@ namespace PaintDotNet
         public event ProgressEventHandler Progress;
         protected virtual void OnProgress(double percent)
         {
-            if ((this.actionFlags & ActionFlags.ReportsProgress) != ActionFlags.ReportsProgress)
+            if ((this.ActionFlags & ActionFlags.ReportsProgress) != ActionFlags.ReportsProgress)
             {
                 System.Diagnostics.Debug.WriteLine("This HistoryFunction does not support reporting progress, yet it called OnProgress()");
             }
@@ -293,7 +276,7 @@ namespace PaintDotNet
 
         public HistoryFunction(ActionFlags actionFlags)
         {
-            this.actionFlags = actionFlags;
+            this.ActionFlags = actionFlags;
         }
     }
 }

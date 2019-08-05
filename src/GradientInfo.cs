@@ -18,45 +18,30 @@ namespace PaintDotNet
     internal sealed class GradientInfo
         : ICloneable
     {
-        private GradientType gradientType;
-        private bool alphaOnly;
+        public GradientType GradientType { get; }
 
-        public GradientType GradientType
-        {
-            get
-            {
-                return this.gradientType;
-            }
-        }
-
-        public bool AlphaOnly
-        {
-            get
-            {
-                return this.alphaOnly;
-            }
-        }
+        public bool AlphaOnly { get; }
 
         public GradientRenderer CreateGradientRenderer()
         {
             UserBlendOps.NormalBlendOp normalBlendOp = new UserBlendOps.NormalBlendOp();
 
-            switch (this.gradientType)
+            switch (GradientType)
             {
                 case GradientType.LinearClamped:
-                    return new GradientRenderers.LinearClamped(this.alphaOnly, normalBlendOp);
+                    return new GradientRenderers.LinearClamped(AlphaOnly, normalBlendOp);
 
                 case GradientType.LinearReflected:
-                    return new GradientRenderers.LinearReflected(this.alphaOnly, normalBlendOp);
+                    return new GradientRenderers.LinearReflected(AlphaOnly, normalBlendOp);
 
                 case GradientType.LinearDiamond:
-                    return new GradientRenderers.LinearDiamond(this.alphaOnly, normalBlendOp);
+                    return new GradientRenderers.LinearDiamond(AlphaOnly, normalBlendOp);
                     
                 case GradientType.Radial:
-                    return new GradientRenderers.Radial(this.alphaOnly, normalBlendOp);
+                    return new GradientRenderers.Radial(AlphaOnly, normalBlendOp);
 
                 case GradientType.Conical:
-                    return new GradientRenderers.Conical(this.alphaOnly, normalBlendOp);
+                    return new GradientRenderers.Conical(AlphaOnly, normalBlendOp);
 
                 default:
                     throw new InvalidEnumArgumentException();
@@ -65,30 +50,25 @@ namespace PaintDotNet
 
         public override bool Equals(object obj)
         {
-            GradientInfo asGI = obj as GradientInfo;
-
-            if (asGI == null)
-            {
-                return false;
-            }
-
-            return (asGI.GradientType == this.GradientType && asGI.AlphaOnly == this.AlphaOnly);
+            return (obj is GradientInfo gi && 
+                gi.GradientType == GradientType &&
+                gi.AlphaOnly == AlphaOnly);
         }
 
         public override int GetHashCode()
         {
-            return unchecked(this.gradientType.GetHashCode() + this.alphaOnly.GetHashCode());
+            return unchecked(GradientType.GetHashCode() + AlphaOnly.GetHashCode());
         }
 
         public GradientInfo(GradientType gradientType, bool alphaOnly)
         {
-            this.gradientType = gradientType;
-            this.alphaOnly = alphaOnly;
+            GradientType = gradientType;
+            AlphaOnly = alphaOnly;
         }
 
         public GradientInfo Clone()
         {
-            return new GradientInfo(this.gradientType, this.alphaOnly);
+            return new GradientInfo(GradientType, AlphaOnly);
         }
 
         object ICloneable.Clone()

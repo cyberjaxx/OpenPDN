@@ -7,8 +7,6 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet.Data;
-using PaintDotNet.Effects;
 using PaintDotNet.HistoryFunctions;
 using PaintDotNet.HistoryMementos;
 using PaintDotNet.SystemLayer;
@@ -24,7 +22,6 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -44,27 +41,16 @@ namespace PaintDotNet
         private static ToolInfo[] toolInfos;
 
         private ZoomBasis zoomBasis;
-        private AppWorkspace appWorkspace;
-        private string filePath = null;
-        private FileType fileType = null;
         private SaveConfigToken saveConfigToken = null;
-        private Selection selection = new Selection();
         private Surface scratchSurface = null;
         private SelectionRenderer selectionRenderer;
         private Hashtable staticToolData = Hashtable.Synchronized(new Hashtable());
-        private Tool activeTool;
-        private Type previousActiveToolType;
         private Type preNullTool = null;
         private int nullToolCount = 0;
         private int zoomChangesCount = 0;
-        private HistoryStack history;
         private Layer activeLayer;
         private System.Windows.Forms.Timer toolPulseTimer;
-        private DateTime lastSaveTime = NeverSavedDateTime;
         private int suspendToolCursorChanges = 0;
-        private ImageResource statusIcon = null;
-        private string statusText = null;
-
         private readonly string contextStatusBarWithAngleFormat = PdnResources.GetString("StatusBar.Context.SelectedArea.Text.WithAngle.Format");
         private readonly string contextStatusBarFormat = PdnResources.GetString("StatusBar.Context.SelectedArea.Text.Format");
 
@@ -77,42 +63,27 @@ namespace PaintDotNet
         {
             --this.suspendToolCursorChanges;
 
-            if (this.suspendToolCursorChanges <= 0 && this.activeTool != null)
+            if (this.suspendToolCursorChanges <= 0 && this.Tool != null)
             {
-                Cursor = this.activeTool.Cursor;
-            }
-        }
-        
-        public ImageResource StatusIcon
-        {
-            get
-            {
-                return this.statusIcon;
+                Cursor = this.Tool.Cursor;
             }
         }
 
-        public string StatusText
-        {
-            get
-            {
-                return this.statusText;
-            }
-        }
+        public ImageResource StatusIcon { get; private set; } = null;
+
+        public string StatusText { get; private set; } = null;
 
         public void SetStatus(string newStatusText, ImageResource newStatusIcon)
         {
-            this.statusText = newStatusText;
-            this.statusIcon = newStatusIcon;
+            this.StatusText = newStatusText;
+            this.StatusIcon = newStatusIcon;
             OnStatusChanged();
         }
 
         public event EventHandler StatusChanged;
         protected virtual void OnStatusChanged()
         {
-            if (StatusChanged != null)
-            {
-                StatusChanged(this, EventArgs.Empty);
-            }
+            StatusChanged?.Invoke(this, EventArgs.Empty);
         }
 
         static DocumentWorkspace()
@@ -121,13 +92,7 @@ namespace PaintDotNet
             InitializeToolInfos();
         }
 
-        public DateTime LastSaveTime
-        {
-            get
-            {
-                return this.lastSaveTime;
-            }
-        }
+        public DateTime LastSaveTime { get; private set; } = NeverSavedDateTime;
 
         public bool IsZoomChanging
         {
@@ -180,7 +145,7 @@ namespace PaintDotNet
         public DocumentWorkspace()
         {
             this.activeLayer = null;
-            this.history = new HistoryStack(this);
+            this.History = new HistoryStack(this);
 
             InitializeComponent();
 
@@ -191,7 +156,7 @@ namespace PaintDotNet
             this.selectionRenderer.EnableSelectionTinting = false;
             this.selectionRenderer.EnableSelectionOutline = true;
 
-            this.selection.Changed += new EventHandler(Selection_Changed);
+            this.Selection.Changed += new EventHandler(Selection_Changed);
 
             this.zoomBasis = ZoomBasis.FitToWindow;
         }
@@ -226,7 +191,7 @@ namespace PaintDotNet
 
         public void UpdateStatusBarToToolHelpText()
         {
-            UpdateStatusBarToToolHelpText(this.activeTool);
+            UpdateStatusBarToToolHelpText(this.Tool);
         }
 
         private void UpdateSelectionInfoInStatusBar()
@@ -249,15 +214,8 @@ namespace PaintDotNet
                     area = tempSelection.GetArea();
                 }
 
-                string unitsAbbreviationXY;
-                string xString;
-                string yString;
-                string unitsAbbreviationWH;
-                string widthString;
-                string heightString;
-
-                Document.CoordinatesToStrings(Units, bounds.X, bounds.Y, out xString, out yString, out unitsAbbreviationXY);
-                Document.CoordinatesToStrings(Units, bounds.Width, bounds.Height, out widthString, out heightString, out unitsAbbreviationWH);
+                Document.CoordinatesToStrings(Units, bounds.X, bounds.Y, out string xString, out string yString, out string unitsAbbreviationXY);
+                Document.CoordinatesToStrings(Units, bounds.Width, bounds.Height, out string widthString, out string heightString, out string unitsAbbreviationWH);
 
                 NumberFormatInfo nfi = (NumberFormatInfo)CultureInfo.CurrentCulture.NumberFormat.Clone();
 
@@ -275,9 +233,8 @@ namespace PaintDotNet
                 }
 
                 string pluralUnits = PdnResources.GetString("MeasurementUnit." + this.Units.ToString() + ".Plural");
-                MoveToolBase moveTool = Tool as MoveToolBase;
 
-                if (moveTool != null && moveTool.HostShouldShowAngle)
+                if (Tool is MoveToolBase moveTool && moveTool.HostShouldShowAngle)
                 {
                     NumberFormatInfo nfi2 = (NumberFormatInfo)nfi.Clone();
                     nfi2.NumberDecimalDigits = 2;
@@ -344,10 +301,10 @@ namespace PaintDotNet
         {
             if (disposing)
             {
-                if (this.activeTool != null)
+                if (this.Tool != null)
                 {
-                    this.activeTool.Dispose();
-                    this.activeTool = null;
+                    this.Tool.Dispose();
+                    this.Tool = null;
                 }
             }
 
@@ -593,9 +550,8 @@ namespace PaintDotNet
             {
                 ConstructorInfo ci = actionType.GetConstructor(new Type[] { typeof(DocumentWorkspace) });
                 object actionAsObject = ci.Invoke(new object[] { this });
-                DocumentWorkspaceAction action = actionAsObject as DocumentWorkspaceAction;
 
-                if (action != null)
+                if (actionAsObject is DocumentWorkspaceAction action)
                 {
                     bool nullTool = false;
 
@@ -632,19 +588,13 @@ namespace PaintDotNet
         public event EventHandler ZoomBasisChanging;
         protected virtual void OnZoomBasisChanging()
         {
-            if (ZoomBasisChanging != null)
-            {
-                ZoomBasisChanging(this, EventArgs.Empty);
-            }
+            ZoomBasisChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler ZoomBasisChanged;
         protected virtual void OnZoomBasisChanged()
         {
-            if (ZoomBasisChanged != null)
-            {
-                ZoomBasisChanged(this, EventArgs.Empty);
-            }
+            ZoomBasisChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public ZoomBasis ZoomBasis
@@ -896,7 +846,7 @@ namespace PaintDotNet
 
         protected override void OnLoad(EventArgs e)
         {
-            if (this.appWorkspace == null)
+            if (this.AppWorkspace == null)
             {
                 throw new InvalidOperationException("Must set the Workspace property");
             }
@@ -907,10 +857,7 @@ namespace PaintDotNet
         public event EventHandler ActiveLayerChanging;
         protected void OnLayerChanging()
         {
-            if (ActiveLayerChanging != null)
-            {
-                ActiveLayerChanging(this, EventArgs.Empty);
-            }
+            ActiveLayerChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler ActiveLayerChanged;
@@ -918,10 +865,7 @@ namespace PaintDotNet
         {
             this.Focus();
 
-            if (ActiveLayerChanged != null)
-            {
-                ActiveLayerChanged(this, EventArgs.Empty);
-            }
+            ActiveLayerChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public Layer ActiveLayer
@@ -1014,21 +958,9 @@ namespace PaintDotNet
             }
         }
 
-        public HistoryStack History
-        {
-            get
-            {
-                return this.history;
-            }
-        }
+        public HistoryStack History { get; }
 
-        public Tool Tool
-        {
-            get
-            {
-                return this.activeTool;
-            }
-        }
+        public Tool Tool { get; private set; }
 
         public Type GetToolType()
         {
@@ -1088,25 +1020,19 @@ namespace PaintDotNet
             }
         }
 
-        public Type PreviousActiveToolType
-        {
-            get
-            {
-                return this.previousActiveToolType;
-            }
-        }
+        public Type PreviousActiveToolType { get; private set; }
 
         public void SetTool(Tool copyMe)
         {
             OnToolChanging();
 
-            if (this.activeTool != null)
+            if (this.Tool != null)
             {
-                this.previousActiveToolType = this.activeTool.GetType();
-                this.activeTool.CursorChanged -= ToolCursorChangedHandler;
-                this.activeTool.PerformDeactivate();
-                this.activeTool.Dispose();
-                this.activeTool = null;
+                this.PreviousActiveToolType = this.Tool.GetType();
+                this.Tool.CursorChanged -= ToolCursorChangedHandler;
+                this.Tool.PerformDeactivate();
+                this.Tool.Dispose();
+                this.Tool = null;
             }
 
             if (copyMe == null)
@@ -1116,13 +1042,13 @@ namespace PaintDotNet
             else
             {
                 Tracing.LogFeature("SetTool(" + copyMe.GetType().FullName + ")");
-                this.activeTool = CreateTool(copyMe.GetType());
-                this.activeTool.PerformActivate();
-                this.activeTool.CursorChanged += ToolCursorChangedHandler;
+                this.Tool = CreateTool(copyMe.GetType());
+                this.Tool.PerformActivate();
+                this.Tool.CursorChanged += ToolCursorChangedHandler;
 
                 if (this.suspendToolCursorChanges <= 0)
                 {
-                    Cursor = this.activeTool.Cursor;
+                    Cursor = this.Tool.Cursor;
                 }
 
                 EnableToolPulse = true;
@@ -1212,26 +1138,20 @@ namespace PaintDotNet
         public event EventHandler ToolChanging;
         protected void OnToolChanging()
         {
-            if (ToolChanging != null)
-            {
-                ToolChanging(this, EventArgs.Empty);
-            }
+            ToolChanging?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler ToolChanged;
         protected void OnToolChanged()
         {
-            if (ToolChanged != null)
-            {
-                ToolChanged(this, EventArgs.Empty);
-            }
+            ToolChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void ToolCursorChangedHandler(object sender, EventArgs e)
         {
             if (this.suspendToolCursorChanges <= 0)
             {
-                Cursor = this.activeTool.Cursor;
+                Cursor = this.Tool.Cursor;
             }
         }
 
@@ -1247,26 +1167,9 @@ namespace PaintDotNet
             staticToolData[toolType] = data;
         }
 
-        public AppWorkspace AppWorkspace
-        {
-            get
-            {
-                return this.appWorkspace;
-            }
+        public AppWorkspace AppWorkspace { get; set; }
 
-            set
-            {
-                this.appWorkspace = value;
-            }
-        }
-
-        public Selection Selection
-        {
-            get
-            {
-                return this.selection;
-            }
-        }
+        public Selection Selection { get; } = new Selection();
 
         public bool EnableOutlineAnimation
         {
@@ -1315,27 +1218,18 @@ namespace PaintDotNet
         public event EventHandler FilePathChanged;
         protected virtual void OnFilePathChanged()
         {
-            if (FilePathChanged != null)
-            {
-                FilePathChanged(this, EventArgs.Empty);
-            }
+            FilePathChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public string FilePath
-        {
-            get
-            {
-                return this.filePath;
-            }
-        }
+        public string FilePath { get; private set; } = null;
 
         public string GetFriendlyName()
         {
             string friendlyName;
 
-            if (this.filePath != null)
+            if (this.FilePath != null)
             {
-                friendlyName = Path.GetFileName(this.filePath);
+                friendlyName = Path.GetFileName(this.FilePath);
             }
             else
             {
@@ -1345,13 +1239,7 @@ namespace PaintDotNet
             return friendlyName;
         }
 
-        public FileType FileType
-        {
-            get
-            {
-                return this.fileType;
-            }
-        }
+        public FileType FileType { get; private set; } = null;
 
         public SaveConfigToken SaveConfigToken
         {
@@ -1371,10 +1259,7 @@ namespace PaintDotNet
         public event EventHandler SaveOptionsChanged;
         protected virtual void OnSaveOptionsChanged()
         {
-            if (SaveOptionsChanged != null)
-            {
-                SaveOptionsChanged(this, EventArgs.Empty);
-            }
+            SaveOptionsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -1387,10 +1272,10 @@ namespace PaintDotNet
         /// <param name="saveParameters"></param>
         public void SetDocumentSaveOptions(string newFilePath, FileType newFileType, SaveConfigToken newSaveConfigToken)
         {
-            this.filePath = newFilePath;
+            this.FilePath = newFilePath;
             OnFilePathChanged();
 
-            this.fileType = newFileType;
+            this.FileType = newFileType;
 
             if (newSaveConfigToken == null)
             {
@@ -1406,8 +1291,8 @@ namespace PaintDotNet
 
         public void GetDocumentSaveOptions(out string filePathResult, out FileType fileTypeResult, out SaveConfigToken saveConfigTokenResult)
         {
-            filePathResult = this.filePath;
-            fileTypeResult = this.fileType;
+            filePathResult = this.FilePath;
+            fileTypeResult = this.FileType;
 
             if (this.saveConfigToken == null)
             {
@@ -1550,7 +1435,7 @@ namespace PaintDotNet
             }
             else
             {
-                if (this.activeTool != null)
+                if (this.Tool != null)
                 {
                     throw new InvalidOperationException("Tool was not deactivated while Document was being changed");
                 }
@@ -2120,17 +2005,9 @@ namespace PaintDotNet
 
         public static DialogResult ChooseFile(Control parent, out string fileName, string startingDir)
         {
-            string[] fileNames;
-            DialogResult result = ChooseFiles(parent, out fileNames, false, startingDir);
+            DialogResult result = ChooseFiles(parent, out string[] fileNames, false, startingDir);
 
-            if (result == DialogResult.OK)
-            {
-                fileName = fileNames[0];
-            }
-            else
-            {
-                fileName = null;
-            }
+            fileName = (result == DialogResult.OK) ? fileNames[0] : null;
 
             return result;
         }
@@ -2279,10 +2156,7 @@ namespace PaintDotNet
                 string filter = fileTypes.ToString(false, null, true, false);
                 sfd.Filter = filter;
 
-                string localFileName;
-                FileType localFileType;
-                SaveConfigToken localSaveConfigToken;
-                GetDocumentSaveOptions(out localFileName, out localFileType, out localSaveConfigToken);
+                GetDocumentSaveOptions(out string localFileName, out FileType localFileType, out SaveConfigToken localSaveConfigToken);
 
                 if (Document.Layers.Count > 1 && 
                     localFileType != null && 
@@ -2472,11 +2346,7 @@ namespace PaintDotNet
         {
             using (new PushNullToolMode(this))
             {
-                string newFileName;
-                FileType newFileType;
-                SaveConfigToken newSaveConfigToken;
-
-                GetDocumentSaveOptions(out newFileName, out newFileType, out newSaveConfigToken);
+                GetDocumentSaveOptions(out string newFileName, out FileType newFileType, out SaveConfigToken newSaveConfigToken);
 
                 // if they haven't specified a filename, then revert to "Save As" behavior
                 if (newFileName == null)
@@ -2638,7 +2508,7 @@ namespace PaintDotNet
 
                         success = true;
 
-                        this.lastSaveTime = DateTime.Now;
+                        this.LastSaveTime = DateTime.Now;
 
                         stream.Close();
                         stream = null;
@@ -2733,11 +2603,7 @@ namespace PaintDotNet
 
                 if (result)
                 {
-                    string oldFileName;
-                    FileType oldFileType;
-                    SaveConfigToken oldSaveConfigToken;
-
-                    GetDocumentSaveOptions(out oldFileName, out oldFileType, out oldSaveConfigToken);
+                    GetDocumentSaveOptions(out string oldFileName, out FileType oldFileType, out SaveConfigToken oldSaveConfigToken);
                     SetDocumentSaveOptions(newFileName, newFileType, newSaveConfigToken);
 
                     bool result2 = DoSave(true);
@@ -2821,10 +2687,7 @@ namespace PaintDotNet
                         {
                             document = fileType.Load(siphonStream);
 
-                            if (progressCallback != null)
-                            {
-                                progressCallback(null, new ProgressEventArgs(100.0));
-                            }
+                            progressCallback?.Invoke(null, new ProgressEventArgs(100.0));
                         }
 
                         siphonStream.IOFinished -= ioEventHandler;

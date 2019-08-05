@@ -11,13 +11,10 @@ using PaintDotNet.SystemLayer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -161,18 +158,18 @@ namespace PaintDotNet
                     "PaintDotNet.Data.dll",
                     "PaintDotNet.Effects.dll",
                     "PaintDotNet.Resources.dll",
-                    "PaintDotNet.Strings.3.DE.resources",
-                    "PaintDotNet.Strings.3.ES.resources",
-                    "PaintDotNet.Strings.3.FR.resources",
-                    "PaintDotNet.Strings.3.IT.resources",
-                    "PaintDotNet.Strings.3.JA.resources",
-                    "PaintDotNet.Strings.3.KO.resources",
-                    "PaintDotNet.Strings.3.PT-BR.resources",
+                    //"PaintDotNet.Strings.3.DE.resources",
+                    //"PaintDotNet.Strings.3.ES.resources",
+                    //"PaintDotNet.Strings.3.FR.resources",
+                    //"PaintDotNet.Strings.3.IT.resources",
+                    //"PaintDotNet.Strings.3.JA.resources",
+                    //"PaintDotNet.Strings.3.KO.resources",
+                    //"PaintDotNet.Strings.3.PT-BR.resources",
                     "PaintDotNet.Strings.3.resources",
-                    "PaintDotNet.Strings.3.ZH-CN.resources",
+                    //"PaintDotNet.Strings.3.ZH-CN.resources",
                     "PaintDotNet.StylusReader.dll",
                     "PaintDotNet.SystemLayer.dll",
-                    "SetupNgen.exe",
+                    //"SetupNgen.exe",
                     "ShellExtension_x64.dll",
                     "ShellExtension_x86.dll",
                     "Squish_x64.dll",

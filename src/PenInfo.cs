@@ -29,62 +29,10 @@ namespace PaintDotNet
         public const float DefaultCapScale = 1.0f;
         public const float MinCapScale = 1.0f;
         public const float MaxCapScale = 5.0f;
-
-        private DashStyle dashStyle;
-        public DashStyle DashStyle
-        {
-            get
-            {
-                return this.dashStyle;
-            }
-
-            set
-            {
-                this.dashStyle = value;
-            }
-        }
-
-        private float width;
-        public float Width
-        {
-            get
-            {
-                return this.width;
-            }
-
-            set
-            {
-                this.width = value;
-            }
-        }
-
-        private LineCap2 startCap;
-        public LineCap2 StartCap
-        {
-            get
-            {
-                return this.startCap;
-            }
-
-            set
-            {
-                this.startCap = value;
-            }
-        }
-
-        private LineCap2 endCap;
-        public LineCap2 EndCap
-        {
-            get
-            {
-                return this.endCap;
-            }
-
-            set
-            {
-                this.endCap = value;
-            }
-        }
+        public DashStyle DashStyle { get; set; }
+        public float Width { get; set; }
+        public LineCap2 StartCap { get; set; }
+        public LineCap2 EndCap { get; set; }
 
         private float capScale;
         private float CapScale
@@ -103,10 +51,10 @@ namespace PaintDotNet
         public static bool operator==(PenInfo lhs, PenInfo rhs)
         {
             return (
-                lhs.dashStyle == rhs.dashStyle && 
-                lhs.width == rhs.width &&
-                lhs.startCap == rhs.startCap &&
-                lhs.endCap == rhs.endCap &&
+                lhs.DashStyle == rhs.DashStyle && 
+                lhs.Width == rhs.Width &&
+                lhs.StartCap == rhs.StartCap &&
+                lhs.EndCap == rhs.EndCap &&
                 lhs.capScale == rhs.capScale);
         }
 
@@ -130,10 +78,10 @@ namespace PaintDotNet
         public override int GetHashCode()
         {
             return 
-                this.dashStyle.GetHashCode() ^ 
-                this.width.GetHashCode() ^ 
-                this.startCap.GetHashCode() ^ 
-                this.endCap.GetHashCode() ^
+                this.DashStyle.GetHashCode() ^ 
+                this.Width.GetHashCode() ^ 
+                this.StartCap.GetHashCode() ^ 
+                this.EndCap.GetHashCode() ^
                 this.capScale.GetHashCode();
         }
 
@@ -172,16 +120,14 @@ namespace PaintDotNet
 
             if (brushInfo.BrushType == BrushType.None)
             {
-                pen = new Pen(foreColor, width);
+                pen = new Pen(foreColor, Width);
             }
             else
             {
-                pen = new Pen(brushInfo.CreateBrush(foreColor, backColor), width);
+                pen = new Pen(brushInfo.CreateBrush(foreColor, backColor), Width);
             }
 
-            LineCap startLineCap;
-            CustomLineCap startCustomLineCap;
-            LineCapToLineCap2(this.startCap, out startLineCap, out startCustomLineCap);
+            LineCapToLineCap2(this.StartCap, out LineCap startLineCap, out CustomLineCap startCustomLineCap);
 
             if (startCustomLineCap != null)
             {
@@ -192,9 +138,7 @@ namespace PaintDotNet
                 pen.StartCap = startLineCap;
             }
 
-            LineCap endLineCap;
-            CustomLineCap endCustomLineCap;
-            LineCapToLineCap2(this.endCap, out endLineCap, out endCustomLineCap);
+            LineCapToLineCap2(this.EndCap, out LineCap endLineCap, out CustomLineCap endCustomLineCap);
 
             if (endCustomLineCap != null)
             {
@@ -205,45 +149,45 @@ namespace PaintDotNet
                 pen.EndCap = endLineCap;
             }
 
-            pen.DashStyle = this.dashStyle;
+            pen.DashStyle = this.DashStyle;
 
             return pen;
         }
 
         public PenInfo(DashStyle dashStyle, float width, LineCap2 startCap, LineCap2 endCap, float capScale)
         {
-            this.dashStyle = dashStyle;
-            this.width = width;
+            this.DashStyle = dashStyle;
+            this.Width = width;
             this.capScale = capScale;
-            this.startCap = startCap;
-            this.endCap = endCap;
+            this.StartCap = startCap;
+            this.EndCap = endCap;
         }
 
         private PenInfo(SerializationInfo info, StreamingContext context)
         {
-            this.dashStyle = (DashStyle)info.GetValue("dashStyle", typeof(DashStyle));
-            this.width = info.GetSingle("width");
+            this.DashStyle = (DashStyle)info.GetValue("dashStyle", typeof(DashStyle));
+            this.Width = info.GetSingle("width");
 
             // Save the caps as integers because we want to change the "LineCap2" name.
             // Just not feeling very creative right now I guess.
             try
             {
-                this.startCap = (LineCap2)info.GetInt32("startCap");
+                this.StartCap = (LineCap2)info.GetInt32("startCap");
             }
 
             catch (SerializationException)
             {
-                this.startCap = DefaultLineCap;
+                this.StartCap = DefaultLineCap;
             }
 
             try
             {
-                this.endCap = (LineCap2)info.GetInt32("endCap");
+                this.EndCap = (LineCap2)info.GetInt32("endCap");
             }
 
             catch (SerializationException)
             {
-                this.endCap = DefaultLineCap;
+                this.EndCap = DefaultLineCap;
             }
 
             try
@@ -260,7 +204,7 @@ namespace PaintDotNet
 
         public PenInfo Clone()
         {
-            return new PenInfo(this.dashStyle, this.width, this.startCap, this.endCap, this.capScale);
+            return new PenInfo(this.DashStyle, this.Width, this.StartCap, this.EndCap, this.capScale);
         }
 
         object ICloneable.Clone()
@@ -270,10 +214,10 @@ namespace PaintDotNet
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("dashStyle", this.dashStyle);
-            info.AddValue("width", this.width);
-            info.AddValue("startCap", (int)this.startCap);
-            info.AddValue("endCap", (int)this.endCap);
+            info.AddValue("dashStyle", this.DashStyle);
+            info.AddValue("width", this.Width);
+            info.AddValue("startCap", (int)this.StartCap);
+            info.AddValue("endCap", (int)this.EndCap);
             info.AddValue("capScale", this.capScale);
         }
     }

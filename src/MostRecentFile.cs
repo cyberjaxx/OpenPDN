@@ -17,29 +17,14 @@ namespace PaintDotNet
     /// </summary>
     internal class MostRecentFile
     {
-        private string fileName;
-        private Image thumb;
+        public string FileName { get; }
 
-        public string FileName
-        {
-            get
-            {
-                return fileName;
-            }
-        }
-
-        public Image Thumb
-        {
-            get
-            {
-                return thumb;
-            }
-        }
+        public Image Thumb { get; }
 
         public MostRecentFile(string fileName, Image thumb)
         {
-            this.fileName = fileName;
-            this.thumb = thumb;
+            FileName = fileName;
+            Thumb = thumb;
         }
     }
 }
