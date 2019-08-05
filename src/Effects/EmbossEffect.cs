@@ -43,9 +43,10 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new DoubleProperty(PropertyNames.Angle, 0.0, -180.0, +180.0));
+            List<Property> props = new List<Property>
+            {
+                new DoubleProperty(PropertyNames.Angle, 0.0, -180.0, +180.0)
+            };
 
             return new PropertyCollection(props);
         }

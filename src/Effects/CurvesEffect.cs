@@ -27,9 +27,7 @@ namespace PaintDotNet.Effects
 
         public override void Render(EffectConfigToken parameters, RenderArgs dstArgs, RenderArgs srcArgs, Rectangle[] rois, int startIndex, int length)
         {
-            CurvesEffectConfigToken token = parameters as CurvesEffectConfigToken;
-
-            if (token != null)
+            if (parameters is CurvesEffectConfigToken token)
             {
                 UnaryPixelOp uop = token.Uop;
 

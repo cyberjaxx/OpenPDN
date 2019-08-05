@@ -95,9 +95,10 @@ namespace PaintDotNet.Effects
             OnCustomizeConfigUIWindowProperties(windowProps);
             PropertyCollection windowProps2 = windowProps.Clone();
 
-            PropertyBasedEffectConfigDialog pbecd = new PropertyBasedEffectConfigDialog(props3, configUI2, windowProps2);
-
-            pbecd.Icon = GetConfigDialogIcon();
+            PropertyBasedEffectConfigDialog pbecd = new PropertyBasedEffectConfigDialog(props3, configUI2, windowProps2)
+            {
+                Icon = GetConfigDialogIcon()
+            };
 
             return pbecd;
         }

@@ -52,9 +52,10 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.Radius, 2, 0, 200));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Radius, 2, 0, 200)
+            };
 
             return new PropertyCollection(props);
         }
@@ -80,46 +81,6 @@ namespace PaintDotNet.Effects
                 // 1 + aa - aa + 2ai - ii
                 weights[i] = 16 * (i + 1);
                 weights[weights.Length - i - 1] = weights[i];
-            }
-
-            return weights;
-        }
-
-        [Obsolete("Do not use this method. It will be removed in a future release.")]
-        public static int[][] CreateGaussianBlurMatrix(int amount)
-        {
-            int size = 1 + (amount * 2);
-            int center = size / 2;
-            int[][] weights = new int[size][];
-
-            for (int i = 0; i < size; ++i)
-            {
-                weights[i] = new int[size];
-
-                for (int j = 0; j < size; ++j)
-                {
-                    weights[i][j] = (int)(16 * Math.Sqrt(((j - center) * (j - center)) + ((i - center) * (i - center))));
-                }
-            }
-
-            int max = 0;
-            for (int i = 0; i < size; ++i)
-            {
-                for (int j = 0; j < size; ++j)
-                {
-                    if (weights[i][j] > max)
-                    {
-                        max = weights[i][j];
-                    }
-                }
-            }
-
-            for (int i = 0; i < size; ++i)
-            {
-                for (int j = 0; j < size; ++j)
-                {
-                    weights[i][j] = max - weights[i][j];
-                }
             }
 
             return weights;
@@ -246,12 +207,7 @@ namespace PaintDotNet.Effects
                         }
                         else
                         {
-                            int alpha = (int)(aSum / waSum);
-                            int blue = (int)(bSum / wcSum);
-                            int green = (int)(gSum / wcSum);
-                            int red = (int)(rSum / wcSum);
-
-                            dstPtr->Bgra = ColorBgra.BgraToUInt32(blue, green, red, alpha);
+                            dstPtr->Bgra = (uint)(bSum / waSum) + ((uint)(gSum / waSum) << 8) + ((uint)(rSum / waSum) << 16) + ((uint)(aSum / waSum) << 24);
                         }
 
                         ++dstPtr;
@@ -338,12 +294,7 @@ namespace PaintDotNet.Effects
                             }
                             else
                             {
-                                int alpha = (int)(aSum / waSum);
-                                int blue = (int)(bSum / wcSum);
-                                int green = (int)(gSum / wcSum);
-                                int red = (int)(rSum / wcSum);
-
-                                dstPtr->Bgra = ColorBgra.BgraToUInt32(blue, green, red, alpha);
+                                dstPtr->Bgra = (uint)(bSum / waSum) + ((uint)(gSum / waSum) << 8) + ((uint)(rSum / waSum) << 16) + ((uint)(aSum / waSum) << 24);
                             }
 
                             ++dstPtr;

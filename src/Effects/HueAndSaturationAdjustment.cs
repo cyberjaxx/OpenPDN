@@ -55,11 +55,12 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.Hue, 0, -180, +180));
-            props.Add(new Int32Property(PropertyNames.Saturation, 100, 0, 200));
-            props.Add(new Int32Property(PropertyNames.Lightness, 0, -100, +100));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Hue, 0, -180, +180),
+                new Int32Property(PropertyNames.Saturation, 100, 0, 200),
+                new Int32Property(PropertyNames.Lightness, 0, -100, +100)
+            };
 
             return new PropertyCollection(props);
         }
@@ -76,9 +77,9 @@ namespace PaintDotNet.Effects
             this.lightness = newToken.GetProperty<Int32Property>(PropertyNames.Lightness).Value;
 
             // map the range [0,100] -> [0,100] and the range [101,200] -> [103,400]
-            if (this.saturation > 100)
+            //if (this.saturation > 100)
             {
-                this.saturation = ((this.saturation - 100) * 3) + 100;
+            //    this.saturation = ((this.saturation - 100) * 3) + 100;
             }
 
             if (this.hue == 0 && this.saturation == 100 && this.lightness == 0)

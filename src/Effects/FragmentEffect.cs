@@ -49,11 +49,12 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> properties = new List<Property>();
-
-            properties.Add(new Int32Property(PropertyNames.Fragments, 4, 2, 50));
-            properties.Add(new Int32Property(PropertyNames.Distance, 8, 0, 100));
-            properties.Add(new DoubleProperty(PropertyNames.Rotation, 0, 0, 360));
+            List<Property> properties = new List<Property>
+            {
+                new Int32Property(PropertyNames.Fragments, 4, 2, 50),
+                new Int32Property(PropertyNames.Distance, 8, 0, 100),
+                new DoubleProperty(PropertyNames.Rotation, 0, 0, 360)
+            };
 
             return new PropertyCollection(properties);
         }

@@ -60,12 +60,13 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> properties = new List<Property>();
-
-            properties.Add(new DoubleProperty(PropertyNames.Amount, 1, -4, 4));
-            properties.Add(new DoubleVectorProperty(PropertyNames.Offset, Pair.Create<double, double>(0, 0), Pair.Create<double, double>(-2, -2), Pair.Create<double, double>(2, 2)));
-            properties.Add(new StaticListChoiceProperty(PropertyNames.EdgeBehavior, new object[] { WarpEdgeBehavior.Clamp, WarpEdgeBehavior.Reflect, WarpEdgeBehavior.Wrap }, 2));
-            properties.Add(new Int32Property(PropertyNames.Quality, 2, 1, 5));
+            List<Property> properties = new List<Property>
+            {
+                new DoubleProperty(PropertyNames.Amount, 1, -4, 4),
+                new DoubleVectorProperty(PropertyNames.Offset, Pair.Create<double, double>(0, 0), Pair.Create<double, double>(-2, -2), Pair.Create<double, double>(2, 2)),
+                new StaticListChoiceProperty(PropertyNames.EdgeBehavior, new object[] { WarpEdgeBehavior.Clamp, WarpEdgeBehavior.Reflect, WarpEdgeBehavior.Wrap }, 2),
+                new Int32Property(PropertyNames.Quality, 2, 1, 5)
+            };
 
             return new PropertyCollection(properties);
         }

@@ -54,85 +54,26 @@ namespace PaintDotNet.Effects
         /// <para>The offset is scaled relative to the image size. Each part of the <see cref="Pair`2"/> covers the range ±1.</para>
         /// <para>The coordinates supplied to <see cref="InverseTransform"/> are relative to the calcuated logical center. </para>
         /// </comments>
-        protected Pair<double, double> Offset
-        {
-            get 
-            { 
-                return this.offset; 
-            }
+        protected Pair<double, double> Offset { get; set; } = new Pair<double, double>(0, 0);
 
-            set 
-            { 
-                this.offset = value; 
-            }
-        }
+        protected WarpEdgeBehavior EdgeBehavior { get; set; } = WarpEdgeBehavior.Wrap;
 
-        protected WarpEdgeBehavior EdgeBehavior
-        {
-            get 
-            { 
-                return edgeBehavior; 
-            }
-
-            set 
-            { 
-                edgeBehavior = value; 
-            }
-        }
-
-        protected int Quality
-        {
-            get 
-            { 
-                return quality; 
-            }
-
-            set 
-            { 
-                quality = value; 
-            }
-        }
+        protected int Quality { get; set; } = 2;
 
         /// <summary>
         /// The radius (in pixels) of the largest circle that can completely fit within the effect selection bounds
         /// </summary>
-        protected double DefaultRadius
-        {
-            get 
-            { 
-                return this.defaultRadius; 
-            }
-        }
+        protected double DefaultRadius { get; private set; }
 
         /// <summary>
         /// The square of the DefaultRadius
         /// </summary>
-        protected double DefaultRadius2
-        {
-            get 
-            {
-                return this.defaultRadius2; 
-            }
-        }
+        protected double DefaultRadius2 { get; private set; }
 
         /// <summary>
         /// The reciprical of the DefaultRadius
         /// </summary>
-        protected double DefaultRadiusR
-        {
-            get 
-            {
-                return this.defaultRadiusR; 
-            }
-        }
-
-        private Pair<double, double> offset = new Pair<double, double>(0, 0);
-        private WarpEdgeBehavior edgeBehavior = WarpEdgeBehavior.Wrap;
-        private int quality = 2;
-
-        private double defaultRadius;
-        private double defaultRadius2;
-        private double defaultRadiusR;
+        protected double DefaultRadiusR { get; private set; }
 
         private double width;
         private double height;
@@ -147,16 +88,16 @@ namespace PaintDotNet.Effects
         {
             Rectangle selection = this.EnvironmentParameters.GetSelection(srcArgs.Bounds).GetBoundsInt();
 
-            this.defaultRadius = Math.Min(selection.Width, selection.Height) * 0.5;
-            this.defaultRadius2 = this.defaultRadius * this.defaultRadius;
-            this.defaultRadiusR = 1.0 / this.defaultRadius;
+            this.DefaultRadius = Math.Min(selection.Width, selection.Height) * 0.5;
+            this.DefaultRadius2 = this.DefaultRadius * this.DefaultRadius;
+            this.DefaultRadiusR = 1.0 / this.DefaultRadius;
             this.width = selection.Width;
             this.height = selection.Height;
 
             OnSetRenderInfo2(newToken, dstArgs, srcArgs);
 
-            this.xCenterOffset = selection.Left + (this.width * (1.0 + this.offset.First) * 0.5);
-            this.yCenterOffset = selection.Top + (this.height * (1.0 + this.offset.Second) * 0.5);
+            this.xCenterOffset = selection.Left + (this.width * (1.0 + this.Offset.First) * 0.5);
+            this.yCenterOffset = selection.Top + (this.height * (1.0 + this.Offset.Second) * 0.5);
 
             base.OnSetRenderInfo(newToken, dstArgs, srcArgs);
         }
@@ -170,9 +111,9 @@ namespace PaintDotNet.Effects
             ColorBgra colSecondary = EnvironmentParameters.SecondaryColor;
             ColorBgra colTransparent = ColorBgra.Transparent;
 
-            int aaSampleCount = quality * quality;
+            int aaSampleCount = Quality * Quality;
             PointF* aaPoints = stackalloc PointF[aaSampleCount];
-            Utility.GetRgssOffsets(aaPoints, aaSampleCount, quality);
+            Utility.GetRgssOffsets(aaPoints, aaSampleCount, Quality);
             ColorBgra* samples = stackalloc ColorBgra[aaSampleCount];
 
             TransformData td;
@@ -211,7 +152,7 @@ namespace PaintDotNet.Effects
                             }
                             else
                             {
-                                switch (this.edgeBehavior)
+                                switch (this.EdgeBehavior)
                                 {
                                     case WarpEdgeBehavior.Clamp:
                                         sample = src.GetBilinearSampleClamped(sampleX, sampleY);

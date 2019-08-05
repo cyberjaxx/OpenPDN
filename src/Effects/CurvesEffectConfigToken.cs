@@ -8,11 +8,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 
 namespace PaintDotNet.Effects
 {
@@ -22,10 +19,7 @@ namespace PaintDotNet.Effects
         private SortedList<int, int>[] controlPoints;
         public SortedList<int, int>[] ControlPoints
         {
-            get
-            {
-                return this.controlPoints;
-            }
+            get => this.controlPoints;
 
             set
             {
@@ -37,10 +31,7 @@ namespace PaintDotNet.Effects
         private ColorTransferMode colorTransferMode;
         public ColorTransferMode ColorTransferMode
         {
-            get
-            {
-                return this.colorTransferMode;
-            }
+            get => this.colorTransferMode;
 
             set
             {
@@ -51,7 +42,6 @@ namespace PaintDotNet.Effects
 
         [NonSerialized]
         private UnaryPixelOp uop;
-
         public UnaryPixelOp Uop
         {
             get
@@ -127,10 +117,11 @@ namespace PaintDotNet.Effects
 
             for (int i = 0; i < this.controlPoints.Length; ++i)
             {
-                SortedList<int, int> newList = new SortedList<int, int>();
-
-                newList.Add(0, 0);
-                newList.Add(255, 255);
+                SortedList<int, int> newList = new SortedList<int, int>
+                {
+                    { 0, 0 },
+                    { 255, 255 }
+                };
                 controlPoints[i] = newList;
             }
 
@@ -142,7 +133,7 @@ namespace PaintDotNet.Effects
         {
             this.uop = copyMe.Uop;
             this.colorTransferMode = copyMe.ColorTransferMode;
-            this.controlPoints = (SortedList<int, int>[])copyMe.controlPoints.Clone();
+            this.controlPoints = (SortedList<int, int>[])copyMe.ControlPoints.Clone();
         }
     }
 }

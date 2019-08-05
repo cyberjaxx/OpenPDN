@@ -15,18 +15,11 @@ namespace PaintDotNet.Effects
     public sealed class EffectTypeHintAttribute
         : Attribute
     {
-        private EffectTypeHint effectTypeHint;
-        public EffectTypeHint EffectTypeHint
-        {
-            get
-            {
-                return effectTypeHint;
-            }
-        }
+        public EffectTypeHint EffectTypeHint { get; }
 
         public EffectTypeHintAttribute(EffectTypeHint effectTypeHint)
         {
-            this.effectTypeHint = effectTypeHint;
+            this.EffectTypeHint = effectTypeHint;
         }
     }
 }

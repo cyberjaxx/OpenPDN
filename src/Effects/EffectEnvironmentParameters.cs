@@ -28,62 +28,16 @@ namespace PaintDotNet.Effects
             }
         }
 
-        private ColorBgra primaryColor = ColorBgra.FromBgra(0, 0, 0, 0);
-        private ColorBgra secondaryColor = ColorBgra.FromBgra(0, 0, 0, 0);
-        private float brushWidth = 0.0f;
         private PdnRegion selection;
         private bool haveIntersectedSelection = false;
-        private Surface sourceSurface;
 
-        [Obsolete("This property has been renamed. Use PrimaryColor instead.", true)]
-        public ColorBgra ForeColor 
-        {
-            get
-            {
-                return PrimaryColor;
-            }
-        }
+        public ColorBgra PrimaryColor { get; } = ColorBgra.FromBgra(0, 0, 0, 0);
 
-        public ColorBgra PrimaryColor
-        {
-            get
-            {
-                return this.primaryColor;
-            }
-        }
+        public ColorBgra SecondaryColor { get; } = ColorBgra.FromBgra(0, 0, 0, 0);
 
-        [Obsolete("This property has been renamed. Use SecondaryColor instead.")]
-        public ColorBgra BackColor
-        {
-            get 
-            {
-                return SecondaryColor;
-            }
-        }
+        public float BrushWidth { get; } = 0.0f;
 
-        public ColorBgra SecondaryColor
-        {
-            get
-            {
-                return this.secondaryColor;
-            }
-        }
-
-        public float BrushWidth 
-        {
-            get 
-            {
-                return this.brushWidth;
-            }
-        }
-
-        public Surface SourceSurface
-        {
-            get
-            {
-                return this.sourceSurface;
-            }
-        }
+        public Surface SourceSurface { get; }
 
         /// <summary>
         /// Gets the user's currently selected area.
@@ -111,11 +65,11 @@ namespace PaintDotNet.Effects
 
         public EffectEnvironmentParameters(ColorBgra primaryColor, ColorBgra secondaryColor, float brushWidth, PdnRegion selection, Surface sourceSurface)
         {
-            this.primaryColor = primaryColor;
-            this.secondaryColor = secondaryColor;
-            this.brushWidth = brushWidth;
+            this.PrimaryColor = primaryColor;
+            this.SecondaryColor = secondaryColor;
+            this.BrushWidth = brushWidth;
             this.selection = (PdnRegion)selection.Clone();
-            this.sourceSurface = sourceSurface;
+            this.SourceSurface = sourceSurface;
         }
 
         ~EffectEnvironmentParameters()

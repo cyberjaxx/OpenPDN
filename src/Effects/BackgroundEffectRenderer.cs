@@ -27,7 +27,6 @@ namespace PaintDotNet.Effects
     /// dual processor systems, and possibly on systems that have HyperThreading.
     /// 
     /// This class is NOT SAFE for multithreaded access. Note that the events will 
-    /// be raised from arbitrary threads.
     /// be raised from arbitrary threads. The only method that is safe to call from
     /// a thread that is not managing Start(), Abort(), and Join() is AbortAsync().
     /// You may then query whether the rendering actually aborted by using the Abort
@@ -37,53 +36,55 @@ namespace PaintDotNet.Effects
     public sealed class BackgroundEffectRenderer
         : IDisposable
     {
-        private Effect effect;
-        private EffectConfigToken effectToken; // this references the main token that is passed in to the constructor
-        private EffectConfigToken effectTokenCopy; // this copy of the token is updated every time you call Start() to make sure it is up to date. This is then passed to the threads, not the original one.
-        private PdnRegion renderRegion;
-        private Rectangle[][] tileRegions;
-        private PdnRegion[] tilePdnRegions;
-        private int tileCount;
-        private Threading.ThreadPool threadPool;
-        private RenderArgs dstArgs;
-        private RenderArgs srcArgs;
-        private int workerThreads;
-        private ArrayList exceptions = ArrayList.Synchronized(new ArrayList());
-        private volatile bool aborted = false;
+        private Effect Effect { get; }
+        // EffectToken this references the original token that is passed in to the constructor
+        private EffectConfigToken EffectToken { get; }
+        // EffectTokenCopy: a copy of the token is updated every time you call Start()
+        // to make sure it is up to date. This is then passed to the threads,
+        // not the original one.
+        private EffectConfigToken EffectTokenCopy { get; set; }                                                
+        private PdnRegion RenderRegion { get; }
+        private Rectangle[][] TileRegions { get; }
+        private PdnRegion[] TilePdnRegions { get; }
+        private int TileCount { get; }
+        private Threading.ThreadPool ThreadPool { get; }
+        private RenderArgs DstArgs { get; set; }
+        private RenderArgs SrcArgs { get; set; }
+        private int WorkerThreads { get; }
+        private ArrayList Exceptions { get; } = ArrayList.Synchronized(new ArrayList());
+        public volatile bool aborted = false;
+        public bool Aborted
+        {
+            get => aborted;
+            private set => aborted = value;
+        }
+
+        private CancellationTokenSource TokenSource { get; set; } = null;
 
         public event RenderedTileEventHandler RenderedTile;
         private void OnRenderedTile(RenderedTileEventArgs e)
         {
-            if (RenderedTile != null)
-            {
-                RenderedTile(this, e);
-            }
+            RenderedTile?.Invoke(this, e);
         }
 
         public event EventHandler FinishedRendering;
         private void OnFinishedRendering()
         {
-            if (FinishedRendering != null)
-            {
-                FinishedRendering(this, EventArgs.Empty);
-            }
+            FinishedRendering?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler StartingRendering;
         private void OnStartingRendering()
         {
-            if (StartingRendering != null)
-            {
-                StartingRendering(this, EventArgs.Empty);
-            }
+            StartingRendering?.Invoke(this, EventArgs.Empty);
         }
 
         private sealed class RendererContext
         {
-            private BackgroundEffectRenderer ber;
-            private EffectConfigToken token;
-            private int threadNumber;
-            private int startOffset;
+            private BackgroundEffectRenderer BackRenderer { get; }
+            private EffectConfigToken Token { get; }
+            private int ThreadNumber { get; }
+            private int StartOffset { get; }
 
             public RendererContext(BackgroundEffectRenderer ber, EffectConfigToken token, int threadNumber)
                 : this(ber, token, threadNumber, 0)
@@ -92,10 +93,10 @@ namespace PaintDotNet.Effects
 
             public RendererContext(BackgroundEffectRenderer ber, EffectConfigToken token, int threadNumber, int startOffset)
             {
-                this.ber = ber;
-                this.token = token;
-                this.threadNumber = threadNumber;
-                this.startOffset = startOffset;
+                BackRenderer = ber;
+                Token = token;
+                ThreadNumber = threadNumber;
+                StartOffset = startOffset;
             }
 
             public void Renderer2(object ignored)
@@ -113,145 +114,140 @@ namespace PaintDotNet.Effects
 
             private void RenderImpl()
             {
-                int inc = ber.workerThreads;
-                int start = this.threadNumber + (this.startOffset * inc);
-                int max = ber.tileCount;
+                int threadCount = BackRenderer.WorkerThreads;
+                int start = ThreadNumber + (StartOffset * threadCount);
+                int max = BackRenderer.TileCount;
 
-                try
+                //try
                 {
-                    for (int tile = start; tile < max; tile += inc)
+                    for (int tile = start; tile < max; tile += threadCount)
                     {
-                        if (ber.threadShouldStop)
+                        if (BackRenderer.ThreadShouldStop)
                         {
-                            this.ber.aborted = true;
+                            BackRenderer.Aborted = true;
                             break;
                         }
 
-                        Rectangle[] subRegion = ber.tileRegions[tile];
-                        ber.effect.Render(this.token, ber.dstArgs, ber.srcArgs, subRegion);
-                        PdnRegion subPdnRegion = ber.tilePdnRegions[tile];
-                        ber.OnRenderedTile(new RenderedTileEventArgs(subPdnRegion, ber.tileCount, tile));
+                        Rectangle[] subRegion = BackRenderer.TileRegions[tile];
+                        BackRenderer.Effect.Render(Token, BackRenderer.DstArgs, BackRenderer.SrcArgs, subRegion);
+                        PdnRegion subPdnRegion = BackRenderer.TilePdnRegions[tile];
+                        BackRenderer.OnRenderedTile(new RenderedTileEventArgs(subPdnRegion, BackRenderer.TileCount, tile));
                     }
                 }
 
-                catch (Exception ex)
+                //catch (Exception ex)
                 {
-                    ber.exceptions.Add(ex);
+                    //BackRenderer.Exceptions.Add(ex);
                 }
             }
         }
 
         public void ThreadFunction()
         {
-            if (this.srcArgs.Surface.Scan0.MaySetAllowWrites)
+            if (SrcArgs.Surface.Scan0.MaySetAllowWrites)
             {
-                this.srcArgs.Surface.Scan0.AllowWrites = false;
+                SrcArgs.Surface.Scan0.AllowWrites = false;
             }
 
-            try
+            //try
             {
-                this.effect.SetRenderInfo(this.effectTokenCopy, this.dstArgs, this.srcArgs);
-
-                if (tileCount > 0)
+                if (Effect.CheckForEffectFlags(EffectFlags.Cancellable))
                 {
-                    Rectangle[] subRegion = this.tileRegions[0];
-
-                    this.effect.Render(this.effectTokenCopy, this.dstArgs, this.srcArgs, subRegion);
-
-                    PdnRegion subPdnRegion = this.tilePdnRegions[0];
-                    OnRenderedTile(new RenderedTileEventArgs(subPdnRegion, this.tileCount, 0));
+                    TokenSource = new CancellationTokenSource();
+                    Effect.CancelToken = TokenSource.Token;
                 }
 
-                EffectConfigToken[] tokens = new EffectConfigToken[workerThreads];
+                Effect.SetRenderInfo(EffectTokenCopy, DstArgs, SrcArgs);
 
-                int i;
-                for (i = 0; i < workerThreads; ++i)
+                if (TileCount > 0)
                 {
-                    if (this.threadShouldStop)
+                    Rectangle[] subRegion = TileRegions[0];
+
+                    Effect.Render(EffectTokenCopy, DstArgs, SrcArgs, subRegion);
+
+                    PdnRegion subPdnRegion = TilePdnRegions[0];
+                    OnRenderedTile(new RenderedTileEventArgs(subPdnRegion, TileCount, 0));
+                }
+
+                bool stopping = false;
+                for (int i = 0; i < WorkerThreads; ++i)
+                {
+                    if (ThreadShouldStop)
                     {
+                        stopping = true;
                         break;
                     }
 
-                    if (this.effectTokenCopy == null)
-                    {
-                        tokens[i] = null;
-                    }
-                    else
-                    {
-                        tokens[i] = (EffectConfigToken)this.effectTokenCopy.Clone();
-                    }
+                    EffectConfigToken token = (EffectTokenCopy == null) ? null :
+                        (EffectConfigToken)EffectTokenCopy.Clone();
 
-                    RendererContext rc = new RendererContext(this, tokens[i], i, (i == 0) ? 1 : 0);
-                    threadPool.QueueUserWorkItem(new WaitCallback(rc.Renderer2));
+                    RendererContext rc = new RendererContext(this, token, i, (i == 0) ? 1 : 0);
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(rc.Renderer2));
                 }
 
-                if (i == workerThreads)
+                if (!stopping)
                 {
-                    threadPool.Drain();
+                    ThreadPool.Drain();
                     OnFinishedRendering();
                 }
             }
 
-            catch (Exception ex)
+            //catch (Exception ex)
+            //{
+            //    Exceptions.Add(ex);
+            //}
+
+            //finally
             {
-                this.exceptions.Add(ex);
-            }
+                ThreadPool.Drain();
 
-            finally
-            {
-                threadPool.Drain();
+                Exception[] newExceptions = ThreadPool.Exceptions;
 
-                Exception[] newExceptions = threadPool.Exceptions;
-
-                if (newExceptions.Length > 0)
+                foreach (Exception exception in newExceptions)
                 {
-                    foreach (Exception exception in newExceptions)
-                    {
-                        this.exceptions.Add(exception);
-                    }
+                    Exceptions.Add(exception);
                 }
 
-                if (this.srcArgs.Surface.Scan0.MaySetAllowWrites)
+                if (SrcArgs.Surface.Scan0.MaySetAllowWrites)
                 {
-                    this.srcArgs.Surface.Scan0.AllowWrites = true;
+                    SrcArgs.Surface.Scan0.AllowWrites = true;
                 }
             }
         }
 
-        private volatile bool threadShouldStop = false;
-        private Thread thread = null;
+        private volatile bool ThreadShouldStop = false;
+
+        private Thread ThisThread { get; set; } = null;
 
         public void Start()
         {
             Abort();
-            this.aborted = false;
+            Aborted = false;
 
-            if (this.effectToken != null)
+            if (EffectToken != null)
             {
-                this.effectTokenCopy = (EffectConfigToken)this.effectToken.Clone();
+                EffectTokenCopy = (EffectConfigToken)EffectToken.Clone();
             }
 
-            this.threadShouldStop = false;
+            ThreadShouldStop = false;
             OnStartingRendering();
-            this.thread = new Thread(new ThreadStart(ThreadFunction));
-            this.thread.Start();
-        }
-
-        public bool Aborted
-        {
-            get
-            {
-                return this.aborted;
-            }
+            ThisThread = new Thread(new ThreadStart(ThreadFunction));
+            ThisThread.Start();
         }
 
         public void Abort()
         {
-            if (this.thread != null)
+            if (ThisThread != null)
             {
-                this.threadShouldStop = true;
+                ThreadShouldStop = true;
+
+                TokenSource?.Cancel();
+
                 Join();
-                this.threadPool.Drain();
+                ThreadPool.Drain();
+
+                TokenSource?.Dispose();
+                TokenSource = null;
             }
         }
 
@@ -260,7 +256,7 @@ namespace PaintDotNet.Effects
         // after a Join().
         public void AbortAsync()
         {
-            this.threadShouldStop = true;
+            ThreadShouldStop = true;
         }
 
         /// <summary>
@@ -272,45 +268,48 @@ namespace PaintDotNet.Effects
         /// </summary>
         public void Join()
         {
-            this.thread.Join();
+            ThisThread.Join();
 
-            if (this.exceptions.Count > 0)
+            if (Exceptions.Count > 0)
             {
-                Exception throwMe = (Exception)this.exceptions[0];
-                this.exceptions.Clear();
-                throw new WorkerThreadException("Worker thread threw an exception", throwMe);
+                Exception throwMe = (Exception)Exceptions[0];
+                Exceptions.Clear();
+                if (!(throwMe.InnerException is OperationCanceledException))
+                {
+                    throw new WorkerThreadException("Worker thread threw an exception", throwMe);
+                }
             }
         }
 
-        private Rectangle[] ConsolidateRects(Rectangle[] scans)
+        private Rectangle[] ConsolidateRects(Rectangle[] scanRectangles)
         {
-            if (scans.Length == 0)
+            if (scanRectangles.Length == 0)
             {
-                return scans;
+                return scanRectangles;
             }
 
-            List<Rectangle> cons = new List<Rectangle>();
-            int current = 0;
-            cons.Add(scans[0]);
+            List<Rectangle> consolidatedRects = new List<Rectangle>();
+            int currentIndex = 0;
+            consolidatedRects.Add(scanRectangles[0]);
 
-            for (int i = 1; i < scans.Length; ++i)
+            for (int i = 1; i < scanRectangles.Length; ++i)
             {
-                if (scans[i].Left == cons[current].Left &&
-                    scans[i].Right == cons[current].Right &&
-                    scans[i].Top == cons[current].Bottom)
+                if (scanRectangles[i].Left == consolidatedRects[currentIndex].Left &&
+                    scanRectangles[i].Right == consolidatedRects[currentIndex].Right &&
+                    scanRectangles[i].Top == consolidatedRects[currentIndex].Bottom)
                 {
-                    Rectangle cc = cons[current];
-                    cc.Height = scans[i].Bottom - cons[current].Top;
-                    cons[current] = cc;
+                    Rectangle currentConsolidatedRect = consolidatedRects[currentIndex];
+                    currentConsolidatedRect.Height = scanRectangles[i].Bottom - consolidatedRects[currentIndex].Top;
+                    consolidatedRects[currentIndex] = currentConsolidatedRect;
                 }
                 else
                 {
-                    cons.Add(scans[i]);
-                    current = cons.Count - 1; 
+                    consolidatedRects.Add(scanRectangles[i]);
+                    currentIndex = consolidatedRects.Count - 1; 
                 }
             }
 
-            return cons.ToArray();
+            return consolidatedRects.ToArray();
         }
 
         private Rectangle[][] SliceUpRegion(PdnRegion region, int sliceCount, Rectangle layerBounds)
@@ -326,7 +325,7 @@ namespace PaintDotNet.Effects
 
                 // Try to arrange it such that the maximum size of the first region
                 // is 1-pixel tall
-                if (i == 0)
+                if (i == 0 && sliceCount > 1)
                 {
                     endScan = Math.Min(endScan, beginScan + 1);
                 }
@@ -336,14 +335,13 @@ namespace PaintDotNet.Effects
                 }
 
                 Rectangle[] newRects = Utility.ScanlinesToRectangles(regionScans, beginScan, endScan - beginScan);
-
+                         
                 for (int j = 0; j < newRects.Length; ++j)
                 {
                     newRects[j].Intersect(layerBounds);
                 }
 
-                Rectangle[] consRects = ConsolidateRects(newRects);
-                slices[i] = consRects;
+                slices[i] = ConsolidateRects(newRects);
             }
 
             return slices;
@@ -357,31 +355,31 @@ namespace PaintDotNet.Effects
                                         int tileCount,
                                         int workerThreads)
         {
-            this.effect = effect;
-            this.effectToken = effectToken;
-            this.dstArgs = dstArgs;
-            this.srcArgs = srcArgs;
-            this.renderRegion = renderRegion;
-            this.renderRegion.Intersect(dstArgs.Bounds);
+            Effect = effect;
+            EffectToken = effectToken;
+            DstArgs = dstArgs;
+            SrcArgs = srcArgs;
+            RenderRegion = renderRegion;
+            RenderRegion.Intersect(dstArgs.Bounds);
 
-            this.tileRegions = SliceUpRegion(renderRegion, tileCount, dstArgs.Bounds);
+            TileRegions = SliceUpRegion(renderRegion, tileCount, dstArgs.Bounds);
 
-            this.tilePdnRegions = new PdnRegion[this.tileRegions.Length];
-            for (int i = 0; i < this.tileRegions.Length; ++i)
+            TilePdnRegions = new PdnRegion[TileRegions.Length];
+            for (int i = 0; i < TileRegions.Length; ++i)
             {
-                PdnRegion pdnRegion = Utility.RectanglesToRegion(this.tileRegions[i]);
-                this.tilePdnRegions[i] = pdnRegion;
+                PdnRegion pdnRegion = Utility.RectanglesToRegion(TileRegions[i]);
+                TilePdnRegions[i] = pdnRegion;
             }
 
-            this.tileCount = tileCount;
-            this.workerThreads = workerThreads;
+            TileCount = tileCount;
+            WorkerThreads = workerThreads;
 
             if (effect.CheckForEffectFlags(EffectFlags.SingleThreaded))
             {
-                this.workerThreads = 1;
+                WorkerThreads = 1;
             }
 
-            this.threadPool = new Threading.ThreadPool(this.workerThreads, false);
+            ThreadPool = new Threading.ThreadPool(WorkerThreads, false);
         }
 
         ~BackgroundEffectRenderer()
@@ -399,17 +397,14 @@ namespace PaintDotNet.Effects
         {
             if (disposing)
             {
-                if (this.srcArgs != null)
-                {
-                    this.srcArgs.Dispose();
-                    this.srcArgs = null;
-                }
+                SrcArgs?.Dispose();
+                SrcArgs = null;
 
-                if (this.dstArgs != null)
-                {
-                    this.dstArgs.Dispose();
-                    this.dstArgs = null;
-                }
+                DstArgs?.Dispose();
+                DstArgs = null;
+
+                TokenSource?.Dispose();
+                TokenSource = null;
             }
         }
     }

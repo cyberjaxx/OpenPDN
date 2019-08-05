@@ -19,18 +19,11 @@ namespace PaintDotNet.Effects
     public sealed class EffectCategoryAttribute :
         Attribute
     {
-        private EffectCategory category;
-        public EffectCategory Category
-        {
-            get
-            {
-                return category;
-            }
-        }
+        public EffectCategory Category { get; }
 
         public EffectCategoryAttribute(EffectCategory category)
         {
-            this.category = category;
+            this.Category = category;
         }
     }
 }

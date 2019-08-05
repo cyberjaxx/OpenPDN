@@ -14,30 +14,17 @@ namespace PaintDotNet.Effects
     public class LevelsEffectConfigToken 
         : EffectConfigToken
     {
-        private UnaryPixelOps.Level levels = null;
-
-        public UnaryPixelOps.Level Levels
-        {
-            get 
-            {
-                return levels;
-            }
-
-            set 
-            {
-                levels = value;
-            }
-        }
+        public UnaryPixelOps.Level Levels { get; set; } = null;
 
         public LevelsEffectConfigToken()
         {
-            levels = new UnaryPixelOps.Level();
+            Levels = new UnaryPixelOps.Level();
         }
 
         public override object Clone()
         {
             LevelsEffectConfigToken cpy = new LevelsEffectConfigToken();
-            cpy.levels = (UnaryPixelOps.Level)this.levels.Clone();
+            cpy.Levels = (UnaryPixelOps.Level)this.Levels.Clone();
             return cpy;
         }
     }

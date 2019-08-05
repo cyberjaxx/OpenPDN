@@ -18,7 +18,6 @@ namespace PaintDotNet.Effects
     public class EffectConfigDialog
         : PdnBaseForm
     {
-        private Surface effectSourceSurface;
         private PdnRegion effectSelection = null;
 
         /// <summary>
@@ -29,18 +28,7 @@ namespace PaintDotNet.Effects
         /// to do any analysis of this surface to populate the dialog box.
         /// </summary>
         [Browsable(false)]
-        public Surface EffectSourceSurface
-        {
-            get
-            {
-                return effectSourceSurface;
-            }
-
-            set
-            {
-                effectSourceSurface = value;
-            }
-        }
+        public Surface EffectSourceSurface { get; set; }
 
         [Browsable(false)]
         public PdnRegion Selection
@@ -129,34 +117,28 @@ namespace PaintDotNet.Effects
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
+#if !DEBUG	// MFM: add to  assist in debugging
             try
+#endif
             {
                 InitDialogFromToken();
                 FinishTokenUpdate();
             }
 
-            catch (Exception ex)
-            {
-                SystemLayer.Tracing.Ping(ex.ToString());
-                throw;
-            }
+#if !DEBUG	// MFM: add to  assist in debugging
+            //catch (Exception ex)
+            //{
+            //    SystemLayer.Tracing.Ping(ex.ToString());
+            //    throw;
+            //}
+#endif
         }
 
         [Browsable(false)]
         public event EventHandler EffectTokenChanged;
         protected virtual void OnEffectTokenChanged()
         {
-            if (EffectTokenChanged != null)
-            {
-                EffectTokenChanged(this, EventArgs.Empty);
-            }
-        }
-
-        [Obsolete("Use FinishTokenUpdate() instead", true)]
-        public void UpdateToken()
-        {
-            FinishTokenUpdate();
+            EffectTokenChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void FinishTokenUpdate()

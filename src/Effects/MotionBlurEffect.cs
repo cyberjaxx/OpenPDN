@@ -37,11 +37,12 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new DoubleProperty(PropertyNames.Angle, 25, -180, +180));
-            props.Add(new BooleanProperty(PropertyNames.Centered, true));
-            props.Add(new Int32Property(PropertyNames.Distance, 10, 1, 200));
+            List<Property> props = new List<Property>
+            {
+                new DoubleProperty(PropertyNames.Angle, 25, -180, +180),
+                new BooleanProperty(PropertyNames.Centered, true),
+                new Int32Property(PropertyNames.Distance, 10, 1, 200)
+            };
 
             return new PropertyCollection(props);
         }

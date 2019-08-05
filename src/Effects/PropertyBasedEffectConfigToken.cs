@@ -19,40 +19,32 @@ namespace PaintDotNet.Effects
     public sealed class PropertyBasedEffectConfigToken
         : EffectConfigToken
     {
-        private PropertyCollection properties;
-
-        public PropertyCollection Properties
-        {
-            get
-            {
-                return this.properties;
-            }
-        }
+        public PropertyCollection Properties { get; private set; }
 
         public IEnumerable<string> PropertyNames
         {
             get
             {
-                return this.properties.PropertyNames;
+                return this.Properties.PropertyNames;
             }
         }
 
         public Property GetProperty(object propertyName)
         {
-            return this.properties[propertyName];
+            return this.Properties[propertyName];
         }
 
         public T GetProperty<T>(object propertyName)
             where T : Property
         {
-            return (T)this.properties[propertyName];
+            return (T)this.Properties[propertyName];
         }
 
         public bool SetPropertyValue(object propertyName, object newValue)
         {
             try
             {
-                Property property = this.properties[propertyName];
+                Property property = this.Properties[propertyName];
                 property.Value = newValue;
             }
 
@@ -80,12 +72,12 @@ namespace PaintDotNet.Effects
         private PropertyBasedEffectConfigToken(PropertyBasedEffectConfigToken cloneMe)
             : base(cloneMe)
         {
-            Initialize(cloneMe.properties);
+            Initialize(cloneMe.Properties);
         }
 
         private void Initialize(PropertyCollection propertyCollection)
         {
-            this.properties = propertyCollection.Clone();
+            this.Properties = propertyCollection.Clone();
         }
 
         public override object Clone()

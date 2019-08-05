@@ -7,14 +7,6 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet;
-using PaintDotNet.IndirectUI;
-using PaintDotNet.PropertySystem;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-
 namespace PaintDotNet.Effects
 {
     // This effect is for testing purposes only.

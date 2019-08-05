@@ -19,19 +19,7 @@ namespace PaintDotNet.Effects
     public class AmountEffectConfigToken
         : EffectConfigToken
     {
-        private int amount;
-        public int Amount
-        {
-            get
-            {
-                return amount;
-            }
-
-            set
-            {
-                amount = value;
-            }
-        }
+        public int Amount { get; set; }
 
         public override object Clone()
         {
@@ -40,13 +28,13 @@ namespace PaintDotNet.Effects
 
         public AmountEffectConfigToken(int amount)
         {
-            this.amount = amount;
+            this.Amount = amount;
         }
 
         protected AmountEffectConfigToken(AmountEffectConfigToken copyMe)
             : base(copyMe)
         {
-            this.amount = copyMe.amount;
+            this.Amount = copyMe.Amount;
         }
     }
 }

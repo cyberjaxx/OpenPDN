@@ -17,41 +17,19 @@ namespace PaintDotNet.Effects
         : Effect
           where TToken : EffectConfigToken
     {
-        private TToken token;
-        private RenderArgs dstArgs;
-        private RenderArgs srcArgs;
+        protected TToken Token { get; private set; }
 
-        protected TToken Token
-        {
-            get
-            {
-                return this.token;
-            }
-        }
+        protected RenderArgs DstArgs { get; private set; }
 
-        protected RenderArgs DstArgs
-        {
-            get
-            {
-                return this.dstArgs;
-            }
-        }
-
-        protected RenderArgs SrcArgs
-        {
-            get
-            {
-                return this.srcArgs;
-            }
-        }
+        protected RenderArgs SrcArgs { get; private set; }
 
         protected abstract void OnRender(Rectangle[] renderRects, int startIndex, int length);
 
         public void Render(Rectangle[] renderRects, int startIndex, int length)
         {
-            if (!this.SetRenderInfoCalled && !this.RenderInfoAvailable)
+            if (!SetRenderInfoCalled && !RenderInfoAvailable)
             {
-                throw new InvalidOperationException("SetRenderInfo() was not called, nor was render info available implicitely");
+                throw new InvalidOperationException("SetRenderInfo() was not called, nor was render info available implicitly");
             }
 
             OnRender(renderRects, startIndex, length);
@@ -63,37 +41,29 @@ namespace PaintDotNet.Effects
 
         protected override sealed void OnSetRenderInfo(EffectConfigToken parameters, RenderArgs dstArgs, RenderArgs srcArgs)
         {
-            this.token = (TToken)parameters;
-            this.dstArgs = dstArgs;
-            this.srcArgs = srcArgs;
+            Token = (TToken)parameters;
+            DstArgs = dstArgs;
+            SrcArgs = srcArgs;
 
-            this.OnSetRenderInfo((TToken)parameters, dstArgs, srcArgs);
+            OnSetRenderInfo((TToken)parameters, dstArgs, srcArgs);
 
             base.OnSetRenderInfo(parameters, dstArgs, srcArgs);
         }
-
-        private bool renderInfoAvailable = false;
-        internal protected bool RenderInfoAvailable
-        {
-            get
-            {
-                return this.renderInfoAvailable;
-            }
-        }
+        internal protected bool RenderInfoAvailable { get; private set; } = false;
 
         public override sealed void Render(EffectConfigToken parameters, RenderArgs dstArgs, RenderArgs srcArgs, Rectangle[] rois, int startIndex, int length)
         {
-            if (!this.SetRenderInfoCalled)
+            if (!SetRenderInfoCalled)
             {
                 lock (this)
                 {
-                    this.token = (TToken)parameters;
-                    this.dstArgs = dstArgs;
-                    this.srcArgs = srcArgs;
+                    Token = (TToken)parameters;
+                    DstArgs = dstArgs;
+                    SrcArgs = srcArgs;
 
-                    this.renderInfoAvailable = true;
+                    RenderInfoAvailable = true;
 
-                    OnSetRenderInfo(this.token, this.dstArgs, this.srcArgs);
+                    OnSetRenderInfo(Token, DstArgs, SrcArgs);
                 }
             }
 

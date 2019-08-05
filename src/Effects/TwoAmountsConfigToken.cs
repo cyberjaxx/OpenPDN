@@ -14,34 +14,9 @@ namespace PaintDotNet.Effects
     public class TwoAmountsConfigToken
         : EffectConfigToken
     {
-        private int amount1;
-        public int Amount1
-        {
-            get
-            {
-                return amount1;
-            }
+        public int Amount1 { get; set; }
+        public int Amount2 { get; set; }
 
-            set
-            {
-                amount1 = value;
-            }
-        }
-
-        private int amount2;
-        public int Amount2
-        {
-            get
-            {
-                return amount2;
-            }
-
-            set
-            {
-                amount2 = value;
-            }
-        }
-        
         public override object Clone()
         {
             return new TwoAmountsConfigToken(this);
@@ -49,15 +24,15 @@ namespace PaintDotNet.Effects
 
         public TwoAmountsConfigToken(int amount1, int amount2)
         {
-            this.amount1 = amount1;
-            this.amount2 = amount2;
+            this.Amount1 = amount1;
+            this.Amount2 = amount2;
         }
 
         public TwoAmountsConfigToken(TwoAmountsConfigToken copyMe)
             : base(copyMe)
         {
-            this.amount1 = copyMe.amount1;
-            this.amount2 = copyMe.amount2;
+            this.Amount1 = copyMe.Amount1;
+            this.Amount2 = copyMe.Amount2;
         }
     }
 }

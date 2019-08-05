@@ -139,19 +139,21 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.RedLevels, 16, 2, 64),
+                new Int32Property(PropertyNames.GreenLevels, 16, 2, 64),
+                new Int32Property(PropertyNames.BlueLevels, 16, 2, 64),
+                new BooleanProperty(PropertyNames.LinkLevels, true)
+            };
 
-            props.Add(new Int32Property(PropertyNames.RedLevels, 16, 2, 64));
-            props.Add(new Int32Property(PropertyNames.GreenLevels, 16, 2, 64));
-            props.Add(new Int32Property(PropertyNames.BlueLevels, 16, 2, 64));
-            props.Add(new BooleanProperty(PropertyNames.LinkLevels, true));
-
-            List<PropertyCollectionRule> rules = new List<PropertyCollectionRule>();
-
-            rules.Add(new LinkValuesBasedOnBooleanRule<int, Int32Property>(
-                new object[] { PropertyNames.RedLevels, PropertyNames.GreenLevels, PropertyNames.BlueLevels }, 
-                PropertyNames.LinkLevels, 
-                false));
+            List<PropertyCollectionRule> rules = new List<PropertyCollectionRule>
+            {
+                new LinkValuesBasedOnBooleanRule<int, Int32Property>(
+                new object[] { PropertyNames.RedLevels, PropertyNames.GreenLevels, PropertyNames.BlueLevels },
+                PropertyNames.LinkLevels,
+                false)
+            };
 
             return new PropertyCollection(props, rules);
         }

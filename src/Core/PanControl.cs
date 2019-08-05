@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 namespace PaintDotNet.Core
 {
-    internal sealed class PanControl
+    public sealed class PanControl
         : UserControl
     {
         private bool mouseDown = false;

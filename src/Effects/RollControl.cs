@@ -29,10 +29,7 @@ namespace PaintDotNet.Effects
         public event EventHandler ValueChanged;
         protected virtual void OnValueChanged()
         {
-            if (ValueChanged != null)
-            {
-                ValueChanged(this, EventArgs.Empty);
-            }
+            ValueChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public double angle;

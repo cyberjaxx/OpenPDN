@@ -54,10 +54,11 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.Scale, 250, 2, 1000));
-            props.Add(new DoubleProperty(PropertyNames.Power, 0.5, 0.0, 1.0));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Scale, 250, 2, 1000),
+                new DoubleProperty(PropertyNames.Power, 0.5, 0.0, 1.0)
+            };
 
             Type[] blendOpTypes = UserBlendOps.GetBlendOps();
             int defaultBlendOpIndex = Array.IndexOf(blendOpTypes, UserBlendOps.GetDefaultBlendOp());

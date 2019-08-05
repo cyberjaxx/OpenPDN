@@ -42,9 +42,10 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.CellSize, 2, 1, 100));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.CellSize, 2, 1, 100)
+            };
 
             return new PropertyCollection(props);
         }

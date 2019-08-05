@@ -50,10 +50,11 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.Thickness, 3, 1, 200));
-            props.Add(new Int32Property(PropertyNames.Intensity, 50, 0, 100));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Thickness, 3, 1, 200),
+                new Int32Property(PropertyNames.Intensity, 50, 0, 100)
+            };
 
             return new PropertyCollection(props);
         }

@@ -61,14 +61,17 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
+            List<Property> props = new List<Property>
+            {
+                new DoubleProperty(PropertyNames.MaxScatterRadius, 3.0, 0.0, 200.0),
+                new DoubleProperty(PropertyNames.MinScatterRadius, 0.0, 0.0, 200.0),
+                new Int32Property(PropertyNames.NumSamples, 2, 1, 8)
+            };
 
-            props.Add(new DoubleProperty(PropertyNames.MaxScatterRadius, 3.0, 0.0, 200.0));
-            props.Add(new DoubleProperty(PropertyNames.MinScatterRadius, 0.0, 0.0, 200.0));
-            props.Add(new Int32Property(PropertyNames.NumSamples, 2, 1, 8));
-
-            List<PropertyCollectionRule> propertyRules = new List<PropertyCollectionRule>();
-            propertyRules.Add(new SoftMutuallyBoundMinMaxRule<double, DoubleProperty>(PropertyNames.MinScatterRadius, PropertyNames.MaxScatterRadius));
+            List<PropertyCollectionRule> propertyRules = new List<PropertyCollectionRule>
+            {
+                new SoftMutuallyBoundMinMaxRule<double, DoubleProperty>(PropertyNames.MinScatterRadius, PropertyNames.MaxScatterRadius)
+            };
 
             PropertyCollection propertyCollection = new PropertyCollection(props, propertyRules);
             return propertyCollection;

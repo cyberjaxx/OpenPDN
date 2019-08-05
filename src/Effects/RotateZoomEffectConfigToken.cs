@@ -69,33 +69,12 @@ namespace PaintDotNet.Effects
         {
             lock (this)
             {
-                computedOnce = new RzInfo();
-                computedOnce.Update(this);
+                ComputedOnce = new RzInfo();
+                ComputedOnce.Update(this);
             }
         }
-
-        private bool highQuality;
-        public bool HighQuality
-        {
-            get
-            {
-                return highQuality;
-            }
-
-            set
-            {
-                this.highQuality = value;
-            }
-        }
-
-        private RzInfo computedOnce;
-        internal RzInfo ComputedOnce
-        {
-            get
-            {
-                return computedOnce;
-            }
-        }
+        public bool HighQuality { get; set; }
+        internal RzInfo ComputedOnce { get; private set; }
 
         private float preRotateZ;
         public float PreRotateZ
@@ -205,7 +184,7 @@ namespace PaintDotNet.Effects
         public RotateZoomEffectConfigToken(bool highQuality, float preRotateZ, float postRotateZ, 
             float tilt, float zoom, PointF offset, bool sourceAsBackground, bool tile)
         {
-            this.highQuality = highQuality;
+            this.HighQuality = highQuality;
             this.preRotateZ = preRotateZ;
             this.postRotateZ = postRotateZ;
             this.tilt = tilt;
@@ -218,7 +197,7 @@ namespace PaintDotNet.Effects
 
         protected RotateZoomEffectConfigToken(RotateZoomEffectConfigToken copyMe)
         {
-            this.highQuality = copyMe.highQuality;
+            this.HighQuality = copyMe.HighQuality;
             this.preRotateZ = copyMe.preRotateZ;
             this.postRotateZ = copyMe.postRotateZ;
             this.tilt = copyMe.tilt;

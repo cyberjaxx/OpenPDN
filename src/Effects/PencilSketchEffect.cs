@@ -55,10 +55,11 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.PencilTipSize, 2, 1, 20));
-            props.Add(new Int32Property(PropertyNames.ColorRange, 0, -20, +20));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.PencilTipSize, 2, 1, 20),
+                new Int32Property(PropertyNames.ColorRange, 0, -20, +20)
+            };
 
             return new PropertyCollection(props);
         }

@@ -59,12 +59,13 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new DoubleProperty(PropertyNames.Rotation, 30, -180, +180));
-            props.Add(new DoubleProperty(PropertyNames.SquareSize, 40, 1, 800));
-            props.Add(new DoubleProperty(PropertyNames.Curvature, 8, -100, 100));
-            props.Add(new Int32Property(PropertyNames.Quality, 2, 1, 5));
+            List<Property> props = new List<Property>
+            {
+                new DoubleProperty(PropertyNames.Rotation, 30, -180, +180),
+                new DoubleProperty(PropertyNames.SquareSize, 40, 1, 800),
+                new DoubleProperty(PropertyNames.Curvature, 8, -100, 100),
+                new Int32Property(PropertyNames.Quality, 2, 1, 5)
+            };
 
             return new PropertyCollection(props);
         }

@@ -19,6 +19,8 @@ namespace PaintDotNet.Effects
     {
         None = 0,
         Configurable = 1,
+        SingleTile = 0x2000000000000000,
+        Cancellable = 0x4000000000000000,
         SingleThreaded = 0x8000000000000000
     }
 }

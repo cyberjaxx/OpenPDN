@@ -46,9 +46,10 @@ namespace PaintDotNet.Effects
 
         protected override PropertyCollection OnCreatePropertyCollection()
         {
-            List<Property> props = new List<Property>();
-
-            props.Add(new Int32Property(PropertyNames.Amount, 2, 1, 20));
+            List<Property> props = new List<Property>
+            {
+                new Int32Property(PropertyNames.Amount, 2, 1, 20)
+            };
 
             return new PropertyCollection(props);
         }

@@ -66,9 +66,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DdsFileType", "DdsFileType\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Squish_x86_SSE2", "DdsFileType\Squish\Squish_x86_SSE2\Squish_x86_SSE2.vcxproj", "{5B4C722D-8469-4B5F-9158-730B75AF68C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberjax.Effects", "..\plugins\Cyberjax.Effects\Cyberjax.Effects.csproj", "{04255271-CFD9-4EFD-87B6-5F2218F674FE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberjax.Geometry", "..\plugins\Cyberjax.Geometry\Cyberjax.Geometry.csproj", "{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberjax.Extensions", "..\..\..\More Projects\CJ\Extensions\Cyberjax.Extensions.csproj", "{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyberjax.Effects", "..\plugins\Cyberjax.Effects\Cyberjax.Effects.csproj", "{04255271-CFD9-4EFD-87B6-5F2218F674FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -189,18 +191,24 @@ Global
 		{5B4C722D-8469-4B5F-9158-730B75AF68C2}.Release and Package|Any CPU.Build.0 = Release|Win32
 		{5B4C722D-8469-4B5F-9158-730B75AF68C2}.Release|Any CPU.ActiveCfg = Release|Win32
 		{5B4C722D-8469-4B5F-9158-730B75AF68C2}.Release|Any CPU.Build.0 = Release|Win32
-		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release and Package|Any CPU.ActiveCfg = Release|Any CPU
-		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release and Package|Any CPU.Build.0 = Release|Any CPU
-		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}.Release and Package|Any CPU.ActiveCfg = Release|Any CPU
 		{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}.Release and Package|Any CPU.Build.0 = Release|Any CPU
 		{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7CF9E9B-97EF-43E3-A343-5C43EE85351E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}.Release and Package|Any CPU.ActiveCfg = Release|Any CPU
+		{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}.Release and Package|Any CPU.Build.0 = Release|Any CPU
+		{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43D5383F-7ABD-43FF-9500-D4B9D4AE2818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release and Package|Any CPU.ActiveCfg = Release|Any CPU
+		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release and Package|Any CPU.Build.0 = Release|Any CPU
+		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04255271-CFD9-4EFD-87B6-5F2218F674FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

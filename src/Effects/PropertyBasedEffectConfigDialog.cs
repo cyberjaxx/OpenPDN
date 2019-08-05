@@ -38,19 +38,21 @@ namespace PaintDotNet.Effects
 
         internal static PropertyCollection CreateWindowProperties()
         {
-            List<Property> props = new List<Property>();
+            List<Property> props = new List<Property>
+            {
 
-            // Title
-            props.Add(new StringProperty(
-                ControlInfoPropertyNames.WindowTitle, 
-                string.Empty, 
-                Math.Min(1024, StringProperty.MaxMaxLength)));
+                // Title
+                new StringProperty(
+                ControlInfoPropertyNames.WindowTitle,
+                string.Empty,
+                Math.Min(1024, StringProperty.MaxMaxLength)),
 
-            // Sizability -- defaults to false
-            props.Add(new BooleanProperty(ControlInfoPropertyNames.WindowIsSizable, false));
-            
-            // Window width, as a scale of the default width (1.0 is obviously the default)
-            props.Add(new DoubleProperty(ControlInfoPropertyNames.WindowWidthScale, 1.0, 1.0, 2.0));
+                // Sizability -- defaults to false
+                new BooleanProperty(ControlInfoPropertyNames.WindowIsSizable, false),
+
+                // Window width, as a scale of the default width (1.0 is obviously the default)
+                new DoubleProperty(ControlInfoPropertyNames.WindowWidthScale, 1.0, 1.0, 2.0)
+            };
 
             return new PropertyCollection(props);
         }

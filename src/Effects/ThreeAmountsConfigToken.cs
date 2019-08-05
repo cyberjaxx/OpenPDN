@@ -14,20 +14,7 @@ namespace PaintDotNet.Effects
     public class ThreeAmountsConfigToken
         : TwoAmountsConfigToken
     {
-        private int amount3;
-
-        public int Amount3
-        {
-            get
-            {
-                return amount3;
-            }
-
-            set
-            {
-                amount3 = value;
-            }
-        }
+        public int Amount3 { get; set; }
 
         public override object Clone()
         {
@@ -37,13 +24,13 @@ namespace PaintDotNet.Effects
         public ThreeAmountsConfigToken(int amount1, int amount2, int amount3)
             : base(amount1, amount2)
         {
-            this.amount3 = amount3;
+            this.Amount3 = amount3;
         }
 
         private ThreeAmountsConfigToken(ThreeAmountsConfigToken copyMe)
             : base(copyMe)
         {
-            this.amount3 = copyMe.amount3;
+            this.Amount3 = copyMe.Amount3;
         }
     }
 }
