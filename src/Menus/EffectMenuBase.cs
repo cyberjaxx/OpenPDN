@@ -16,8 +16,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -26,22 +24,22 @@ namespace PaintDotNet.Menus
     internal abstract class EffectMenuBase
         : PdnMenuItem
     {
-        private const int tilesPerCpu = 75;
-        private int renderingThreadCount = Math.Max(2, SystemLayer.Processor.LogicalCpuCount);
+        private const int TilesPerCpu = 75;
         private const int effectRefreshInterval = 15;
-        private PdnRegion[] progressRegions;
-        private int progressRegionsStartIndex;
+        private int RenderingThreadCount { get; } = Math.Max(2, Processor.LogicalCpuCount);
 
-        private PdnMenuItem sentinel;
-        private bool menuPopulated = false;
-        private EffectsCollection effects;
+        private PdnRegion[] ProgressRegions { get; set; }
+        private int ProgressRegionsStartIndex { get; set; }
 
-        private Effect lastEffect = null;
-        private EffectConfigToken lastEffectToken = null;
-        private Dictionary<Type, EffectConfigToken> effectTokens = new Dictionary<Type, EffectConfigToken>();
+        private PdnMenuItem Sentinel { get; set; }
+        private bool MenuPopulated { get; set; } = false;
 
-        private System.Windows.Forms.Timer invalidateTimer;
-        private System.ComponentModel.Container components = null;
+        private Effect LastEffect { get; set; } = null;
+        private EffectConfigToken LastEffectToken { get; set; } = null;
+        private Dictionary<Type, EffectConfigToken> EffectTokens { get; } = new Dictionary<Type, EffectConfigToken>();
+
+        private System.Windows.Forms.Timer InvalidateTimer { get; set; }
+        private System.ComponentModel.Container Components { get; set; } = null;
 
         protected abstract bool EnableEffectShortcuts
         {
@@ -67,14 +65,7 @@ namespace PaintDotNet.Menus
 
             // Built-in effects only live in PaintDotNet.Effects.dll
 
-            if (effectType.Assembly == effectBaseType.Assembly)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (effectType.Assembly == effectBaseType.Assembly);
         }
 
         private void HandleEffectException(AppWorkspace appWorkspace, Effect effect, Exception ex)
@@ -90,9 +81,7 @@ namespace PaintDotNet.Menus
             }
 
             // Figure out if it's a built-in effect, or a plug-in
-            bool builtIn = IsBuiltInEffect(effect);
-
-            if (builtIn)
+            if (IsBuiltInEffect(effect))
             {
                 // For built-in effects, tear down Paint.NET which will result in a crash log
                 throw new ApplicationException("Effect threw an exception", ex);
@@ -119,37 +108,36 @@ namespace PaintDotNet.Menus
 
                 string auxButtonText = PdnResources.GetString("Effect.PluginErrorDialog.AuxButton1.Text");
 
-                EventHandler auxButtonClickHandler =
-                    delegate(object sender, EventArgs e)
+                void AuxButtonClickHandler(object sender, EventArgs e)
+                {
+                    using (PdnBaseForm textBoxForm = new PdnBaseForm())
                     {
-                        using (PdnBaseForm textBoxForm = new PdnBaseForm())
-                        {
-                            textBoxForm.Name = "EffectCrash";
+                        textBoxForm.Name = "EffectCrash";
 
-                            TextBox exceptionBox = new TextBox();
+                        TextBox exceptionBox = new TextBox();
 
-                            textBoxForm.Icon = Utility.ImageToIcon(PdnResources.GetImageResource("Icons.WarningIcon.png").Reference);
-                            textBoxForm.Text = PdnResources.GetString("Effect.PluginErrorDialog.Title");
+                        textBoxForm.Icon = Utility.ImageToIcon(PdnResources.GetImageResource("Icons.WarningIcon.png").Reference);
+                        textBoxForm.Text = PdnResources.GetString("Effect.PluginErrorDialog.Title");
 
-                            exceptionBox.Dock = DockStyle.Fill;
-                            exceptionBox.ReadOnly = true;
-                            exceptionBox.Multiline = true;
+                        exceptionBox.Dock = DockStyle.Fill;
+                        exceptionBox.ReadOnly = true;
+                        exceptionBox.Multiline = true;
 
-                            string exceptionText = AppWorkspace.GetLocalizedEffectErrorMessage(effect.GetType().Assembly, effect.GetType(), ex);
+                        string exceptionText = AppWorkspace.GetLocalizedEffectErrorMessage(effect.GetType().Assembly, effect.GetType(), ex);
 
-                            exceptionBox.Font = new Font(FontFamily.GenericMonospace, exceptionBox.Font.Size);
-                            exceptionBox.Text = exceptionText;
-                            exceptionBox.ScrollBars = ScrollBars.Vertical;
+                        exceptionBox.Font = new Font(FontFamily.GenericMonospace, exceptionBox.Font.Size);
+                        exceptionBox.Text = exceptionText;
+                        exceptionBox.ScrollBars = ScrollBars.Vertical;
 
-                            textBoxForm.StartPosition = FormStartPosition.CenterParent;
-                            textBoxForm.ShowInTaskbar = false;
-                            textBoxForm.MinimizeBox = false;
-                            textBoxForm.Controls.Add(exceptionBox);
-                            textBoxForm.Width = UI.ScaleWidth(700);
+                        textBoxForm.StartPosition = FormStartPosition.CenterParent;
+                        textBoxForm.ShowInTaskbar = false;
+                        textBoxForm.MinimizeBox = false;
+                        textBoxForm.Controls.Add(exceptionBox);
+                        textBoxForm.Width = UI.ScaleWidth(700);
 
-                            textBoxForm.ShowDialog();
-                        }
-                    };
+                        textBoxForm.ShowDialog();
+                    }
+                }
 
                 TaskButton clickedTB = TaskDialog.Show(
                     appWorkspace,
@@ -163,7 +151,7 @@ namespace PaintDotNet.Menus
                     doNotRestartTB,
                     TaskDialog.DefaultPixelWidth96Dpi * 2,
                     auxButtonText,
-                    auxButtonClickHandler);
+                    AuxButtonClickHandler);
 
                 if (clickedTB == restartTB)
                 {
@@ -187,37 +175,38 @@ namespace PaintDotNet.Menus
 
         private void InitializeComponent()
         {
-            this.sentinel = new PdnMenuItem();
             //
             // sentinel
             //
-            this.sentinel.Name = null;
+            Sentinel = new PdnMenuItem
+            {
+                Name = null
+            };
             //
             // components
             //
-            this.components = new System.ComponentModel.Container();
+            Components = new System.ComponentModel.Container();
             //
             // invalidateTimer
             //
-            this.invalidateTimer = new System.Windows.Forms.Timer(this.components);
-            this.invalidateTimer.Enabled = false;
-            this.invalidateTimer.Tick += InvalidateTimer_Tick;
-            this.invalidateTimer.Interval = effectRefreshInterval;
+            InvalidateTimer = new System.Windows.Forms.Timer(Components)
+            {
+                Enabled = false,
+                Interval = effectRefreshInterval
+            };
+            InvalidateTimer.Tick += InvalidateTimer_Tick;
             //
             // EffectMenuBase
             //
-            this.DropDownItems.Add(sentinel);
+            DropDownItems.Add(Sentinel);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                if (this.components != null)
-                {
-                    this.components.Dispose();
-                    this.components = null;
-                }
+                Components?.Dispose();
+                Components = null;
             }
 
  	        base.Dispose(disposing);
@@ -225,14 +214,14 @@ namespace PaintDotNet.Menus
 
         protected override void OnDropDownOpening(EventArgs e)
         {
-            if (!this.menuPopulated)
+            if (!MenuPopulated)
             {
                 PopulateMenu();
             }
 
             bool enabled = (AppWorkspace.ActiveDocumentWorkspace != null);
 
-            foreach (ToolStripItem item in this.DropDownItems)
+            foreach (ToolStripItem item in DropDownItems)
             {
                 item.Enabled = enabled;
             }
@@ -240,16 +229,17 @@ namespace PaintDotNet.Menus
             base.OnDropDownOpening(e);
         }
 
+        private EffectsCollection effects;
         public EffectsCollection Effects
         {
             get
             {
-                if (this.effects == null)
+                if (effects == null)
                 {
-                    this.effects = GatherEffects();
+                    effects = GatherEffects();
                 }
 
-                return this.effects;
+                return effects;
             }
         }
 
@@ -262,7 +252,7 @@ namespace PaintDotNet.Menus
         {
             if (forceRepopulate)
             {
-                this.menuPopulated = false;
+                MenuPopulated = false;
             }
 
             PopulateMenu();
@@ -270,29 +260,33 @@ namespace PaintDotNet.Menus
 
         private void PopulateMenu()
         {
-            this.DropDownItems.Clear();
+            DropDownItems.Clear();
 
-            if (EnableRepeatEffectMenuItem && this.lastEffect != null)
+            if (EnableRepeatEffectMenuItem && LastEffect != null)
             {
                 string repeatFormat = PdnResources.GetString("Effects.RepeatMenuItem.Format");
-                string menuName = string.Format(repeatFormat, lastEffect.Name);
-                PdnMenuItem pmi = new PdnMenuItem(menuName, this.lastEffect.Image, RepeatEffectMenuItem_Click);
-                pmi.Name = "RepeatEffect(" + this.lastEffect.GetType().FullName + ")";
-                pmi.ShortcutKeys = Keys.Control | Keys.F; 
-                this.DropDownItems.Add(pmi);
+                string menuName = string.Format(repeatFormat, LastEffect.Name);
+                PdnMenuItem pmi = new PdnMenuItem(menuName, LastEffect.Image, RepeatEffectMenuItem_Click)
+                {
+                    Name = "RepeatEffect(" + LastEffect.GetType().FullName + ")",
+                    ShortcutKeys = Keys.Control | Keys.F
+                };
+                DropDownItems.Add(pmi);
 
                 ToolStripSeparator tss = new ToolStripSeparator();
-                this.DropDownItems.Add(tss);
+                DropDownItems.Add(tss);
             }
 
             AddEffectsToMenu();
 
-            Triple<Assembly, Type, Exception>[] errors = this.Effects.GetLoaderExceptions();
+            Triple<Assembly, Type, Exception>[] errors = Effects.GetLoaderExceptions();
 
             for (int i = 0; i < errors.Length; ++i)
             {
                 AppWorkspace.ReportEffectLoadError(errors[i]);
             }
+
+            MenuPopulated = true;
         }
         
         protected virtual Keys GetEffectShortcutKeys(Effect effect)
@@ -315,19 +309,13 @@ namespace PaintDotNet.Menus
                 name = string.Format(configurableFormat, name);
             }
 
-            PdnMenuItem mi = new PdnMenuItem(name, effect.Image, EffectMenuItem_Click);
-
-            if (withShortcut)
+            PdnMenuItem mi = new PdnMenuItem(name, effect.Image, EffectMenuItem_Click)
             {
-                mi.ShortcutKeys = GetEffectShortcutKeys(effect);
-            }
-            else
-            {
-                mi.ShortcutKeys = Keys.None;
-            }
+                ShortcutKeys = withShortcut ? GetEffectShortcutKeys(effect) : Keys.None,
 
-            mi.Tag = (object)effect.GetType();
-            mi.Name = "Effect(" + effect.GetType().FullName + ")";
+                Tag = (object)effect.GetType(),
+                Name = "Effect(" + effect.GetType().FullName + ")"
+            };
 
             PdnMenuItem addEffectHere = this;
 
@@ -336,24 +324,19 @@ namespace PaintDotNet.Menus
                 PdnMenuItem subMenu = null;
 
                 // search for this subMenu
-                foreach (ToolStripItem sub in this.DropDownItems)
+                foreach (ToolStripItem sub in DropDownItems)
                 {
-                    PdnMenuItem subpmi = sub as PdnMenuItem;
-
-                    if (subpmi != null)
+                    if (sub is PdnMenuItem subpmi && subpmi.Text == effect.SubMenuName)
                     {
-                        if (subpmi.Text == effect.SubMenuName)
-                        {
-                            subMenu = subpmi;
-                            break;
-                        }
+                        subMenu = subpmi;
+                        break;
                     }
                 }
 
                 if (subMenu == null)
                 {
                     subMenu = new PdnMenuItem(effect.SubMenuName, null, null);
-                    this.DropDownItems.Add(subMenu);
+                    DropDownItems.Add(subMenu);
                 }
 
                 addEffectHere = subMenu;
@@ -365,7 +348,7 @@ namespace PaintDotNet.Menus
         private void AddEffectsToMenu()
         {
             // Fill the menu with the effect names, and "..." if it is configurable
-            EffectsCollection effectsCollection = this.Effects;
+            EffectsCollection effectsCollection = Effects;
             Type[] effectTypes = effectsCollection.Effects;
             bool withShortcuts = EnableEffectShortcuts;
 
@@ -391,11 +374,7 @@ namespace PaintDotNet.Menus
                 }
             }
 
-            newEffects.Sort(
-                delegate(Effect lhs, Effect rhs)
-                {
-                    return string.Compare(lhs.Name, rhs.Name, true);
-                });
+            newEffects.Sort((lhs, rhs) => string.Compare(lhs.Name, rhs.Name, true));
 
             List<string> subMenuNames = new List<string>();
 
@@ -407,11 +386,7 @@ namespace PaintDotNet.Menus
                 }
             }
 
-            subMenuNames.Sort(
-                delegate(string lhs, string rhs)
-                {
-                    return string.Compare(lhs, rhs, true);
-                });
+            subMenuNames.Sort((lhs, rhs) => string.Compare(lhs, rhs, true));
 
             string lastSubMenuName = null;
             foreach (string subMenuName in subMenuNames)
@@ -491,7 +466,8 @@ namespace PaintDotNet.Menus
             {
                 using (new PushNullToolMode(activeDW))
                 {
-                    Surface copy = activeDW.BorrowScratchSurface(this.GetType() + ".RepeatEffectMenuItem_Click() utilizing scratch for rendering");
+                    Surface copy = activeDW.BorrowScratchSurface(GetType() +
+                        ".RepeatEffectMenuItem_Click() utilizing scratch for rendering");
 
                     try
                     {
@@ -509,20 +485,11 @@ namespace PaintDotNet.Menus
                             selectedRegion,
                             copy);
 
-                        effect = (Effect)Activator.CreateInstance(this.lastEffect.GetType());
+                        effect = (Effect)Activator.CreateInstance(LastEffect.GetType());
                         effect.EnvironmentParameters = eep;
 
-                        EffectConfigToken token;
-
-                        if (this.lastEffectToken == null)
-                        {
-                            token = null;
-                        }
-                        else
-                        {
-                            token = (EffectConfigToken)this.lastEffectToken.Clone();
-                        }
-
+                        EffectConfigToken token = LastEffectToken == null ? null :
+                            (EffectConfigToken)LastEffectToken.Clone();
                         DoEffect(effect, token, selectedRegion, selectedRegion, copy, out exception);
                     }
 
@@ -587,7 +554,8 @@ namespace PaintDotNet.Menus
 
                     if (!(effect.CheckForEffectFlags(EffectFlags.Configurable)))
                     {
-                        Surface copy = activeDW.BorrowScratchSurface(this.GetType() + ".RunEffect() using scratch surface for non-configurable rendering");
+                        Surface copy = activeDW.BorrowScratchSurface(GetType() +
+                            ".RunEffect() using scratch surface for non-configurable rendering");
 
                         try
                         {
@@ -618,7 +586,8 @@ namespace PaintDotNet.Menus
                         PdnRegion previewRegion = (PdnRegion)selectedRegion.Clone();
                         previewRegion.Intersect(RectangleF.Inflate(activeDW.VisibleDocumentRectangleF, 1, 1));
 
-                        Surface originalSurface = activeDW.BorrowScratchSurface(this.GetType() + ".RunEffect() using scratch surface for rendering during configuration");
+                        Surface originalSurface = activeDW.BorrowScratchSurface(GetType() +
+                            ".RunEffect() using scratch surface for rendering during configuration");
 
                         try
                         {
@@ -649,50 +618,53 @@ namespace PaintDotNet.Menus
 
                                 BackgroundEffectRenderer ber = null;
 
-                                EventHandler eh =
-                                    delegate(object sender, EventArgs e)
-                                    {
-                                        EffectConfigDialog ecf = (EffectConfigDialog)sender;
-
-                                        if (ber != null)
-                                        {
-                                            AppWorkspace.Widgets.StatusBarProgress.ResetProgressStatusBarAsync();
-
-                                            try
-                                            {
-                                                ber.Start();
-                                            }
-
-                                            catch (Exception ex)
-                                            {
-                                                exception = ex;
-                                                ecf.Close();
-                                            }
-                                        }
-                                    };
-
-                                configDialog.EffectTokenChanged += eh;
-
-                                if (this.effectTokens.ContainsKey(effectType))
+                                void OnEffectTokenChanged(object sender, EventArgs e)
                                 {
-                                    EffectConfigToken oldToken = (EffectConfigToken)effectTokens[effectType].Clone();
+                                    EffectConfigDialog ecf = (EffectConfigDialog)sender;
+
+                                    if (ber != null)
+                                    {
+                                        AppWorkspace.Widgets.StatusBarProgress.ResetProgressStatusBarAsync();
+
+                                        try
+                                        {
+                                            ber.Start();
+                                        }
+
+                                        catch (Exception ex)
+                                        {
+                                            exception = ex;
+                                            ecf.Close();
+                                        }
+                                    }
+                                }
+
+                                configDialog.EffectTokenChanged += OnEffectTokenChanged;
+
+                                if (EffectTokens.ContainsKey(effectType))
+                                {
+                                    EffectConfigToken oldToken = (EffectConfigToken)EffectTokens[effectType].Clone();
                                     configDialog.EffectToken = oldToken;
                                 }
 
+                                int pixelCount = layer.Surface.Height;
+                                int threadCount = effect.CheckForEffectFlags(EffectFlags.SingleThreaded) ? 1 : RenderingThreadCount;
+                                int maxTiles = TilesPerCpu * threadCount;
+                                int tileCount = Math.Min(maxTiles, pixelCount);
                                 ber = new BackgroundEffectRenderer(
                                     effect,
                                     configDialog.EffectToken,
                                     new RenderArgs(layer.Surface),
                                     new RenderArgs(originalSurface),
                                     previewRegion,
-                                    tilesPerCpu * renderingThreadCount,
-                                    renderingThreadCount);
+                                    tileCount,
+                                    threadCount);
 
                                 ber.RenderedTile += new RenderedTileEventHandler(RenderedTileHandler);
                                 ber.StartingRendering += new EventHandler(StartingRenderingHandler);
                                 ber.FinishedRendering += new EventHandler(FinishedRenderingHandler);
 
-                                invalidateTimer.Enabled = true;
+                                InvalidateTimer.Enabled = true;
 
                                 DialogResult dr;
 
@@ -707,13 +679,13 @@ namespace PaintDotNet.Menus
                                     exception = ex;
                                 }
 
-                                invalidateTimer.Enabled = false;
+                                InvalidateTimer.Enabled = false;
 
-                                this.InvalidateTimer_Tick(invalidateTimer, EventArgs.Empty);
+                                InvalidateTimer_Tick(InvalidateTimer, EventArgs.Empty);
 
                                 if (dr == DialogResult.OK)
                                 {
-                                    this.effectTokens[effectType] = (EffectConfigToken)configDialog.EffectToken.Clone();
+                                    EffectTokens[effectType] = (EffectConfigToken)configDialog.EffectToken.Clone();
                                 }
 
                                 using (new WaitCursorChanger(AppWorkspace))
@@ -738,7 +710,7 @@ namespace PaintDotNet.Menus
                                         activeDW.ActiveLayer.Invalidate();
                                     }
 
-                                    configDialog.EffectTokenChanged -= eh;
+                                    configDialog.EffectTokenChanged -= OnEffectTokenChanged;
                                     configDialog.Hide();
                                     AppWorkspace.Update();
                                     previewRegion.Dispose();
@@ -754,16 +726,16 @@ namespace PaintDotNet.Menus
                                     PdnRegion remainingToRender = selectedRegion.Clone();
                                     PdnRegion alreadyRendered = PdnRegion.CreateEmpty();
 
-                                    for (int i = 0; i < this.progressRegions.Length; ++i)
+                                    for (int i = 0; i < ProgressRegions.Length; ++i)
                                     {
-                                        if (this.progressRegions[i] == null)
+                                        if (ProgressRegions[i] == null)
                                         {
                                             break;
                                         }
                                         else
                                         {
-                                            remainingToRender.Exclude(this.progressRegions[i]);
-                                            alreadyRendered.Union(this.progressRegions[i]);
+                                            remainingToRender.Exclude(ProgressRegions[i]);
+                                            alreadyRendered.Union(ProgressRegions[i]);
                                         }
                                     }
 
@@ -800,16 +772,10 @@ namespace PaintDotNet.Menus
                     // if it was from the Effects menu, save it as the "Repeat ...." item
                     if (effect.Category == EffectCategory.Effect)
                     {
-                        this.lastEffect = effect;
+                        LastEffect = effect;
 
-                        if (newLastToken == null)
-                        {
-                            this.lastEffectToken = null;
-                        }
-                        else
-                        {
-                            this.lastEffectToken = (EffectConfigToken)newLastToken.Clone();
-                        }
+                        LastEffectToken = newLastToken == null ? null :
+                            (EffectConfigToken)newLastToken.Clone();
 
                         PopulateMenu(true);
                     }
@@ -827,15 +793,12 @@ namespace PaintDotNet.Menus
                     AppWorkspace.Widgets.StatusBarProgress.EraseProgressStatusBar();
                     AppWorkspace.ActiveDocumentWorkspace.EnableOutlineAnimation = true;
 
-                    if (this.progressRegions != null)
+                    if (ProgressRegions != null)
                     {
-                        for (int i = 0; i < this.progressRegions.Length; ++i)
+                        for (int i = 0; i < ProgressRegions.Length; ++i)
                         {
-                            if (this.progressRegions[i] != null)
-                            {
-                                this.progressRegions[i].Dispose();
-                                this.progressRegions[i] = null;
-                            }
+                            ProgressRegions[i]?.Dispose();
+                            ProgressRegions[i] = null;
                         }
                     }
 
@@ -854,9 +817,9 @@ namespace PaintDotNet.Menus
 
         private void RenderedTileHandler(object sender, RenderedTileEventArgs e)
         {
-            if (this.progressRegions[e.TileNumber] == null)
+            if (ProgressRegions[e.TileNumber] == null)
             {
-                this.progressRegions[e.TileNumber] = e.RenderedRegion;
+                ProgressRegions[e.TileNumber] = e.RenderedRegion;
             }
         }
 
@@ -867,19 +830,19 @@ namespace PaintDotNet.Menus
                 return;
             }
 
-            if (this.progressRegions == null)
+            if (ProgressRegions == null)
             {
                 return;
             }
 
-            lock (this.progressRegions)
+            lock (ProgressRegions)
             {
-                int min = this.progressRegionsStartIndex;
+                int min = ProgressRegionsStartIndex;
                 int max;
 
-                for (max = min; max < progressRegions.Length; ++max)
+                for (max = min; max < ProgressRegions.Length; ++max)
                 {
-                    if (this.progressRegions[max] == null)
+                    if (ProgressRegions[max] == null)
                     {
                         break;
                     }
@@ -891,7 +854,7 @@ namespace PaintDotNet.Menus
                     {
                         for (int i = min; i < max; ++i)
                         {
-                            updateRegion.Union(this.progressRegions[i]);
+                            updateRegion.Union(ProgressRegions[i]);
                         }
 
                         using (PdnRegion simplified = Utility.SimplifyAndInflateRegion(updateRegion))
@@ -899,11 +862,11 @@ namespace PaintDotNet.Menus
                             AppWorkspace.ActiveDocumentWorkspace.ActiveLayer.Invalidate(simplified);
                         }
 
-                        this.progressRegionsStartIndex = max;
+                        ProgressRegionsStartIndex = max;
                     }
                 }
 
-                double progress = 100.0 * (double)max / (double)progressRegions.Length;
+                double progress = 100.0 * (double)max / (double)ProgressRegions.Length;
                 AppWorkspace.Widgets.StatusBarProgress.SetProgressStatusBar(progress);
             }
         }
@@ -925,19 +888,19 @@ namespace PaintDotNet.Menus
             AppWorkspace.Widgets.StatusBarProgress.ResetProgressStatusBarAsync();
             AppWorkspace.ActiveDocumentWorkspace.EnableOutlineAnimation = false;
 
-            if (this.progressRegions == null)
+            if (ProgressRegions == null)
             {
-                this.progressRegions = new PdnRegion[tilesPerCpu * renderingThreadCount];
+                ProgressRegions = new PdnRegion[TilesPerCpu * RenderingThreadCount];
             }
 
-            lock (this.progressRegions)
+            lock (ProgressRegions)
             {
-                for (int i = 0; i < progressRegions.Length; ++i)
+                for (int i = 0; i < ProgressRegions.Length; ++i)
                 {
-                    progressRegions[i] = null;
+                    ProgressRegions[i] = null;
                 }
 
-                this.progressRegionsStartIndex = 0;
+                ProgressRegionsStartIndex = 0;
             }
         }
 
@@ -965,7 +928,7 @@ namespace PaintDotNet.Menus
                     aed.Text = effect.Name;
                     aed.Description = string.Format(PdnResources.GetString("Effects.ApplyingDialog.Description"), effect.Name);
 
-                    invalidateTimer.Enabled = true;
+                    InvalidateTimer.Enabled = true;
 
                     using (new WaitCursorChanger(AppWorkspace))
                     {
@@ -987,19 +950,9 @@ namespace PaintDotNet.Menus
                                 {
                                     try
                                     {
-                                        ImageResource image;
-
-                                        if (effect.Image == null)
-                                        {
-                                            image = null;
-                                        }
-                                        else
-                                        {
-                                            image = ImageResource.FromImage(effect.Image);
-                                        }
-
-                                        bha = new BitmapHistoryMemento(effect.Name, image, this.AppWorkspace.ActiveDocumentWorkspace,
-                                            this.AppWorkspace.ActiveDocumentWorkspace.ActiveLayerIndex, selectedRegionCopy, originalSurface);
+                                        ImageResource image = effect.Image == null ? null : ImageResource.FromImage(effect.Image);
+                                        bha = new BitmapHistoryMemento(effect.Name, image, AppWorkspace.ActiveDocumentWorkspace,
+                                            AppWorkspace.ActiveDocumentWorkspace.ActiveLayerIndex, selectedRegionCopy, originalSurface);
                                     }
 
                                     finally
@@ -1010,21 +963,26 @@ namespace PaintDotNet.Menus
                                     }
                                 });
 
-                            BackgroundEffectRenderer ber = new BackgroundEffectRenderer(
+                            Surface activeLayerSurface = ((BitmapLayer)AppWorkspace.ActiveDocumentWorkspace.ActiveLayer).Surface;
+                            int pixelCount = activeLayerSurface.Height;
+                            int threadCount = effect.CheckForEffectFlags(EffectFlags.SingleThreaded) ? 1 : RenderingThreadCount;
+                            int maxTiles = TilesPerCpu * threadCount;
+                            int tileCount = Math.Min(maxTiles, pixelCount);
+                            BackgroundEffectRenderer renderer = new BackgroundEffectRenderer(
                                 effect,
                                 token,
-                                new RenderArgs(((BitmapLayer)AppWorkspace.ActiveDocumentWorkspace.ActiveLayer).Surface),
+                                new RenderArgs(activeLayerSurface),
                                 new RenderArgs(originalSurface),
                                 regionToRender,
-                                tilesPerCpu * renderingThreadCount,
-                                renderingThreadCount);
+                                tileCount,
+                                threadCount);
 
-                            ber.RenderedTile += new RenderedTileEventHandler(aed.RenderedTileHandler);
-                            ber.RenderedTile += new RenderedTileEventHandler(RenderedTileHandler);
-                            ber.StartingRendering += new EventHandler(StartingRenderingHandler);
-                            ber.FinishedRendering += new EventHandler(aed.FinishedRenderingHandler);
-                            ber.FinishedRendering += new EventHandler(FinishedRenderingHandler);
-                            ber.Start();
+                            renderer.RenderedTile += new RenderedTileEventHandler(aed.RenderedTileHandler);
+                            renderer.RenderedTile += new RenderedTileEventHandler(RenderedTileHandler);
+                            renderer.StartingRendering += new EventHandler(StartingRenderingHandler);
+                            renderer.FinishedRendering += new EventHandler(aed.FinishedRenderingHandler);
+                            renderer.FinishedRendering += new EventHandler(FinishedRenderingHandler);
+                            renderer.Start();
 
                             result = Utility.ShowDialog(aed, AppWorkspace);
 
@@ -1036,8 +994,8 @@ namespace PaintDotNet.Menus
                                 {
                                     try
                                     {
-                                        ber.Abort();
-                                        ber.Join();
+                                        renderer.Abort();
+                                        renderer.Join();
                                     }
 
                                     catch (Exception ex)
@@ -1045,15 +1003,15 @@ namespace PaintDotNet.Menus
                                         exception = ex;
                                     }
 
-                                    ((BitmapLayer)AppWorkspace.ActiveDocumentWorkspace.ActiveLayer).Surface.CopySurface(originalSurface);
+                                    activeLayerSurface.CopySurface(originalSurface);
                                 }
                             }
 
-                            invalidateTimer.Enabled = false;
+                            InvalidateTimer.Enabled = false;
 
                             try
                             {
-                                ber.Join();
+                                renderer.Join();
                             }
 
                             catch (Exception ex)
@@ -1061,7 +1019,7 @@ namespace PaintDotNet.Menus
                                 exception = ex;
                             }
 
-                            ber.Dispose();
+                            renderer.Dispose();
 
                             saveEvent.WaitOne();
                             saveEvent.Close();

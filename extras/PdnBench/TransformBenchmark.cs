@@ -11,26 +11,26 @@ namespace PdnBench
         : Benchmark
     {
         public const int Iterations = 30;
-        private Surface dst;
-        private MaskedSurface src;
-        private Matrix transform;
-        private bool highQuality;
+        private Surface Dest { get; }
+        private MaskedSurface Source { get; }
+        private Matrix Transform { get; }
+        private bool HighQuality { get; }
 
         protected override void OnExecute()
         {
             for (int i = 0; i < Iterations; ++i)
             {
-                this.src.Draw(this.dst, this.transform, this.highQuality ? ResamplingAlgorithm.Bilinear : ResamplingAlgorithm.NearestNeighbor);
+                Source.Draw(Dest, Transform, HighQuality ? ResamplingAlgorithm.Bilinear : ResamplingAlgorithm.NearestNeighbor);
             }
         }
 
         public TransformBenchmark(string name, Surface dst, MaskedSurface src, Matrix transform, bool highQuality)
             : base(name)
         {
-            this.dst = dst;
-            this.src = src;
-            this.transform = transform.Clone();
-            this.highQuality = highQuality;
+            Dest = dst;
+            Source = src;
+            Transform = transform.Clone();
+            HighQuality = highQuality;
         }
     }
 }

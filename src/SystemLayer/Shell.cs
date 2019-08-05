@@ -7,7 +7,6 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -439,8 +438,7 @@ namespace PaintDotNet.SystemLayer
                     NativeMethods.ThrowOnWin32Error("FindWindowW() returned NULL");
                 }
 
-                uint dwPID;
-                uint dwThreadId = SafeNativeMethods.GetWindowThreadProcessId(hWndShell, out dwPID);
+                uint dwThreadId = SafeNativeMethods.GetWindowThreadProcessId(hWndShell, out uint dwPID);
                 if (0 == dwPID)
                 {
                     NativeMethods.ThrowOnWin32Error("GetWindowThreadProcessId returned 0", NativeErrors.ERROR_FILE_NOT_FOUND);

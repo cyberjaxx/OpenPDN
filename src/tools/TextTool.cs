@@ -7,16 +7,11 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet;
 using PaintDotNet.HistoryMementos;
-using PaintDotNet.SystemLayer;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Text;
 using System.Windows.Forms;
-using System.Diagnostics;
 using System.Collections;
 using System.ComponentModel;
 
@@ -994,11 +989,7 @@ namespace PaintDotNet.Tools
 
         private string GetStatusBarXYText()
         {
-            string unitsAbbreviationXY;
-            string xString;
-            string yString;
-
-            Document.CoordinatesToStrings(AppWorkspace.Units, this.uls[0].X, this.uls[0].Y, out xString, out yString, out unitsAbbreviationXY);
+            Document.CoordinatesToStrings(AppWorkspace.Units, this.uls[0].X, this.uls[0].Y, out string xString, out string yString, out string unitsAbbreviationXY);
 
             string statusBarText = string.Format(
                 this.statusBarTextFormat,

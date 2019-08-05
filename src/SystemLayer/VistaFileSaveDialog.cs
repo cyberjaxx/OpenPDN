@@ -22,9 +22,6 @@ namespace PaintDotNet.SystemLayer
             IFileSaveDialog,
             NativeInterfaces.IFileDialogEvents
     {
-        private bool addExtension = true;
-        private bool overwritePrompt = false;
-
         private NativeInterfaces.IFileSaveDialog FileSaveDialog
         {
             get
@@ -33,18 +30,7 @@ namespace PaintDotNet.SystemLayer
             }
         }
 
-        public bool AddExtension
-        {
-            get
-            {
-                return this.addExtension;
-            }
-
-            set
-            {
-                this.addExtension = value;
-            }
-        }
+        public bool AddExtension { get; set; } = true;
 
         private string FileNameCore
         {
@@ -113,7 +99,7 @@ namespace PaintDotNet.SystemLayer
         {
             string returnPath;
 
-            if (this.addExtension && path != null)
+            if (this.AddExtension && path != null)
             {
                 string ext = Path.GetExtension(path);
 
@@ -175,18 +161,7 @@ namespace PaintDotNet.SystemLayer
             base.OnBeforeShow();
         }
 
-        public bool OverwritePrompt
-        {
-            get
-            {
-                return this.overwritePrompt;
-            }
-
-            set
-            {
-                this.overwritePrompt = value;
-            }
-        }
+        public bool OverwritePrompt { get; set; } = false;
 
         public VistaFileSaveDialog()
             : base(new NativeInterfaces.NativeFileSaveDialog())

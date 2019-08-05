@@ -19,15 +19,8 @@ namespace PaintDotNet.Actions
         : AppWorkspaceAction
     {
         private DocumentWorkspace closeMe;
-        private bool cancelled;
 
-        public bool Cancelled
-        {
-            get
-            {
-                return this.cancelled;
-            }
-        }
+        public bool Cancelled { get; private set; }
 
         public override void PerformAction(AppWorkspace appWorkspace)
         {
@@ -105,9 +98,7 @@ namespace PaintDotNet.Actions
                     Form mainForm = appWorkspace.FindForm();
                     if (mainForm != null)
                     {
-                        PdnBaseForm asPDF = mainForm as PdnBaseForm;
-
-                        if (asPDF != null)
+                        if (mainForm is PdnBaseForm asPDF)
                         {
                             asPDF.RestoreWindow();
                         }
@@ -142,22 +133,22 @@ namespace PaintDotNet.Actions
                     {
                         if (dw.DoSave())
                         {
-                            this.cancelled = false;
+                            this.Cancelled = false;
                             appWorkspace.RemoveDocumentWorkspace(dw);
                         }
                         else
                         {
-                            this.cancelled = true;
+                            this.Cancelled = true;
                         }
                     }
                     else if (clickedTB == dontSaveTB)
                     {
-                        this.cancelled = false;
+                        this.Cancelled = false;
                         appWorkspace.RemoveDocumentWorkspace(dw);
                     }
                     else
                     {
-                        this.cancelled = true;
+                        this.Cancelled = true;
                     }
                 }
             }
@@ -173,7 +164,7 @@ namespace PaintDotNet.Actions
         public CloseWorkspaceAction(DocumentWorkspace closeMe)
         {
             this.closeMe = closeMe;
-            this.cancelled = false;
+            this.Cancelled = false;
         }
     }
 }

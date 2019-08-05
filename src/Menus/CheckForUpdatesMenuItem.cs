@@ -98,9 +98,7 @@ namespace PaintDotNet.Menus
                 // present the dialog.
 
                 Form ourForm = AppWorkspace.FindForm();
-                PdnBaseForm asPBF = ourForm as PdnBaseForm;
-
-                if (asPBF != null)
+                if (ourForm is PdnBaseForm asPBF)
                 {
                     if (!asPBF.IsCurrentModalForm)
                     {
@@ -135,13 +133,7 @@ namespace PaintDotNet.Menus
                             }
 
                             Form ourForm2 = AppWorkspace.FindForm();
-                            PdnBaseForm asPBF2 = ourForm2 as PdnBaseForm;
-
-                            if (asPBF2 == null)
-                            {
-                                done = true;
-                            }
-                            else
+                            if (ourForm2 is PdnBaseForm asPBF2)
                             {
                                 if (this.updatesDialog != null)
                                 {
@@ -153,6 +145,10 @@ namespace PaintDotNet.Menus
                                     ShowUpdatesDialog();
                                     done = true;
                                 }
+                            }
+                            else
+                            {
+                                done = true;
                             }
 
                             if (done && this.retryDialogTimer != null)
@@ -177,9 +173,7 @@ namespace PaintDotNet.Menus
 
         private void OnStateWaitingForInput(object sender, EventArgs<State> e)
         {
-            Updates.InstallingState installingState = e.Data as Updates.InstallingState;
-
-            if (installingState != null)
+            if (e.Data is InstallingState installingState)
             {
                 installingState.Finish(AppWorkspace);
                 this.calledFinish = true;

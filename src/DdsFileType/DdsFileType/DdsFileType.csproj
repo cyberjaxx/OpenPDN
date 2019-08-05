@@ -26,8 +26,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CodeAnalysisRuleSet />
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,9 +37,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet />
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -68,23 +67,27 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Base\Base.csproj">
-      <Project>{05C4C721-F8E3-42E1-B817-9D165DA1A9FB}</Project>
+      <Project>{05c4c721-f8e3-42e1-b817-9d165da1a9fb}</Project>
       <Name>Base</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\Core.csproj">
-      <Project>{1EADE568-A866-4DD4-9898-0A151E3F0E26}</Project>
+      <Project>{1eade568-a866-4dd4-9898-0a151e3f0e26}</Project>
       <Name>Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Data\Data.csproj">
-      <Project>{66681BB0-955D-451D-A466-94C045B1CF4A}</Project>
+      <Project>{66681bb0-955d-451d-a466-94c045b1cf4a}</Project>
       <Name>Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Effects\Effects.csproj">
+      <Project>{2e4e8805-00f7-4b18-a967-c23994bbce75}</Project>
+      <Name>Effects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Resources\Resources.csproj">
-      <Project>{0B173113-1F9B-4939-A62F-A176336F13AC}</Project>
+      <Project>{0b173113-1f9b-4939-a62f-a176336f13ac}</Project>
       <Name>Resources</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SystemLayer\SystemLayer.csproj">
-      <Project>{80572820-93A5-4278-A513-D902BEA2639C}</Project>
+      <Project>{80572820-93a5-4278-a513-d902bea2639c}</Project>
       <Name>SystemLayer</Name>
     </ProjectReference>
   </ItemGroup>

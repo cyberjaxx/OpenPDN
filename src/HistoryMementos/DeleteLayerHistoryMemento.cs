@@ -25,29 +25,21 @@ namespace PaintDotNet.HistoryMementos
         private sealed class DeleteLayerHistoryMementoData
             : HistoryMementoData
         {
-            private Layer layer;
-
-            public Layer Layer
-            {
-                get
-                {
-                    return layer;
-                }
-            }
+            public Layer Layer { get; private set; }
 
             public DeleteLayerHistoryMementoData(Layer layer)
             {
-                this.layer = layer;
+                this.Layer = layer;
             }
 
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
                 {
-                    if (layer != null)
+                    if (Layer != null)
                     {
-                        layer.Dispose();
-                        layer = null;
+                        Layer.Dispose();
+                        Layer = null;
                     }
                 }
             }

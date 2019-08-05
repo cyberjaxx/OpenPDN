@@ -16,15 +16,7 @@ namespace PaintDotNet.Updates
         : UpdatesState,
           INewVersionInfo
     {
-        private PdnVersionInfo newVersionInfo;
-
-        public PdnVersionInfo NewVersionInfo
-        {
-            get
-            {
-                return this.newVersionInfo;
-            }
-        }
+        public PdnVersionInfo NewVersionInfo { get; }
 
         public override void OnEnteredState()
         {
@@ -34,7 +26,7 @@ namespace PaintDotNet.Updates
         {
             if (input.Equals(UpdatesAction.Continue))
             {
-                newState = new DownloadingState(newVersionInfo);
+                newState = new DownloadingState(NewVersionInfo);
             }
             else if (input.Equals(UpdatesAction.Cancel))
             {
@@ -49,7 +41,7 @@ namespace PaintDotNet.Updates
         public UpdateAvailableState(PdnVersionInfo newVersionInfo)
             : base(false, true, MarqueeStyle.None)
         {
-            this.newVersionInfo = newVersionInfo;
+            NewVersionInfo = newVersionInfo;
         }
     }
 }

@@ -177,9 +177,7 @@ namespace PaintDotNet.Updates
                     this.infoText.Size = preferredSize;
                 }
 
-                INewVersionInfo asInvi = currentState as INewVersionInfo;
-
-                if (asInvi != null)
+                if (currentState is INewVersionInfo asInvi)
                 {
                     this.versionNameLabel.Text = asInvi.NewVersionInfo.FriendlyName;
                     this.versionNameLabel.Visible = true;

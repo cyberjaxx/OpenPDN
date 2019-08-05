@@ -262,13 +262,12 @@ namespace PaintDotNet.Actions
         {
             documentWorkspace.AppWorkspace.Widgets.StatusBarProgress.ResetProgressStatusBar();
 
-            ProgressEventHandler progressCallback = (s, e) =>
-                {
-                    documentWorkspace.AppWorkspace.Widgets.StatusBarProgress.SetProgressStatusBar(e.Percent);
-                };
+            void ProgressCallback(object s, ProgressEventArgs e)
+            {
+                documentWorkspace.AppWorkspace.Widgets.StatusBarProgress.SetProgressStatusBar(e.Percent);
+            }
 
-            FileType fileType;
-            Document document = DocumentWorkspace.LoadDocument(documentWorkspace, fileName, out fileType, progressCallback);
+            Document document = DocumentWorkspace.LoadDocument(documentWorkspace, fileName, out FileType fileType, ProgressCallback);
 
             documentWorkspace.AppWorkspace.Widgets.StatusBarProgress.EraseProgressStatusBar();
 
@@ -337,9 +336,8 @@ namespace PaintDotNet.Actions
 
         public override HistoryMemento PerformAction(DocumentWorkspace documentWorkspace)
         {
-            string[] fileNames;
             string startingDir = Path.GetDirectoryName(documentWorkspace.FilePath);
-            DialogResult result = DocumentWorkspace.ChooseFiles(documentWorkspace, out fileNames, true, startingDir);
+            DialogResult result = DocumentWorkspace.ChooseFiles(documentWorkspace, out string[] fileNames, true, startingDir);
             HistoryMemento retHA = null;
 
             if (result == DialogResult.OK)

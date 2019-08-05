@@ -10,10 +10,6 @@
 //#define REPORTLEAKS
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
@@ -176,12 +172,11 @@ namespace PaintDotNet.SystemLayer
             bmi.bmiHeader.biClrUsed = 0;
             bmi.bmiHeader.biClrImportant = 0;
 
-            IntPtr pvBits;
             IntPtr hBitmap = SafeNativeMethods.CreateDIBSection(
                 IntPtr.Zero,
                 ref bmi,
                 NativeConstants.DIB_RGB_COLORS,
-                out pvBits,
+                out IntPtr pvBits,
                 IntPtr.Zero,
                 0);
 
@@ -291,7 +286,6 @@ namespace PaintDotNet.SystemLayer
         /// </remarks>
         public static void ProtectBlockLarge(IntPtr block, ulong size, bool readAccess, bool writeAccess)
         {
-            uint flOldProtect;
             uint flNewProtect;
 
             if (readAccess && writeAccess)
@@ -315,7 +309,7 @@ namespace PaintDotNet.SystemLayer
             Tracing.Ping("ProtectBlockLarge: block #" + block.ToString() + ", read: " + readAccess + ", write: " + writeAccess);
 #endif
 
-            SafeNativeMethods.VirtualProtect(block, new UIntPtr(size), flNewProtect, out flOldProtect);
+            SafeNativeMethods.VirtualProtect(block, new UIntPtr(size), flNewProtect, out uint flOldProtect);
         }
 
         /// <summary>

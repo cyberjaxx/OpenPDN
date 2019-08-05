@@ -64,25 +64,9 @@ namespace PaintDotNet.HistoryMementos
         private sealed class BitmapHistoryMementoData
             : HistoryMementoData
         {
-            // only one of the following may be non-null
-            private IrregularSurface undoImage;
-            private PdnRegion savedRegion;
+            public IrregularSurface UndoImage { get; private set; }
 
-            public IrregularSurface UndoImage
-            {
-                get
-                {
-                    return undoImage;
-                }
-            }
-
-            public PdnRegion SavedRegion
-            {
-                get
-                {
-                    return savedRegion;
-                }
-            }
+            public PdnRegion SavedRegion { get; private set; }
 
             public BitmapHistoryMementoData(IrregularSurface undoImage, PdnRegion savedRegion)
             {
@@ -91,24 +75,24 @@ namespace PaintDotNet.HistoryMementos
                     throw new ArgumentException("Only one of undoImage or savedRegion may be non-null");
                 }
 
-                this.undoImage = undoImage;
-                this.savedRegion = savedRegion;
+                this.UndoImage = undoImage;
+                this.SavedRegion = savedRegion;
             }
 
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
                 {
-                    if (undoImage != null)
+                    if (UndoImage != null)
                     {
-                        undoImage.Dispose();
-                        undoImage = null;
+                        UndoImage.Dispose();
+                        UndoImage = null;
                     }
 
-                    if (savedRegion != null)
+                    if (SavedRegion != null)
                     {
-                        savedRegion.Dispose();
-                        savedRegion = null;
+                        SavedRegion.Dispose();
+                        SavedRegion = null;
                     }
                 }
 

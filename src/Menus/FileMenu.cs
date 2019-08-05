@@ -384,9 +384,8 @@ namespace PaintDotNet.Menus
 
         private void MenuFileOpenInNewWindow_Click(object sender, System.EventArgs e)
         {
-            string fileName;
             string startingDir = Path.GetDirectoryName(AppWorkspace.ActiveDocumentWorkspace.FilePath);
-            DialogResult result = DocumentWorkspace.ChooseFile(AppWorkspace, out fileName, startingDir);
+            DialogResult result = DocumentWorkspace.ChooseFile(AppWorkspace, out string fileName, startingDir);
 
             if (result == DialogResult.OK)
             {

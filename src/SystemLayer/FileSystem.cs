@@ -171,8 +171,7 @@ namespace PaintDotNet.SystemLayer
 
             while (length > 0)
             {
-                uint written;
-                bool result = SafeNativeMethods.WriteFile(hFile, pvWrite, length, out written, IntPtr.Zero);
+                bool result = SafeNativeMethods.WriteFile(hFile, pvWrite, length, out uint written, IntPtr.Zero);
 
                 if (!result)
                 {
@@ -440,8 +439,7 @@ namespace PaintDotNet.SystemLayer
 
             while (length > 0)
             {
-                uint read;
-                bool result = SafeNativeMethods.ReadFile(sfhFile, pvRead, length, out read, IntPtr.Zero);
+                bool result = SafeNativeMethods.ReadFile(sfhFile, pvRead, length, out uint read, IntPtr.Zero);
 
                 if (!result)
                 {

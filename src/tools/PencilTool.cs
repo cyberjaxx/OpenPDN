@@ -56,11 +56,8 @@ namespace PaintDotNet.Tools
             {
                 bitmapLayer = null;
 
-                if (renderArgs != null)
-                {
-                    renderArgs.Dispose();
-                    renderArgs = null;
-                }
+                renderArgs?.Dispose();
+                renderArgs = null;
             }
         }
 
@@ -68,11 +65,8 @@ namespace PaintDotNet.Tools
         {
             base.OnDeactivate();
 
-            if (this.pencilToolCursor != null)
-            {
-                this.pencilToolCursor.Dispose();
-                this.pencilToolCursor = null;
-            }
+            pencilToolCursor?.Dispose();
+            pencilToolCursor = null;
 
             if (mouseDown)
             {
@@ -84,19 +78,13 @@ namespace PaintDotNet.Tools
             this.tracePoints = null;
             this.bitmapLayer = null;
 
-            if (this.renderArgs != null)
-            {
-                this.renderArgs.Dispose();
-                this.renderArgs = null;
-            }
+            renderArgs?.Dispose();
+            renderArgs = null;
 
             this.mouseDown = false;
 
-            if (clipRegion != null)
-            {
-                clipRegion.Dispose();
-                clipRegion = null;
-            }
+            clipRegion?.Dispose();
+            clipRegion = null;
         }
 
         // Draws a point, but first intersects it with the selection
@@ -167,11 +155,8 @@ namespace PaintDotNet.Tools
                 bitmapLayer = (BitmapLayer)ActiveLayer;
                 renderArgs = new RenderArgs(bitmapLayer.Surface);
 
-                if (clipRegion != null)
-                {
-                    clipRegion.Dispose();
-                    clipRegion = null;
-                }
+                clipRegion?.Dispose();
+                clipRegion = null;
 
                 clipRegion = Selection.CreateRegion();
                 renderArgs.Graphics.SetClip(clipRegion.GetRegionReadOnly(), CombineMode.Replace);

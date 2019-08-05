@@ -19,25 +19,15 @@ namespace PaintDotNet.Updates
         : UpdatesState,
           INewVersionInfo
     {
-        private PdnVersionInfo downloadMe;
         private SiphonStream abortMeStream;
         private Exception exception = null;
         private string zipTempName;
 
-        public PdnVersionInfo NewVersionInfo
-        {
-            get
-            {
-                return this.downloadMe;
-            }
-        }
+        public PdnVersionInfo NewVersionInfo { get; }
 
         public override bool CanAbort
         {
-            get
-            {
-                return true;
-            }
+            get => true;
         }
 
         protected override void OnAbort()
@@ -59,9 +49,9 @@ namespace PaintDotNet.Updates
                 bool getFull;
 
                 if (SystemLayer.OS.IsDotNetVersionInstalled(
-                        downloadMe.NetFxMajorVersion,
-                        downloadMe.NetFxMinorVersion,
-                        downloadMe.NetFxServicePack,
+                        NewVersionInfo.NetFxMajorVersion,
+                        NewVersionInfo.NetFxMinorVersion,
+                        NewVersionInfo.NetFxServicePack,
                         true))
                 {
                     getFull = false;
@@ -90,7 +80,7 @@ namespace PaintDotNet.Updates
 
                     string url;
 
-                    url = downloadMe.ChooseDownloadUrl(getFull);
+                    url = NewVersionInfo.ChooseDownloadUrl(getFull);
                     SystemLayer.Tracing.Ping("Chosen mirror url: " + url);
 
                     Utility.DownloadFile(new Uri(url), monitorStream, progressCallback);
@@ -132,7 +122,7 @@ namespace PaintDotNet.Updates
         {
             if (input.Equals(PrivateInput.GoToExtracting))
             {
-                newState = new ExtractingState(this.zipTempName, this.downloadMe);
+                newState = new ExtractingState(this.zipTempName, this.NewVersionInfo);
             }
             else if (input.Equals(PrivateInput.GoToError))
             {
@@ -162,7 +152,7 @@ namespace PaintDotNet.Updates
         public DownloadingState(PdnVersionInfo downloadMe)
             : base(false, false, MarqueeStyle.Smooth)
         {
-            this.downloadMe = downloadMe;
+            this.NewVersionInfo = downloadMe;
         }
     }
 }

@@ -264,9 +264,7 @@ namespace PaintDotNet.Tools
                 {
                     PdnRegion saveMeRegion;
 
-                    Rectangle[] rectsRO;
-                    int rectsROLength;
-                    this.historyRects.GetArrayReadOnly(out rectsRO, out rectsROLength);
+                    this.historyRects.GetArrayReadOnly(out Rectangle[] rectsRO, out int rectsROLength);
                     saveMeRegion = Utility.RectanglesToRegion(rectsRO, 0, rectsROLength);
 
                     PdnRegion simplifiedRegion = Utility.SimplifyAndInflateRegion(saveMeRegion);

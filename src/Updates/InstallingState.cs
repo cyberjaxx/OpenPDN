@@ -10,11 +10,7 @@
 using PaintDotNet.Actions;
 using PaintDotNet.SystemLayer;
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Windows.Forms;
 
 namespace PaintDotNet.Updates
 {

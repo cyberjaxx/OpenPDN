@@ -7,11 +7,7 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet;
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace PaintDotNet.SystemLayer
@@ -27,7 +23,6 @@ namespace PaintDotNet.SystemLayer
     {
         private Form host;
         private RealParentWndProcDelegate realParentWndProc;
-        private bool forceActiveTitleBar = false;
 
         /// <summary>
         /// Gets or sets the titlebar rendering behavior for when the form is deactivated.
@@ -38,18 +33,7 @@ namespace PaintDotNet.SystemLayer
         /// active style. If the whole application is deactivated, the title bar will still be drawn in
         /// an inactive state.
         /// </remarks>
-        public bool ForceActiveTitleBar
-        {
-            get
-            {
-                return this.forceActiveTitleBar;
-            }
-
-            set
-            {
-                this.forceActiveTitleBar = value;
-            }
-        }
+        public bool ForceActiveTitleBar { get; set; } = false;
 
         public FormEx(Form host, RealParentWndProcDelegate realParentWndProc)
         {
@@ -60,33 +44,13 @@ namespace PaintDotNet.SystemLayer
         public class ProcessCmdKeyEventArgs
             : EventArgs
         {
-            private bool handled;
-            public bool Handled
-            {
-                get
-                {
-                    return this.handled;
-                }
-
-                set
-                {
-                    this.handled = value;
-                }
-            }
-
-            private Keys keyData;
-            public Keys KeyData
-            {
-                get
-                {
-                    return this.keyData;
-                }
-            }
+            public bool Handled { get; set; }
+            public Keys KeyData { get; }
 
             public ProcessCmdKeyEventArgs(Keys keyData, bool handled)
             {
-                this.keyData = keyData;
-                this.handled = handled;
+                this.KeyData = keyData;
+                this.Handled = handled;
             }
         }
 
@@ -114,9 +78,7 @@ namespace PaintDotNet.SystemLayer
 
                 for (int i = 0; i < controls.Count; ++i)
                 {
-                    FormEx formEx = controls[i] as FormEx;
-
-                    if (formEx != null)
+                    if (controls[i] is FormEx formEx)
                     {
                         return formEx;
                     }
@@ -143,7 +105,7 @@ namespace PaintDotNet.SystemLayer
                     goto default;
 
                 case NativeConstants.WM_NCACTIVATE:
-                    if (this.forceActiveTitleBar && m.WParam == IntPtr.Zero)
+                    if (this.ForceActiveTitleBar && m.WParam == IntPtr.Zero)
                     {
                         if (ignoreNcActivate > 0)
                         {
@@ -195,7 +157,7 @@ namespace PaintDotNet.SystemLayer
                     this.realParentWndProc(ref m);
 
                     // Check if the app is being deactivated
-                    if (this.forceActiveTitleBar && m.WParam == IntPtr.Zero)
+                    if (this.ForceActiveTitleBar && m.WParam == IntPtr.Zero)
                     {
                         // If so, put our titlebar in the inactive state
                         SafeNativeMethods.PostMessageW(this.host.Handle, NativeConstants.WM_NCACTIVATE, 

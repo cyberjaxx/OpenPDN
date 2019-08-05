@@ -20,15 +20,7 @@ namespace PaintDotNet.Actions
     internal sealed class CloseAllWorkspacesAction
         : AppWorkspaceAction
     {
-        private bool cancelled;
-
-        public bool Cancelled
-        {
-            get
-            {
-                return this.cancelled;
-            }
-        }
+        public bool Cancelled { get; private set; }
 
         public override void PerformAction(AppWorkspace appWorkspace)
         {
@@ -60,7 +52,7 @@ namespace PaintDotNet.Actions
             {
                 CloseWorkspaceAction cwa = new CloseWorkspaceAction(unsavedDocs[0]);
                 cwa.PerformAction(appWorkspace);
-                this.cancelled = cwa.Cancelled;
+                this.Cancelled = cwa.Cancelled;
             }
             else if (unsavedDocs.Count > 1)
             {
@@ -78,9 +70,7 @@ namespace PaintDotNet.Actions
                     Form mainForm = appWorkspace.FindForm();
                     if (mainForm != null)
                     {
-                        PdnBaseForm asPDF = mainForm as PdnBaseForm;
-
-                        if (asPDF != null)
+                        if (mainForm is PdnBaseForm asPDF)
                         {
                             asPDF.RestoreWindow();
                         }
@@ -103,7 +93,7 @@ namespace PaintDotNet.Actions
                                     }
                                     else
                                     {
-                                        this.cancelled = true;
+                                        this.Cancelled = true;
                                         break;
                                     }
                                 }
@@ -111,11 +101,11 @@ namespace PaintDotNet.Actions
                             break;
 
                         case DialogResult.No:
-                            this.cancelled = false;
+                            this.Cancelled = false;
                             break;
 
                         case DialogResult.Cancel:
-                            this.cancelled = true;
+                            this.Cancelled = true;
                             break;
 
                         default:
@@ -134,7 +124,7 @@ namespace PaintDotNet.Actions
                 // See bug #2544
             }
 
-            if (this.cancelled)
+            if (this.Cancelled)
             {
                 if (appWorkspace.ActiveDocumentWorkspace != originalDW &&
                     !originalDW.IsDisposed)
@@ -158,7 +148,7 @@ namespace PaintDotNet.Actions
 
         public CloseAllWorkspacesAction()
         {
-            this.cancelled = false;
+            this.Cancelled = false;
         }
     }
 }

@@ -239,19 +239,11 @@ namespace PaintDotNet.Tools
         protected class CompoundToolHistoryMemento
             : ToolHistoryMemento
         {
-            private CompoundHistoryMemento compoundHistoryMemento;
-
-            public CompoundHistoryMemento CompoundHistoryMemento
-            {
-                get
-                {
-                    return this.compoundHistoryMemento;
-                }
-            }
+            public CompoundHistoryMemento CompoundHistoryMemento { get; }
 
             protected override HistoryMemento OnToolUndo()
             {
-                CompoundHistoryMemento chm = (CompoundHistoryMemento)this.compoundHistoryMemento.PerformUndo();
+                CompoundHistoryMemento chm = (CompoundHistoryMemento)this.CompoundHistoryMemento.PerformUndo();
                 CompoundToolHistoryMemento cthm = new CompoundToolHistoryMemento(chm, DocumentWorkspace, this.Name, this.Image);
                 return cthm;
             }
@@ -259,7 +251,7 @@ namespace PaintDotNet.Tools
             public CompoundToolHistoryMemento(CompoundHistoryMemento chm, DocumentWorkspace documentWorkspace, string name, ImageResource image)
                 : base(documentWorkspace, name, image)
             {
-                this.compoundHistoryMemento = chm;
+                this.CompoundHistoryMemento = chm;
             }
         }
 

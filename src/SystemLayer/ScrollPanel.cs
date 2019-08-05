@@ -7,9 +7,7 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -25,23 +23,10 @@ namespace PaintDotNet.SystemLayer
     public class ScrollPanel
         : Panel
     {
-        private bool ignoreSetFocus = false;
-
         /// <summary>
         /// Gets or sets whether the control ignores WM_SETFOCUS.
         /// </summary>
-        public bool IgnoreSetFocus
-        {
-            get
-            {
-                return ignoreSetFocus;
-            }
-
-            set
-            {
-                ignoreSetFocus = value;
-            }
-        }
+        public bool IgnoreSetFocus { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the scrollbar position.

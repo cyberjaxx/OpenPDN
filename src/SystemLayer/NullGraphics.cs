@@ -22,16 +22,9 @@ namespace PaintDotNet.SystemLayer
         : IDisposable
     {
         private IntPtr hdc = IntPtr.Zero;
-        private Graphics graphics = null;
         private bool disposed = false;
 
-        public Graphics Graphics
-        {
-            get
-            {
-                return graphics;
-            }
-        }
+        public Graphics Graphics { get; private set; } = null;
 
         public NullGraphics()
         {
@@ -42,7 +35,7 @@ namespace PaintDotNet.SystemLayer
                 NativeMethods.ThrowOnWin32Error("CreateCompatibleDC returned NULL");
             }
 
-            this.graphics = Graphics.FromHdc(this.hdc);
+            this.Graphics = Graphics.FromHdc(this.hdc);
         }
 
         ~NullGraphics()
@@ -62,8 +55,8 @@ namespace PaintDotNet.SystemLayer
             {
                 if (disposing)
                 {
-                    this.graphics.Dispose();
-                    this.graphics = null;
+                    this.Graphics.Dispose();
+                    this.Graphics = null;
                 }
 
                 SafeNativeMethods.DeleteDC(this.hdc);

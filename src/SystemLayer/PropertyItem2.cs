@@ -31,35 +31,13 @@ namespace PaintDotNet.SystemLayer
         private const string lenPropertyName = "len";
         private const string typePropertyName = "type";
         private const string valuePropertyName = "value";
-
-        private int id;
-        private int len;
-        private short type;
         private byte[] value;
 
-        public int Id
-        {
-            get
-            {
-                return id;
-            }
-        }
+        public int Id { get; }
 
-        public int Len
-        {
-            get
-            {
-                return len;
-            }
-        }
+        public int Len { get; }
 
-        public short Type
-        {
-            get
-            {
-                return type;
-            }
-        }
+        public short Type { get; }
 
         public byte[] Value
         {
@@ -71,9 +49,9 @@ namespace PaintDotNet.SystemLayer
 
         public PropertyItem2(int id, int len, short type, byte[] value)
         {
-            this.id = id;
-            this.len = len;
-            this.type = type;
+            this.Id = id;
+            this.Len = len;
+            this.Type = type;
 
             if (value == null)
             {
@@ -94,9 +72,9 @@ namespace PaintDotNet.SystemLayer
         {
             string blob = string.Format("<{0} {1}=\"{2}\" {3}=\"{4}\" {5}=\"{6}\" {7}=\"{8}\" />",
                 piElementName, 
-                idPropertyName, this.id.ToString(CultureInfo.InvariantCulture),
-                lenPropertyName, this.len.ToString(CultureInfo.InvariantCulture), 
-                typePropertyName, this.type.ToString(CultureInfo.InvariantCulture),
+                idPropertyName, this.Id.ToString(CultureInfo.InvariantCulture),
+                lenPropertyName, this.Len.ToString(CultureInfo.InvariantCulture), 
+                typePropertyName, this.Type.ToString(CultureInfo.InvariantCulture),
                 valuePropertyName, Convert.ToBase64String(this.value));
 
             return blob;

@@ -26,29 +26,21 @@ namespace PaintDotNet.HistoryMementos
         private sealed class ReplaceDocumentHistoryMementoData
             : HistoryMementoData
         {
-            private Document oldDocument;
-
-            public Document OldDocument
-            {
-                get
-                {
-                    return oldDocument;
-                }
-            }
+            public Document OldDocument { get; private set; }
 
             public ReplaceDocumentHistoryMementoData(Document oldDocument)
             {
-                this.oldDocument = oldDocument;
+                this.OldDocument = oldDocument;
             }
 
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
                 {
-                    if (oldDocument != null)
+                    if (OldDocument != null)
                     {
-                        oldDocument.Dispose();
-                        oldDocument = null;
+                        OldDocument.Dispose();
+                        OldDocument = null;
                     }
                 }
             }

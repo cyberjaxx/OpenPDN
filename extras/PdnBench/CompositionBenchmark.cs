@@ -12,15 +12,15 @@ namespace PdnBench
     {
         public const int Iterations = 30;
 
-        private Document composeMe;
-        private Surface dstSurface;
-        private SetLayerInfoDelegate sliDelegate;
+        private Document ComposeMe { get; }
+        private Surface DstSurface { get; }
+        private SetLayerInfoDelegate SliDelegate { get; }
 
         protected override void OnBeforeExecute()
         {
-            for (int i = 0; i < this.composeMe.Layers.Count; ++i)
+            for (int i = 0; i < ComposeMe.Layers.Count; ++i)
             {
-                this.sliDelegate(i, (Layer)this.composeMe.Layers[i]);
+                SliDelegate(i, (Layer)ComposeMe.Layers[i]);
             }
 
             base.OnBeforeExecute();
@@ -30,8 +30,8 @@ namespace PdnBench
         {
             for (int i = 0; i < Iterations; ++i)
             {
-                composeMe.Invalidate();
-                composeMe.Update(new RenderArgs(this.dstSurface));
+                ComposeMe.Invalidate();
+                ComposeMe.Update(new RenderArgs(DstSurface));
             }
         }
 
@@ -39,9 +39,9 @@ namespace PdnBench
             Surface dstSurface, SetLayerInfoDelegate sliDelegate)
             : base(name)
         {
-            this.composeMe = composeMe;
-            this.dstSurface = dstSurface;
-            this.sliDelegate = sliDelegate;
+            ComposeMe = composeMe;
+            DstSurface = dstSurface;
+            SliDelegate = sliDelegate;
         }
     }
 }

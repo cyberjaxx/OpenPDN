@@ -20,8 +20,6 @@ namespace PaintDotNet.SystemLayer
     /// </summary>
     public static class Security
     {
-        private static bool isAdmin = GetIsAdministrator();
-
         private static bool GetIsAdministrator()
         {
             AppDomain domain = Thread.GetDomain();
@@ -39,13 +37,7 @@ namespace PaintDotNet.SystemLayer
         /// to be performed by normal or "limited" users. A user must also be an administrator in
         /// order to write to any Settings.SystemWide entries.
         /// </remarks>
-        public static bool IsAdministrator
-        {
-            get
-            {
-                return isAdmin;
-            }
-        }
+        public static bool IsAdministrator { get; } = GetIsAdministrator();
 
         /// <summary>
         /// Gets a flag indicating whether the current user is able to elevate to obtain

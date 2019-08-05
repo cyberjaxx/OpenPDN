@@ -24,6 +24,7 @@ namespace PaintDotNet.Menus
         private PdnMenuItem menuWindowHistory;
         private PdnMenuItem menuWindowLayers;
         private PdnMenuItem menuWindowColors;
+        private PdnMenuItem menuWindowLayerTree;
         private ToolStripSeparator menuWindowSeparator3;
         private PdnMenuItem menuWindowOpenMdiList;
         private PdnMenuItem menuWindowNextTab;
@@ -44,6 +45,7 @@ namespace PaintDotNet.Menus
             this.menuWindowHistory = new PdnMenuItem();
             this.menuWindowLayers = new PdnMenuItem();
             this.menuWindowColors = new PdnMenuItem();
+            this.menuWindowLayerTree = new PdnMenuItem();
             this.menuWindowSeparator3 = new ToolStripSeparator();
             this.menuWindowOpenMdiList = new PdnMenuItem();
             this.menuWindowNextTab = new PdnMenuItem();
@@ -62,6 +64,7 @@ namespace PaintDotNet.Menus
                     this.menuWindowHistory,
                     this.menuWindowLayers,
                     this.menuWindowColors,
+                    this.menuWindowLayerTree,
                     this.menuWindowSeparator3,
                     this.menuWindowOpenMdiList,
                     this.menuWindowNextTab,

@@ -21,10 +21,7 @@ namespace PaintDotNet.SystemLayer
         : IFileDialog
     {
         private DialogResult dialogResult = DialogResult.None;
-        private NativeInterfaces.IFileDialog fileDialog;
         private NativeInterfaces.IFileDialogEvents fileDialogEvents;
-        private IFileDialogUICallbacks uiCallbacks = null;
-        private string initialDirectory = null;
         private string filter = null;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
@@ -48,21 +45,9 @@ namespace PaintDotNet.SystemLayer
             }
         }
 
-        protected IFileDialogUICallbacks FileDialogUICallbacks
-        {
-            get
-            {
-                return this.uiCallbacks;
-            }
-        }
+        protected IFileDialogUICallbacks FileDialogUICallbacks { get; private set; } = null;
 
-        protected NativeInterfaces.IFileDialog FileDialog
-        {
-            get
-            {
-                return this.fileDialog;
-            }
-        }
+        protected NativeInterfaces.IFileDialog FileDialog { get; }
 
         protected void SetOptions(NativeConstants.FOS flags, bool enable)
         {
@@ -78,24 +63,21 @@ namespace PaintDotNet.SystemLayer
 
         protected void EnableOption(NativeConstants.FOS flags)
         {
-            NativeConstants.FOS oldOptions;
-            this.fileDialog.GetOptions(out oldOptions);
+            this.FileDialog.GetOptions(out NativeConstants.FOS oldOptions);
             NativeConstants.FOS newOptions = oldOptions | flags;
-            this.fileDialog.SetOptions(newOptions);
+            this.FileDialog.SetOptions(newOptions);
         }
 
         protected void DisableOption(NativeConstants.FOS flags)
         {
-            NativeConstants.FOS oldOptions;
-            this.fileDialog.GetOptions(out oldOptions);
+            this.FileDialog.GetOptions(out NativeConstants.FOS oldOptions);
             NativeConstants.FOS newOptions = oldOptions & ~flags;
-            this.fileDialog.SetOptions(newOptions);
+            this.FileDialog.SetOptions(newOptions);
         }
 
         protected bool GetOptions(NativeConstants.FOS flags)
         {
-            NativeConstants.FOS options;
-            this.fileDialog.GetOptions(out options);
+            this.FileDialog.GetOptions(out NativeConstants.FOS options);
             NativeConstants.FOS masked = options & flags;
             return masked == flags;
         }
@@ -171,8 +153,7 @@ namespace PaintDotNet.SystemLayer
         {
             get
             {
-                uint index = 0;
-                this.FileDialog.GetFileTypeIndex(out index);
+                this.FileDialog.GetFileTypeIndex(out uint index);
                 return (int)index;
             }
 
@@ -182,24 +163,13 @@ namespace PaintDotNet.SystemLayer
             }
         }
 
-        public string InitialDirectory
-        {
-            get
-            {
-                return this.initialDirectory;
-            }
-
-            set
-            {
-                this.initialDirectory = value;
-            }
-        }
+        public string InitialDirectory { get; set; } = null;
 
         public string Title
         {
             set
             {
-                this.fileDialog.SetTitle(value);
+                this.FileDialog.SetTitle(value);
             }
         }
 
@@ -209,8 +179,8 @@ namespace PaintDotNet.SystemLayer
 
             try
             {
-                shellItem = GetShellItem(this.initialDirectory);
-                this.fileDialog.SetDefaultFolder(shellItem);
+                shellItem = GetShellItem(this.InitialDirectory);
+                this.FileDialog.SetDefaultFolder(shellItem);
             }
 
             catch (Exception)
@@ -248,7 +218,7 @@ namespace PaintDotNet.SystemLayer
                 throw new ArgumentNullException("uiCallbacks");
             }
 
-            this.uiCallbacks = uiCallbacks;
+            this.FileDialogUICallbacks = uiCallbacks;
 
             int hrCCD = FileDialog.ClearClientData();
 
@@ -267,7 +237,7 @@ namespace PaintDotNet.SystemLayer
                 owner,
                 delegate(IWin32Window modalOwner)
                 {
-                    hr = this.fileDialog.Show(modalOwner.Handle);
+                    hr = this.FileDialog.Show(modalOwner.Handle);
                     GC.KeepAlive(modalOwner);
                 });
 
@@ -290,7 +260,7 @@ namespace PaintDotNet.SystemLayer
             }
 
             OnAfterShow();
-            this.uiCallbacks = null;
+            this.FileDialogUICallbacks = null;
 
             GC.KeepAlive(owner);
             return result;
@@ -298,7 +268,7 @@ namespace PaintDotNet.SystemLayer
 
         protected VistaFileDialog(NativeInterfaces.IFileDialog fileDialog)
         {
-            this.fileDialog = fileDialog;
+            this.FileDialog = fileDialog;
         }
 
         ~VistaFileDialog()

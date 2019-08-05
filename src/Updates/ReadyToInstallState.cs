@@ -16,16 +16,9 @@ namespace PaintDotNet.Updates
         : UpdatesState,
           INewVersionInfo
     {
-        private PdnVersionInfo newVersionInfo;
-        private string installerPath;
+        private string InstallerPath { get; }
 
-        public PdnVersionInfo NewVersionInfo
-        {
-            get
-            {
-                return this.newVersionInfo;
-            }
-        }
+        public PdnVersionInfo NewVersionInfo { get; }
 
         public override void OnEnteredState()
         {
@@ -35,7 +28,7 @@ namespace PaintDotNet.Updates
         {
             if (input.Equals(UpdatesAction.Continue))
             {
-                newState = new InstallingState(this.installerPath);
+                newState = new InstallingState(InstallerPath);
             }
             else if (input.Equals(UpdatesAction.Cancel))
             {
@@ -50,8 +43,8 @@ namespace PaintDotNet.Updates
         public ReadyToInstallState(string installerPath, PdnVersionInfo newVersionInfo)
             : base(false, true, MarqueeStyle.None)
         {
-            this.installerPath = installerPath;
-            this.newVersionInfo = newVersionInfo;
+            InstallerPath = installerPath;
+            NewVersionInfo = newVersionInfo;
         }
     }
 }

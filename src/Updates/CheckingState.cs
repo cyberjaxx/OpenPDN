@@ -210,10 +210,7 @@ namespace PaintDotNet.Updates
 
             foreach (string line in lines)
             {
-                string name;
-                string value;
-
-                LineToNameValue(line, out name, out value);
+                LineToNameValue(line, out string name, out string value);
                 nvc.Add(name, value);
             }
 

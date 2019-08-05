@@ -28,7 +28,6 @@
     <ErrorReport>prompt</ErrorReport>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <CodeAnalysisRuleSet />
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
@@ -43,7 +42,6 @@
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <CodeAnalysisRuleSet />
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
@@ -51,25 +49,22 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Interop.WIA\Interop.WIA.dll</HintPath>
     </Reference>
+    <Reference Include="PaintDotNet.Resources">
+      <HintPath>..\Resources\bin\Debug\PaintDotNet.Resources.dll</HintPath>
+    </Reference>
+    <Reference Include="PaintDotNet.SystemLayer">
+      <HintPath>..\SystemLayer\bin\Debug\PaintDotNet.SystemLayer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WiaProxy32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Resources\Resources.csproj">
-      <Project>{0B173113-1F9B-4939-A62F-A176336F13AC}</Project>
-      <Name>Resources</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SystemLayer\SystemLayer.csproj">
-      <Project>{80572820-93A5-4278-A513-D902BEA2639C}</Project>
-      <Name>SystemLayer</Name>
-    </ProjectReference>
+    <Compile Include="WiaProxy32.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -121,7 +121,7 @@ namespace DdsFileTypePlugin
 			}
 
 			// Create a document, add the surface layer to it, and return to caller.
-			Document	document	= new Document( surface.Width, surface.Height );
+			Document document = new Document( surface.Width, surface.Height );
 			document.Layers.Add( layer );
 			return document;
 		}

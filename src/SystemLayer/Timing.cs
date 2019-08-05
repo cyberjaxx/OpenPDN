@@ -21,19 +21,12 @@ namespace PaintDotNet.SystemLayer
     {
         private ulong countsPerMs;
         private double countsPerMsDouble;
-        private ulong birthTick;
 
         /// <summary>
         /// The number of milliseconds that elapsed between system startup
         /// and creation of this instance of Timing.
         /// </summary>
-        public ulong BirthTick
-        {
-            get
-            {
-                return birthTick;
-            }
-        }
+        public ulong BirthTick { get; }
 
         /// <summary>
         /// Returns the number of milliseconds that have elapsed since
@@ -41,8 +34,7 @@ namespace PaintDotNet.SystemLayer
         /// </summary>
         public ulong GetTickCount()
         {
-            ulong tick;
-            SafeNativeMethods.QueryPerformanceCounter(out tick);
+            SafeNativeMethods.QueryPerformanceCounter(out ulong tick);
             return tick / countsPerMs;
         }
 
@@ -52,8 +44,7 @@ namespace PaintDotNet.SystemLayer
         /// </summary>
         public double GetTickCountDouble()
         {
-            ulong tick;
-            SafeNativeMethods.QueryPerformanceCounter(out tick);
+            SafeNativeMethods.QueryPerformanceCounter(out ulong tick);
             return (double)tick / countsPerMsDouble;
         }
 
@@ -62,16 +53,14 @@ namespace PaintDotNet.SystemLayer
         /// </summary>
         public Timing()
         {
-            ulong frequency;
-
-            if (!SafeNativeMethods.QueryPerformanceFrequency(out frequency))
+            if (!SafeNativeMethods.QueryPerformanceFrequency(out ulong frequency))
             {
                 NativeMethods.ThrowOnWin32Error("QueryPerformanceFrequency returned false");
             }
 
             countsPerMs = frequency / 1000;
             countsPerMsDouble = (double)frequency / 1000.0;
-            birthTick = GetTickCount();
+            BirthTick = GetTickCount();
         }
     }
 }

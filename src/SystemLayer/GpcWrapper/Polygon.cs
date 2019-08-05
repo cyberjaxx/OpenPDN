@@ -189,20 +189,24 @@ namespace PaintDotNet.SystemLayer.GpcWrapper
             IntPtr ptr = gpc_pol.contour;
             for (int i = 0; i < polygon.NofContours; i++)
             {
-                NativeStructs.gpc_vertex_list gpc_vtx_list = new NativeStructs.gpc_vertex_list();
-                gpc_vtx_list.num_vertices = polygon.Contour[i].NofVertices;
-                gpc_vtx_list.vertex = Marshal.AllocCoTaskMem(polygon.Contour[i].NofVertices * Marshal.SizeOf(typeof(NativeStructs.gpc_vertex)));
+                NativeStructs.gpc_vertex_list gpc_vtx_list = new NativeStructs.gpc_vertex_list
+                {
+                    num_vertices = polygon.Contour[i].NofVertices,
+                    vertex = Marshal.AllocCoTaskMem(polygon.Contour[i].NofVertices * Marshal.SizeOf(typeof(NativeStructs.gpc_vertex)))
+                };
                 IntPtr ptr2 = gpc_vtx_list.vertex;
                 for (int j = 0; j < polygon.Contour[i].NofVertices; j++)
                 {
-                    NativeStructs.gpc_vertex gpc_vtx = new NativeStructs.gpc_vertex();
-                    gpc_vtx.x = polygon.Contour[i].Vertex[j].X;
-                    gpc_vtx.y = polygon.Contour[i].Vertex[j].Y;
+                    NativeStructs.gpc_vertex gpc_vtx = new NativeStructs.gpc_vertex
+                    {
+                        x = polygon.Contour[i].Vertex[j].X,
+                        y = polygon.Contour[i].Vertex[j].Y
+                    };
                     Marshal.StructureToPtr(gpc_vtx, ptr2, false);
-                    ptr2 = (IntPtr)(((int)ptr2) + Marshal.SizeOf(gpc_vtx));
+                    ptr2 = (IntPtr)(((long)ptr2) + Marshal.SizeOf(gpc_vtx));
                 }
                 Marshal.StructureToPtr(gpc_vtx_list, ptr, false);
-                ptr = (IntPtr)(((int)ptr) + Marshal.SizeOf(gpc_vtx_list));
+                ptr = (IntPtr)(((long)ptr) + Marshal.SizeOf(gpc_vtx_list));
             }
 
             return gpc_pol;
@@ -240,9 +244,9 @@ namespace PaintDotNet.SystemLayer.GpcWrapper
                     polygon.Contour[i].Vertex[j].X = gpc_vtx.x;
                     polygon.Contour[i].Vertex[j].Y = gpc_vtx.y;
 
-                    ptr2 = (IntPtr)(((int)ptr2) + Marshal.SizeOf(gpc_vtx));
+                    ptr2 = (IntPtr)(((long)ptr2) + Marshal.SizeOf(gpc_vtx));
                 }
-                ptr = (IntPtr)(((int)ptr) + Marshal.SizeOf(gpc_vtx_list));
+                ptr = (IntPtr)(((long)ptr) + Marshal.SizeOf(gpc_vtx_list));
             }
 
             return polygon;
@@ -256,7 +260,7 @@ namespace PaintDotNet.SystemLayer.GpcWrapper
             {
                 NativeStructs.gpc_vertex_list gpc_vtx_list = (NativeStructs.gpc_vertex_list)Marshal.PtrToStructure(ptr, typeof(NativeStructs.gpc_vertex_list));
                 Marshal.FreeCoTaskMem(gpc_vtx_list.vertex);
-                ptr = (IntPtr)(((int)ptr) + Marshal.SizeOf(gpc_vtx_list));
+                ptr = (IntPtr)(((long)ptr) + Marshal.SizeOf(gpc_vtx_list));
             }
         }
     }

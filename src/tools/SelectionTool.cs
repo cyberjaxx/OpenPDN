@@ -7,11 +7,9 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet.Actions;
 using PaintDotNet.HistoryMementos;
 using PaintDotNet.HistoryFunctions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -23,32 +21,25 @@ namespace PaintDotNet.Tools
     internal class SelectionTool
         : Tool
     {
-        private bool tracking = false;
-        private bool moveOriginMode = false;
-        private Point lastXY;
-        private SelectionHistoryMemento undoAction;
-        private CombineMode combineMode;
-        private List<Point> tracePoints = null;
-        private DateTime startTime;
-        private bool hasMoved = false;
-        private bool append = false;
-        private bool wasNotEmpty = false;
+        private bool Tracking { get; set; } = false;
+        private bool MoveOriginMode { get; set; } = false;
+        private Point LastPoint { get; set; }
+        private SelectionHistoryMemento UndoAction { get; set; }
+        private List<Point> TracePoints = null;
+        private DateTime StartTime { get; set; }
+        private bool HasMoved { get; set; } = false;
+        private bool Append { get; set; } = false;
+        private bool WasNotEmpty { get; set; } = false;
 
-        private Selection newSelection;
-        private SelectionRenderer newSelectionRenderer;
+        private Selection NewSelection { get; set; }
+        private SelectionRenderer NewSelectionRenderer { get; set; }
 
-        private Cursor cursorMouseUp;
-        private Cursor cursorMouseUpMinus;
-        private Cursor cursorMouseUpPlus;
-        private Cursor cursorMouseDown;
+        private Cursor CursorMouseUp { get; set; }
+        private Cursor CursorMouseUpMinus { get; set; }
+        private Cursor CursorMouseUpPlus { get; set; }
+        private Cursor CursorMouseDown { get; set; }
 
-        protected CombineMode SelectionMode
-        {
-            get
-            {
-                return this.combineMode;
-            }
-        }
+        protected CombineMode SelectionMode { get; private set; }
 
         protected void SetCursors(
             string cursorMouseUpResName,
@@ -56,48 +47,36 @@ namespace PaintDotNet.Tools
             string cursorMouseUpPlusResName,
             string cursorMouseDownResName)
         {
-            if (this.cursorMouseUp != null)
-            {
-                this.cursorMouseUp.Dispose();
-                this.cursorMouseUp = null;
-            }
+            CursorMouseUp?.Dispose();
+            CursorMouseUp = null;
 
             if (cursorMouseUpResName != null)
             {
-                this.cursorMouseUp = new Cursor(PdnResources.GetResourceStream(cursorMouseUpResName));
+                CursorMouseUp = new Cursor(PdnResources.GetResourceStream(cursorMouseUpResName));
             }
 
-            if (this.cursorMouseUpMinus != null)
-            {
-                this.cursorMouseUpMinus.Dispose();
-                this.cursorMouseUpMinus = null;
-            }
+            CursorMouseUpMinus?.Dispose();
+            CursorMouseUpMinus = null;
 
             if (cursorMouseUpMinusResName != null)
             {
-                this.cursorMouseUpMinus = new Cursor(PdnResources.GetResourceStream(cursorMouseUpMinusResName));
+                CursorMouseUpMinus = new Cursor(PdnResources.GetResourceStream(cursorMouseUpMinusResName));
             }
 
-            if (this.cursorMouseUpPlus != null)
-            {
-                this.cursorMouseUpPlus.Dispose();
-                this.cursorMouseUpPlus = null;
-            }
+            CursorMouseUpPlus?.Dispose();
+            CursorMouseUpPlus = null;
 
             if (cursorMouseUpPlusResName != null)
             {
-                this.cursorMouseUpPlus = new Cursor(PdnResources.GetResourceStream(cursorMouseUpPlusResName));
+                CursorMouseUpPlus = new Cursor(PdnResources.GetResourceStream(cursorMouseUpPlusResName));
             }
 
-            if (this.cursorMouseDown != null)
-            {
-                this.cursorMouseDown.Dispose();
-                this.cursorMouseDown = null;
-            }
+            CursorMouseDown?.Dispose();
+            CursorMouseDown = null;
 
             if (cursorMouseDownResName != null)
             {
-                this.cursorMouseDown = new Cursor(PdnResources.GetResourceStream(cursorMouseDownResName));
+                CursorMouseDown = new Cursor(PdnResources.GetResourceStream(cursorMouseDownResName));
             }
         }
 
@@ -107,19 +86,19 @@ namespace PaintDotNet.Tools
 
             if (mouseDown)
             {
-                cursor = this.cursorMouseDown;
+                cursor = CursorMouseDown;
             }
             else if (ctrlDown)
             {
-                cursor = this.cursorMouseUpPlus;
+                cursor = CursorMouseUpPlus;
             }
             else if (altDown)
             {
-                cursor = this.cursorMouseUpMinus;
+                cursor = CursorMouseUpMinus;
             }
             else
             {
-                cursor = this.cursorMouseUp;
+                cursor = CursorMouseUp;
             }
 
             return cursor;
@@ -134,15 +113,17 @@ namespace PaintDotNet.Tools
         {
             // Assume that SetCursors() has been called by now
 
-            this.Cursor = GetCursor();
+            Cursor = GetCursor();
             DocumentWorkspace.EnableSelectionTinting = true;
 
-            this.newSelection = new Selection();
-            this.newSelectionRenderer = new SelectionRenderer(this.RendererList, this.newSelection, this.DocumentWorkspace);
-            this.newSelectionRenderer.EnableSelectionTinting = false;
-            this.newSelectionRenderer.EnableOutlineAnimation = false;
-            this.newSelectionRenderer.Visible = false;
-            this.RendererList.Add(this.newSelectionRenderer, true);
+            NewSelection = new Selection();
+            NewSelectionRenderer = new SelectionRenderer(RendererList, NewSelection, DocumentWorkspace)
+            {
+                EnableSelectionTinting = false,
+                EnableOutlineAnimation = false,
+                Visible = false
+            };
+            RendererList.Add(NewSelectionRenderer, true);
 
             base.OnActivate();
         }
@@ -151,7 +132,7 @@ namespace PaintDotNet.Tools
         {
             DocumentWorkspace.EnableSelectionTinting = false;
 
-            if (this.tracking)
+            if (Tracking)
             {
                 Done();
             }
@@ -160,96 +141,98 @@ namespace PaintDotNet.Tools
 
             SetCursors(null, null, null, null); // dispose 'em
 
-            this.RendererList.Remove(this.newSelectionRenderer);
-            this.newSelectionRenderer.Dispose();
-            this.newSelectionRenderer = null;
-            this.newSelection = null;
+            RendererList.Remove(NewSelectionRenderer);
+            NewSelectionRenderer.Dispose();
+            NewSelectionRenderer = null;
+            NewSelection = null;
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
 
-            this.Cursor = GetCursor();
+            Cursor = GetCursor();
 
-            if (tracking)
+            if (Tracking)
             {
-                moveOriginMode = true;
-                lastXY = new Point(e.X, e.Y);
+                MoveOriginMode = true;
+                LastPoint = new Point(e.X, e.Y);
                 OnMouseMove(e);
             }
             else if ((e.Button & MouseButtons.Left) == MouseButtons.Left ||
                 (e.Button & MouseButtons.Right) == MouseButtons.Right)
             {
-                tracking = true;
-                hasMoved = false;
-                startTime = DateTime.Now;
+                Tracking = true;
+                HasMoved = false;
+                StartTime = DateTime.Now;
 
-                tracePoints = new List<Point>();
-                tracePoints.Add(new Point(e.X, e.Y));
+                TracePoints = new List<Point>
+                {
+                    new Point(e.X, e.Y)
+                };
 
-                undoAction = new SelectionHistoryMemento("sentinel", this.Image, DocumentWorkspace);
+                UndoAction = new SelectionHistoryMemento("sentinel", Image, DocumentWorkspace);
 
-                wasNotEmpty = !Selection.IsEmpty;
+                WasNotEmpty = !Selection.IsEmpty;
 
                 // Determine this.combineMode
 
                 if ((ModifierKeys & Keys.Control) != 0 && e.Button == MouseButtons.Left)
                 {
-                    this.combineMode = CombineMode.Union;
+                    SelectionMode = CombineMode.Union;
                 }
                 else if ((ModifierKeys & Keys.Alt) != 0 && e.Button == MouseButtons.Left)
                 {
-                    this.combineMode = CombineMode.Exclude;
+                    SelectionMode = CombineMode.Exclude;
                 }
                 else if ((ModifierKeys & Keys.Control) != 0 && e.Button == MouseButtons.Right)
                 {
-                    this.combineMode = CombineMode.Xor;
+                    SelectionMode = CombineMode.Xor;
                 }
                 else if ((ModifierKeys & Keys.Alt) != 0 && e.Button == MouseButtons.Right)
                 {
-                    this.combineMode = CombineMode.Intersect;
+                    SelectionMode = CombineMode.Intersect;
                 }
                 else
                 {
-                    this.combineMode = AppEnvironment.SelectionCombineMode;
+                    SelectionMode = AppEnvironment.SelectionCombineMode;
                 }
 
 
                 DocumentWorkspace.EnableSelectionOutline = false;
 
-                this.newSelection.Reset();
+                NewSelection.Reset();
                 PdnGraphicsPath basePath = Selection.CreatePath();
-                this.newSelection.SetContinuation(basePath, CombineMode.Replace, true);
-                this.newSelection.CommitContinuation();
+                NewSelection.SetContinuation(basePath, CombineMode.Replace, true);
+                NewSelection.CommitContinuation();
 
                 bool newSelectionRendererVisible = true;
 
                 // Act on this.combineMode
-                switch (this.combineMode)
+                switch (SelectionMode)
                 {
                     case CombineMode.Xor:
-                        append = true;
+                        Append = true;
                         Selection.ResetContinuation();
                         break;
 
                     case CombineMode.Union:
-                        append = true;
+                        Append = true;
                         Selection.ResetContinuation();
                         break;
 
                     case CombineMode.Exclude:
-                        append = true;
+                        Append = true;
                         Selection.ResetContinuation();
                         break;
 
                     case CombineMode.Replace:
-                        append = false;
+                        Append = false;
                         Selection.Reset();
                         break;
 
                     case CombineMode.Intersect:
-                        append = true;
+                        Append = true;
                         Selection.ResetContinuation();
                         break;
 
@@ -257,7 +240,7 @@ namespace PaintDotNet.Tools
                         throw new InvalidEnumArgumentException();
                 }
 
-                this.newSelectionRenderer.Visible = newSelectionRendererVisible;
+                NewSelectionRenderer.Visible = newSelectionRendererVisible;
             }
         }
 
@@ -276,42 +259,42 @@ namespace PaintDotNet.Tools
         {
             base.OnMouseMove(e);
 
-            if (moveOriginMode)
+            if (MoveOriginMode)
             {
-                Size delta = new Size(e.X - lastXY.X, e.Y - lastXY.Y);
+                Size delta = new Size(e.X - LastPoint.X, e.Y - LastPoint.Y);
                 
-                for (int i = 0; i < tracePoints.Count; ++i)
+                for (int i = 0; i < TracePoints.Count; ++i)
                 {
-                    Point pt = (Point)tracePoints[i];
+                    Point pt = TracePoints[i];
                     pt.X += delta.Width;
                     pt.Y += delta.Height;
-                    tracePoints[i] = pt;
+                    TracePoints[i] = pt;
                 }
 
-                lastXY = new Point(e.X, e.Y);
+                LastPoint = new Point(e.X, e.Y);
                 Render();
             }
-            else if (tracking)
+            else if (Tracking)
             {
                 Point mouseXY = new Point(e.X, e.Y);
 
-                if (mouseXY != (Point)tracePoints[tracePoints.Count - 1])
+                if (mouseXY != TracePoints[TracePoints.Count - 1])
                 {
-                    tracePoints.Add(mouseXY);
+                    TracePoints.Add(mouseXY);
                 }
                 
-                hasMoved = true;
+                HasMoved = true;
                 Render();
             }
         }
 
         private PointF[] CreateSelectionPolygon()
         {
-            List<Point> trimmedTrace = this.TrimShapePath(tracePoints);
+            List<Point> trimmedTrace = TrimShapePath(TracePoints);
             List<PointF> shapePoints = CreateShape(trimmedTrace);
             List<PointF> polygon;
 
-            switch (this.combineMode)
+            switch (SelectionMode)
             {
                 case CombineMode.Xor:
                 case CombineMode.Exclude:
@@ -332,16 +315,16 @@ namespace PaintDotNet.Tools
 
         private void Render()
         {
-            if (tracePoints != null && tracePoints.Count > 2)
+            if (TracePoints != null && TracePoints.Count > 2)
             {
                 PointF[] polygon = CreateSelectionPolygon();
 
                 if (polygon.Length > 2)
                 {
                     DocumentWorkspace.ResetOutlineWhiteOpacity();
-                    this.newSelectionRenderer.ResetOutlineWhiteOpacity();
+                    NewSelectionRenderer.ResetOutlineWhiteOpacity();
 
-                    Selection.SetContinuation(polygon, this.combineMode);
+                    Selection.SetContinuation(polygon, SelectionMode);
 
                     CombineMode cm;
 
@@ -354,7 +337,7 @@ namespace PaintDotNet.Tools
                         cm = CombineMode.Xor;
                     }
 
-                    this.newSelection.SetContinuation(polygon, cm);
+                    NewSelection.SetContinuation(polygon, cm);
 
                     Update();
                 }
@@ -363,10 +346,10 @@ namespace PaintDotNet.Tools
 
         protected override void OnPulse()
         {
-            if (this.tracking)
+            if (Tracking)
             {
                 DocumentWorkspace.ResetOutlineWhiteOpacity();
-                this.newSelectionRenderer.ResetOutlineWhiteOpacity();
+                NewSelectionRenderer.ResetOutlineWhiteOpacity();
             }
 
             base.OnPulse();
@@ -381,7 +364,7 @@ namespace PaintDotNet.Tools
 
         private void Done()
         {
-            if (tracking)
+            if (Tracking)
             {
                 // Truth table for what we should do based on three flags:
                 //  append  | moved | tooQuick | result                             | optimized expression to yield true
@@ -406,26 +389,26 @@ namespace PaintDotNet.Tools
                 //    without a HistoryMemento.
 
                 PointF[] polygon = CreateSelectionPolygon();
-                this.hasMoved &= (polygon.Length > 1);
+                HasMoved &= (polygon.Length > 1);
 
                 // They were "too quick" if they weren't doing a selection for more than 50ms
                 // This takes care of the case where someone wants to click to deselect, but accidentally moves
                 // the mouse. This happens VERY frequently.
-                bool tooQuick = Utility.TicksToMs((DateTime.Now - startTime).Ticks) <= 50;
+                bool tooQuick = Utility.TicksToMs((DateTime.Now - StartTime).Ticks) <= 50;
 
                 // If their selection was completedly out of bounds, it will be clipped
                 bool clipped = (polygon.Length == 0);
 
-                // What the user drew had no effect on the slection, e.g. subtraction where there was nothing in the first place
+                // What the user drew had no effect on the selection, e.g. subtraction where there was nothing in the first place
                 bool noEffect = false;
 
                 WhatToDo whatToDo;
 
                 // If their selection gets completely clipped (i.e. outside the image canvas),
                 // then result in a no-op
-                if (append)
+                if (Append)
                 {
-                    if (!hasMoved || clipped || noEffect)
+                    if (!HasMoved || clipped || noEffect)
                     {   
                         whatToDo = WhatToDo.Reset;
                     }
@@ -436,7 +419,7 @@ namespace PaintDotNet.Tools
                 }
                 else
                 {
-                    if (hasMoved && !tooQuick && !clipped && !noEffect)
+                    if (HasMoved && !tooQuick && !clipped && !noEffect)
                     {   
                         whatToDo = WhatToDo.Emit;
                     }
@@ -449,12 +432,12 @@ namespace PaintDotNet.Tools
                 switch (whatToDo)
                 {
                     case WhatToDo.Clear:
-                        if (wasNotEmpty)
+                        if (WasNotEmpty)
                         {
                             // emit a deselect history action
-                            undoAction.Name = DeselectFunction.StaticName;
-                            undoAction.Image = DeselectFunction.StaticImage;
-                            HistoryStack.PushNewMemento(undoAction);
+                            UndoAction.Name = DeselectFunction.StaticName;
+                            UndoAction.Image = DeselectFunction.StaticImage;
+                            HistoryStack.PushNewMemento(UndoAction);
                         }
 
                         Selection.Reset();
@@ -462,8 +445,8 @@ namespace PaintDotNet.Tools
 
                     case WhatToDo.Emit:
                         // emit newly selected area
-                        undoAction.Name = this.Name;
-                        HistoryStack.PushNewMemento(undoAction);
+                        UndoAction.Name = Name;
+                        HistoryStack.PushNewMemento(UndoAction);
                         Selection.CommitContinuation();
                         break;
 
@@ -474,11 +457,11 @@ namespace PaintDotNet.Tools
                 }
 
                 DocumentWorkspace.ResetOutlineWhiteOpacity();
-                this.newSelectionRenderer.ResetOutlineWhiteOpacity();
-                this.newSelection.Reset();
-                this.newSelectionRenderer.Visible = false;
+                NewSelectionRenderer.ResetOutlineWhiteOpacity();
+                NewSelection.Reset();
+                NewSelectionRenderer.Visible = false;
 
-                this.tracking = false;
+                Tracking = false;
 
                 DocumentWorkspace.EnableSelectionOutline = true;
                 DocumentWorkspace.InvalidateSurface(Utility.RoundRectangle(DocumentWorkspace.VisibleDocumentRectangleF));
@@ -489,9 +472,9 @@ namespace PaintDotNet.Tools
         {
             OnMouseMove(e);
 
-            if (moveOriginMode)
+            if (MoveOriginMode)
             {
-                moveOriginMode = false;
+                MoveOriginMode = false;
             }
             else
             {
@@ -507,7 +490,7 @@ namespace PaintDotNet.Tools
         {
             base.OnKeyDown(e);
 
-            if (tracking)
+            if (Tracking)
             {
                 Render();
             }
@@ -519,7 +502,7 @@ namespace PaintDotNet.Tools
         {
             base.OnKeyUp(e);
 
-            if (tracking)
+            if (Tracking)
             {
                 Render();
             }
@@ -531,7 +514,7 @@ namespace PaintDotNet.Tools
         {
             base.OnClick();
             
-            if (!moveOriginMode)
+            if (!MoveOriginMode)
             {
                 Done();
             }
@@ -552,7 +535,7 @@ namespace PaintDotNet.Tools
                    false,
                    toolBarConfigItems | ToolBarConfigItems.SelectionCombineMode)
         {
-            this.tracking = false;
+            Tracking = false;
         }
     }
 }

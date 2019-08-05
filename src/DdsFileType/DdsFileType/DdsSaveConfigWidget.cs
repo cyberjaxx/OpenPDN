@@ -82,9 +82,8 @@ namespace DdsFileTypePlugin
 
         protected override void InitWidgetFromToken(SaveConfigToken token)
         {
-            if (token is DdsSaveConfigToken)
+            if (token is DdsSaveConfigToken ddsToken)
             {
-                DdsSaveConfigToken ddsToken = (DdsSaveConfigToken)token;
                 this.fileFormatList.SelectedIndex	= ( int )ddsToken.m_fileFormat;
 
                 this.clusterFit.Checked				= ( ddsToken.m_compressorType == 0 );

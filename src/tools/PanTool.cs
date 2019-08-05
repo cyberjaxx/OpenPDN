@@ -7,8 +7,6 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -26,14 +24,7 @@ namespace PaintDotNet.Tools
 
         private bool CanPan()
         {
-            if (DocumentWorkspace.VisibleDocumentRectangleF.Size == Document.Size)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return (DocumentWorkspace.VisibleDocumentRectangleF.Size != Document.Size);
         }
 
         protected override void OnMouseDown(System.Windows.Forms.MouseEventArgs e)
@@ -43,28 +34,14 @@ namespace PaintDotNet.Tools
             lastMouseXY = new Point(e.X, e.Y);
             tracking = true;
 
-            if (CanPan())
-            {
-                Cursor = cursorMouseDown;
-            }
-            else
-            {
-                Cursor = cursorMouseInvalid;
-            }
+            Cursor = CanPan() ? cursorMouseUp : cursorMouseInvalid;
         }
 
         protected override void OnMouseUp(System.Windows.Forms.MouseEventArgs e)
         {
-            base.OnMouseUp (e);
+            base.OnMouseUp(e);
 
-            if (CanPan())
-            {
-                Cursor = cursorMouseUp;
-            }
-            else
-            {
-                Cursor = cursorMouseInvalid;
-            }
+            Cursor = CanPan() ? cursorMouseUp : cursorMouseInvalid;
 
             tracking = false;
         }
@@ -96,14 +73,7 @@ namespace PaintDotNet.Tools
             }
             else
             {
-                if (CanPan())
-                {
-                    Cursor = cursorMouseUp;
-                }
-                else
-                {
-                    Cursor = cursorMouseInvalid;
-                }
+                Cursor = CanPan() ? cursorMouseUp : cursorMouseInvalid;
             }
         }
 
@@ -119,23 +89,14 @@ namespace PaintDotNet.Tools
 
         protected override void OnDeactivate()
         {
-            if (cursorMouseDown != null)
-            {
-                cursorMouseDown.Dispose();
-                cursorMouseDown = null;
-            }
+            cursorMouseDown?.Dispose();
+            cursorMouseDown = null;
 
-            if (cursorMouseUp != null)
-            {
-                cursorMouseUp.Dispose();
-                cursorMouseUp = null;
-            }
+            cursorMouseUp?.Dispose();
+            cursorMouseUp = null;
 
-            if (cursorMouseInvalid != null)
-            {
-                cursorMouseInvalid.Dispose();
-                cursorMouseInvalid = null;
-            }
+            cursorMouseInvalid?.Dispose();
+            cursorMouseInvalid = null;
             
             base.OnDeactivate();
         }

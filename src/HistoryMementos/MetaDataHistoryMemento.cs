@@ -24,29 +24,21 @@ namespace PaintDotNet.HistoryMementos
         private class MetaDataHistoryMementoData
             : HistoryMementoData
         {
-            private Document document;
-
-            public Document Document
-            {
-                get
-                {
-                    return this.document;
-                }
-            }
+            public Document Document { get; private set; }
 
             public MetaDataHistoryMementoData(Document document)
             {
-                this.document = document;
+                this.Document = document;
             }
 
             protected override void Dispose(bool disposing)
             {
                 if (disposing)
                 {
-                    if (this.document != null)
+                    if (this.Document != null)
                     {
-                        this.document.Dispose();
-                        this.document = null;
+                        this.Document.Dispose();
+                        this.Document = null;
                     }
                 }
 

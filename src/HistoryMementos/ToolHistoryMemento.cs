@@ -19,32 +19,17 @@ namespace PaintDotNet.HistoryMementos
     internal abstract class ToolHistoryMemento
         : HistoryMemento
     {
-        private DocumentWorkspace documentWorkspace;
-        private Type toolType;
+        protected DocumentWorkspace DocumentWorkspace { get; }
 
-        protected DocumentWorkspace DocumentWorkspace
-        {
-            get
-            {
-                return this.documentWorkspace;
-            }
-        }
-
-        public Type ToolType
-        {
-            get
-            {
-                return this.toolType;
-            }
-        }
+        public Type ToolType { get; }
 
         protected abstract HistoryMemento OnToolUndo();
 
         protected sealed override HistoryMemento OnUndo()
         {
-            if (this.documentWorkspace.GetToolType() != this.toolType)
+            if (this.DocumentWorkspace.GetToolType() != this.ToolType)
             {
-                this.documentWorkspace.SetToolFromType(this.toolType);
+                this.DocumentWorkspace.SetToolFromType(this.ToolType);
             }
 
             return OnToolUndo();
@@ -53,8 +38,8 @@ namespace PaintDotNet.HistoryMementos
         public ToolHistoryMemento(DocumentWorkspace documentWorkspace, string name, ImageResource image)
             : base(name, image)
         {
-            this.documentWorkspace = documentWorkspace;
-            this.toolType = documentWorkspace.GetToolType();
+            this.DocumentWorkspace = documentWorkspace;
+            this.ToolType = documentWorkspace.GetToolType();
         }
     }
 }

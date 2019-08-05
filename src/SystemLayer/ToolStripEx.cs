@@ -25,15 +25,11 @@ namespace PaintDotNet.SystemLayer
     public class ToolStripEx
         : ToolStrip
     {
-        private bool clickThrough = true;
-        private bool managedFocus = true;
         private static int lockFocusCount = 0;
 
         public ToolStripEx()
         {
-            ToolStripProfessionalRenderer tspr = this.Renderer as ToolStripProfessionalRenderer;
-
-            if (tspr != null)
+            if (this.Renderer is ToolStripProfessionalRenderer tspr)
             {
                 tspr.ColorTable.UseSystemColors = true;
                 tspr.RoundedEdges = false;
@@ -64,24 +60,13 @@ namespace PaintDotNet.SystemLayer
         /// Default value is true, which is the opposite of the behavior provided by the base
         /// ToolStrip class.
         /// </remarks>
-        public bool ClickThrough
-        {
-            get
-            {
-                return this.clickThrough;
-            }
-
-            set
-            {
-                this.clickThrough = value;
-            }
-        }
+        public bool ClickThrough { get; set; } = true;
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
 
-            if (this.clickThrough)
+            if (this.ClickThrough)
             {
                 UI.ClickThroughWndProc(ref m);
             }
@@ -94,10 +79,7 @@ namespace PaintDotNet.SystemLayer
 
         private void OnRelinquishFocus()
         {
-            if (RelinquishFocus != null)
-            {
-                RelinquishFocus(this, EventArgs.Empty);
-            }
+            RelinquishFocus?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -108,31 +90,17 @@ namespace PaintDotNet.SystemLayer
         /// relinquish focus (via the RelinquishFocus event) when the mouse leaves. It will not capture or
         /// attempt to relinquish focus if MenuStripEx.IsAnyMenuActive returns true.
         /// </remarks>
-        public bool ManagedFocus
-        {
-            get
-            {
-                return this.managedFocus;
-            }
-
-            set
-            {
-                this.managedFocus = value;
-            }
-        }
+        public bool ManagedFocus { get; set; } = true;
 
         protected override void OnItemAdded(ToolStripItemEventArgs e)
         {
-            ToolStripComboBox tscb = e.Item as ToolStripComboBox;
-            ToolStripTextBox tstb = e.Item as ToolStripTextBox;
-
-            if (tscb != null)
+            if (e.Item is ToolStripComboBox tscb)
             {
                 tscb.DropDownClosed += ComboBox_DropDownClosed;
                 tscb.Enter += ComboBox_Enter;
                 tscb.Leave += ComboBox_Leave;
             }
-            else if (tstb != null)
+            else if (e.Item is ToolStripTextBox tstb)
             {
                 tstb.Enter += TextBox_Enter;
                 tstb.Leave += TextBox_Enter;
@@ -190,16 +158,13 @@ namespace PaintDotNet.SystemLayer
 
         protected override void OnItemRemoved(ToolStripItemEventArgs e)
         {
-            ToolStripComboBox tscb = e.Item as ToolStripComboBox;
-            ToolStripTextBox tstb = e.Item as ToolStripTextBox;
-
-            if (tscb != null)
+            if (e.Item is ToolStripComboBox tscb)
             {
                 tscb.DropDownClosed -= ComboBox_DropDownClosed;
                 tscb.Enter -= ComboBox_Enter;
                 tscb.Leave -= ComboBox_Leave;
             }
-            else if (tstb != null)
+            else if (e.Item is ToolStripTextBox tstb)
             {
                 tstb.Enter -= TextBox_Enter;
                 tstb.Leave -= TextBox_Enter;
@@ -214,7 +179,7 @@ namespace PaintDotNet.SystemLayer
 
         private void OnItemMouseEnter(object sender, EventArgs e)
         {
-            if (this.managedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive && !IsFocusLocked)
+            if (this.ManagedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive && !IsFocusLocked)
             {
                 Tracing.Ping("stealing focus");
                 this.Focus();
@@ -223,7 +188,7 @@ namespace PaintDotNet.SystemLayer
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            if (this.managedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive && !IsFocusLocked)
+            if (this.ManagedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive && !IsFocusLocked)
             {
                 Tracing.Ping("relinquishing focus");
                 OnRelinquishFocus();

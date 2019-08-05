@@ -27,15 +27,11 @@ namespace PaintDotNet.Actions
             else
             {
                 // Default to the directory the active document came from
-                string fileName;
-                FileType fileType;
-                SaveConfigToken saveConfigToken;
-                appWorkspace.ActiveDocumentWorkspace.GetDocumentSaveOptions(out fileName, out fileType, out saveConfigToken);
+                appWorkspace.ActiveDocumentWorkspace.GetDocumentSaveOptions(out string fileName, out FileType fileType, out SaveConfigToken saveConfigToken);
                 filePath = Path.GetDirectoryName(fileName);
             }
 
-            string[] newFileNames;
-            DialogResult result = DocumentWorkspace.ChooseFiles(appWorkspace, out newFileNames, true, filePath);
+            DialogResult result = DocumentWorkspace.ChooseFiles(appWorkspace, out string[] newFileNames, true, filePath);
 
             if (result == DialogResult.OK)
             {

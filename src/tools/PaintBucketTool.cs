@@ -8,14 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using PaintDotNet.HistoryMementos;
-using System;
-using System.Collections;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Reflection;
-using System.Resources;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace PaintDotNet.Tools
@@ -80,11 +73,8 @@ namespace PaintDotNet.Tools
 
         protected override void OnDeactivate()
         {
-            if (cursorMouseUp != null)
-            {
-                cursorMouseUp.Dispose();
-                cursorMouseUp = null;
-            }
+            cursorMouseUp?.Dispose();
+            cursorMouseUp = null;
 
             base.OnDeactivate();
         }
@@ -107,11 +97,8 @@ namespace PaintDotNet.Tools
 
             if (disposing)
             {
-                if (brush != null)
-                {
-                    brush.Dispose();
-                    brush = null;
-                }
+                brush?.Dispose();
+                brush = null;
             }
         }
     }

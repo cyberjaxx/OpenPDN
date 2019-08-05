@@ -48,9 +48,7 @@ namespace PaintDotNet.Tools
 
             protected override HistoryMemento OnToolUndo()
             {
-                MoveSelectionTool moveSelectionTool = DocumentWorkspace.Tool as MoveSelectionTool;
-
-                if (moveSelectionTool == null)
+                if (!(DocumentWorkspace.Tool is MoveSelectionTool moveSelectionTool))
                 {
                     throw new InvalidOperationException("Current Tool is not the MoveSelectionTool");
                 }

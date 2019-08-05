@@ -1,8 +1,6 @@
 using PaintDotNet.SystemLayer;
 using System;
 
-
-
 namespace PdnBench
 {
 	/// <summary>
@@ -11,16 +9,9 @@ namespace PdnBench
 	public abstract class Benchmark
         : IDisposable
 	{
-        private string name;
         private Timing timing;
 
-        public string Name
-        {
-            get
-            {
-                return this.name;
-            }
-        }
+        public string Name { get; }
 
         protected virtual void OnBeforeExecute()
         {
@@ -44,7 +35,7 @@ namespace PdnBench
 
 		public Benchmark(string name)
 		{
-            this.name = name;
+            Name = name;
             timing = new Timing();
         }
 

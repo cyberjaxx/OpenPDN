@@ -19,36 +19,11 @@ namespace PaintDotNet.SystemLayer
     {
         internal class ProxyInfo
         {
-            private bool autoDetect;
-            private string autoConfigUrl;
-            private string proxy;
-            private string proxyBypass;
+            public bool AutoDetect { get; }
+            public string AutoConfigUrl { get; }
 
-            /*
-            public bool AutoDetect
-            {
-                get
-                {
-                    return this.autoDetect;
-                }
-            }
-
-            public string AutoConfigUrl
-            {
-                get
-                {
-                    return this.autoConfigUrl;
-                }
-            }
-             * */
-
-            public string Proxy
-            {
-                get
-                {
-                    return this.proxy;
-                }
-            }
+            public string Proxy { get; }
+            public string ProxyBypass { get; set; }
 
             /*
             public string ProxyBypass
@@ -62,10 +37,10 @@ namespace PaintDotNet.SystemLayer
 
             internal ProxyInfo(bool autoDetect, string autoConfigUrl, string proxy, string proxyBypass)
             {
-                this.autoDetect = autoDetect;
-                this.autoConfigUrl = autoConfigUrl;
-                this.proxy = proxy;
-                this.proxyBypass = proxyBypass;
+                this.AutoDetect = autoDetect;
+                this.AutoConfigUrl = autoConfigUrl;
+                this.Proxy = proxy;
+                this.ProxyBypass = proxyBypass;
             }
         }
 
@@ -125,8 +100,7 @@ namespace PaintDotNet.SystemLayer
             List<WebProxy> proxies = new List<WebProxy>();
 
             // Get the IE-supplied proxy settings
-            ProxyInfo info;
-            bool result = GetProxyDetails(out info);
+            bool result = GetProxyDetails(out ProxyInfo info);
 
             if (result)
             {

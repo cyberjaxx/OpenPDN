@@ -15,19 +15,7 @@ namespace PaintDotNet.Updates
     internal class UpdatesStateMachine
         : StateMachine
     {
-        private Control uiContext;
-        public Control UIContext
-        {
-            get
-            {
-                return this.uiContext;
-            }
-
-            set
-            {
-                this.uiContext = value;
-            }
-        }
+        public Control UIContext { get; set; }
 
         public UpdatesStateMachine()
             : base(new StartupState(), new object[] { UpdatesAction.Continue, UpdatesAction.Cancel })

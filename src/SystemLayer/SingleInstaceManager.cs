@@ -28,15 +28,8 @@ namespace PaintDotNet.SystemLayer
         private IntPtr hWnd = IntPtr.Zero;
         private IntPtr hFileMapping;
         private List<string> pendingInstanceMessages = new List<string>();
-        private bool isFirstInstance;
 
-        public bool IsFirstInstance
-        {
-            get
-            {
-                return this.isFirstInstance;
-            }
-        }
+        public bool IsFirstInstance { get; }
 
         public bool AreMessagesPending
         {
@@ -125,10 +118,7 @@ namespace PaintDotNet.SystemLayer
         public event EventHandler InstanceMessageReceived;
         private void OnInstanceMessageReceived()
         {
-            if (InstanceMessageReceived != null)
-            {
-                InstanceMessageReceived(this, EventArgs.Empty);
-            }
+            InstanceMessageReceived?.Invoke(this, EventArgs.Empty);
         }
 
         public void SendInstanceMessage(string text)
@@ -243,7 +233,7 @@ namespace PaintDotNet.SystemLayer
                 throw new Win32Exception(error, "CreateFileMappingW() returned NULL (" + error.ToString() + ")");
             }
 
-            this.isFirstInstance = (error != NativeConstants.ERROR_ALREADY_EXISTS);
+            this.IsFirstInstance = (error != NativeConstants.ERROR_ALREADY_EXISTS);
         }
 
         private void WriteHandleValueToMappedFile(IntPtr hValue)

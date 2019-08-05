@@ -23,20 +23,7 @@ namespace PaintDotNet.Tools
         : Tool
     {
         private bool contiguous;
-
-        private bool clipToSelection = true;
-        protected bool ClipToSelection
-        {
-            get 
-            {
-                return clipToSelection;
-            }
-
-            set
-            {
-                clipToSelection = value;
-            }
-        }
+        protected bool ClipToSelection { get; set; } = true;
 
         public FloodToolBase(DocumentWorkspace documentWorkspace, ImageResource toolBarImage, string name, 
             string helpText, char hotKey, bool skipIfActiveOnHotKey, ToolBarConfigItems toolBarConfigItems)
@@ -326,7 +313,7 @@ namespace PaintDotNet.Tools
                 PdnRegion currentRegion = Selection.CreateRegion();
 
                 // See if the mouse click is valid
-                if (!currentRegion.IsVisible(pos) && clipToSelection)
+                if (!currentRegion.IsVisible(pos) && ClipToSelection)
                 {
                     currentRegion.Dispose();
                     currentRegion = null;
@@ -344,12 +331,12 @@ namespace PaintDotNet.Tools
                 if (contiguous)
                 {
                     // FloodMode.Local
-                    FillStencilFromPoint(surface, stencilBuffer, pos, tolerance, out boundingBox, currentRegion, clipToSelection);
+                    FillStencilFromPoint(surface, stencilBuffer, pos, tolerance, out boundingBox, currentRegion, ClipToSelection);
                 }
                 else
                 {
                     // FloodMode.Global
-                    FillStencilByColor(surface, stencilBuffer, surface[pos], tolerance, out boundingBox, currentRegion, clipToSelection);
+                    FillStencilByColor(surface, stencilBuffer, surface[pos], tolerance, out boundingBox, currentRegion, ClipToSelection);
                 }
 
                 Point[][] polygonSet = PdnGraphicsPath.PolygonSetFromStencil(stencilBuffer, boundingBox, 0, 0);

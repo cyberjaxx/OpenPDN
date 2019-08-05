@@ -327,9 +327,7 @@ namespace PaintDotNet.SystemLayer
         /// </remarks>
         public static void SuspendControlPainting(Control control)
         {
-            int pushCount;
-
-            if (controlRedrawStack.TryGetValue(control, out pushCount))
+            if (controlRedrawStack.TryGetValue(control, out int pushCount))
             {
                 ++pushCount;
             }
@@ -362,9 +360,7 @@ namespace PaintDotNet.SystemLayer
         /// </remarks>        
         public static void ResumeControlPainting(Control control)
         {
-            int pushCount;
-
-            if (controlRedrawStack.TryGetValue(control, out pushCount))
+            if (controlRedrawStack.TryGetValue(control, out int pushCount))
             {
                 --pushCount;
             }
@@ -402,9 +398,7 @@ namespace PaintDotNet.SystemLayer
         /// </remarks>
         public static bool IsControlPaintingEnabled(Control control)
         {
-            int pushCount;
-
-            if (!controlRedrawStack.TryGetValue(control, out pushCount))
+            if (!controlRedrawStack.TryGetValue(control, out int pushCount))
             {
                 pushCount = 0;
             }
@@ -429,9 +423,7 @@ namespace PaintDotNet.SystemLayer
         public static Rectangle[] GetUpdateRegion(Control control)
         {
             SafeNativeMethods.GetUpdateRgn(control.Handle, hRgn, false);
-            Rectangle[] scans;
-            int area;
-            PdnGraphics.GetRegionScans(hRgn, out scans, out area);
+            PdnGraphics.GetRegionScans(hRgn, out Rectangle[] scans, out int area);
             GC.KeepAlive(control);
             return scans;
         }
@@ -458,9 +450,7 @@ namespace PaintDotNet.SystemLayer
 
             if ((exStyle & NativeConstants.GWL_EXSTYLE) != 0)
             {
-                uint dwOldKey;
-                uint dwOldFlags;
-                bool result = SafeNativeMethods.GetLayeredWindowAttributes(form.Handle, out dwOldKey, out bOldAlpha, out dwOldFlags);
+                bool result = SafeNativeMethods.GetLayeredWindowAttributes(form.Handle, out uint dwOldKey, out bOldAlpha, out uint dwOldFlags);
             }
 
             byte bNewAlpha = (byte)(opacity * 255.0);
@@ -663,8 +653,7 @@ namespace PaintDotNet.SystemLayer
                 modalityFix.ControlBox = false;
                 modalityFix.FormBorderStyle = FormBorderStyle.None;
 
-                Control ownerAsControl = owner as Control;
-                if (ownerAsControl != null)
+                if (owner is Control ownerAsControl)
                 {
                     Form ownerForm = ownerAsControl.FindForm();
 

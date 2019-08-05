@@ -106,7 +106,7 @@ namespace PdnBench
                         ++i;
                         benchmarkImageName = args[i];
 
-                        if (!System.IO.File.Exists(benchmarkImageName))
+                        if (!File.Exists(benchmarkImageName))
                         {
                             Console.WriteLine("Specified image doesn't exist");
                             return;
@@ -177,8 +177,8 @@ namespace PdnBench
                 benchmarks.Add(
                     new EffectBenchmark("Rotate/Zoom at " + ((i * 180.0) / Math.PI).ToString("F2") + " degrees",
                     3,
-                    new PaintDotNet.Effects.RotateZoomEffect(),
-                    new PaintDotNet.Effects.RotateZoomEffectConfigToken(
+                    new RotateZoomEffect(),
+                    new RotateZoomEffectConfigToken(
                         true,
                         (float)(Math.PI * 0.3f),
                         (float)((Math.PI * -0.4) + i),

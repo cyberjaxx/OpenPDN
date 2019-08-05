@@ -24,7 +24,6 @@ namespace PaintDotNet.SystemLayer
     public class MenuStripEx
         : MenuStrip
     {
-        private bool clickThrough = true;
         private static int openCount = 0;
 
         public MenuStripEx()
@@ -40,24 +39,13 @@ namespace PaintDotNet.SystemLayer
         /// Default value is true, which is the opposite of the behavior provided by the base
         /// ToolStrip class.
         /// </remarks>
-        public bool ClickThrough
-        {
-            get
-            {
-                return this.clickThrough;
-            }
-
-            set
-            {
-                this.clickThrough = value;
-            }
-        }
+        public bool ClickThrough { get; set; } = true;
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
 
-            if (this.clickThrough)
+            if (this.ClickThrough)
             {
                 UI.ClickThroughWndProc(ref m);
             }

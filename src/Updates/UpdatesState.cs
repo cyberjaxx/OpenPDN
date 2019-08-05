@@ -17,15 +17,9 @@ namespace PaintDotNet.Updates
     internal abstract class UpdatesState
         : State
     {
-        private bool continueButtonVisible;
-        private MarqueeStyle marqueeStyle;
-
         public new UpdatesStateMachine StateMachine
         {
-            get
-            {
-                return (UpdatesStateMachine)base.StateMachine;
-            }
+            get => (UpdatesStateMachine)base.StateMachine;
         }
 
         public virtual string InfoText
@@ -48,27 +42,15 @@ namespace PaintDotNet.Updates
             }
         }
 
-        public bool ContinueButtonVisible
-        {
-            get
-            {
-                return this.continueButtonVisible;
-            }
-        }
+        public bool ContinueButtonVisible { get; }
 
-        public MarqueeStyle MarqueeStyle
-        {
-            get
-            {
-                return this.marqueeStyle;
-            }
-        }
+        public MarqueeStyle MarqueeStyle { get; }
 
         public UpdatesState(bool isFinalState, bool continueButtonVisible, MarqueeStyle marqueeStyle)
             : base(isFinalState)
         {
-            this.continueButtonVisible = continueButtonVisible;
-            this.marqueeStyle = marqueeStyle;
+            ContinueButtonVisible = continueButtonVisible;
+            MarqueeStyle = marqueeStyle;
             SystemLayer.Tracing.LogFeature("UpdatesState(" + GetType().Name + ")");
         }
     }

@@ -65,29 +65,17 @@ namespace PaintDotNet.Tools
 
         protected override void OnDeactivate()
         {
-            if (cursorZoom != null)
-            {
-                cursorZoom.Dispose();
-                cursorZoom = null;
-            }
+            cursorZoom?.Dispose();
+            cursorZoom = null;
 
-            if (cursorZoomIn != null)
-            {
-                cursorZoomIn.Dispose();
-                cursorZoomIn = null;
-            }
+            cursorZoomIn?.Dispose();
+            cursorZoomIn = null;
 
-            if (cursorZoomOut != null)
-            {
-                cursorZoomOut.Dispose();
-                cursorZoomOut = null;
-            }
+            cursorZoomOut?.Dispose();
+            cursorZoomOut = null;
 
-            if (cursorZoomPan != null)
-            {
-                cursorZoomPan.Dispose();
-                cursorZoomPan = null;
-            }
+            cursorZoomPan?.Dispose();
+            cursorZoomPan = null;
 
             this.RendererList.Remove(this.outlineRenderer);
             this.outlineRenderer.Dispose();

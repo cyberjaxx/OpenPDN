@@ -17,26 +17,18 @@ namespace PaintDotNet.SystemLayer
     internal abstract class ClassicFileDialog
         : IFileDialog
     {
-        private FileDialog fileDialog;
-
-        protected FileDialog FileDialog
-        {
-            get
-            {
-                return this.fileDialog;
-            }
-        }
+        protected FileDialog FileDialog { get; private set; }
 
         public bool CheckPathExists
         {
             get
             {
-                return this.fileDialog.CheckPathExists;
+                return this.FileDialog.CheckPathExists;
             }
 
             set
             {
-                this.fileDialog.CheckPathExists = value;
+                this.FileDialog.CheckPathExists = value;
             }
         }
 
@@ -44,11 +36,11 @@ namespace PaintDotNet.SystemLayer
         {
             get
             {
-                return this.fileDialog.DereferenceLinks;
+                return this.FileDialog.DereferenceLinks;
             }
             set
             {
-                this.fileDialog.DereferenceLinks = value;
+                this.FileDialog.DereferenceLinks = value;
             }
         }
 
@@ -56,12 +48,12 @@ namespace PaintDotNet.SystemLayer
         {
             get
             {
-                return this.fileDialog.Filter;
+                return this.FileDialog.Filter;
             }
 
             set
             {
-                this.fileDialog.Filter = value;
+                this.FileDialog.Filter = value;
             }
         }
 
@@ -69,12 +61,12 @@ namespace PaintDotNet.SystemLayer
         {
             get
             {
-                return this.fileDialog.FilterIndex;
+                return this.FileDialog.FilterIndex;
             }
 
             set
             {
-                this.fileDialog.FilterIndex = value;
+                this.FileDialog.FilterIndex = value;
             }
         }
 
@@ -82,12 +74,12 @@ namespace PaintDotNet.SystemLayer
         {
             get
             {
-                return this.fileDialog.InitialDirectory;
+                return this.FileDialog.InitialDirectory;
             }
 
             set
             {
-                this.fileDialog.InitialDirectory = value;
+                this.FileDialog.InitialDirectory = value;
             }
         }
 
@@ -95,7 +87,7 @@ namespace PaintDotNet.SystemLayer
         {
             set
             {
-                this.fileDialog.Title = value;
+                this.FileDialog.Title = value;
             }
         }
 
@@ -167,10 +159,10 @@ namespace PaintDotNet.SystemLayer
                 {
                     if (ownerAsControl != null && ownerAsControl.IsHandleCreated)
                     {
-                        ownerAsControl.BeginInvoke(new Procedure<FileDialog>(EnableThumbnailView), new object[] { this.fileDialog });
+                        ownerAsControl.BeginInvoke(new Procedure<FileDialog>(EnableThumbnailView), new object[] { this.FileDialog });
                     }
 
-                    result = this.fileDialog.ShowDialog(modalOwner);
+                    result = this.FileDialog.ShowDialog(modalOwner);
                 });
 
             return result;
@@ -178,10 +170,10 @@ namespace PaintDotNet.SystemLayer
 
         protected ClassicFileDialog(FileDialog fileDialog)
         {
-            this.fileDialog = fileDialog;
-            this.fileDialog.RestoreDirectory = true;
-            this.fileDialog.ShowHelp = false;
-            this.fileDialog.ValidateNames = true;
+            this.FileDialog = fileDialog;
+            this.FileDialog.RestoreDirectory = true;
+            this.FileDialog.ShowHelp = false;
+            this.FileDialog.ValidateNames = true;
         }
 
         ~ClassicFileDialog()
@@ -199,10 +191,10 @@ namespace PaintDotNet.SystemLayer
         {
             if (disposing)
             {
-                if (this.fileDialog != null)
+                if (this.FileDialog != null)
                 {
-                    this.fileDialog.Dispose();
-                    this.fileDialog = null;
+                    this.FileDialog.Dispose();
+                    this.FileDialog = null;
                 }
             }
         }

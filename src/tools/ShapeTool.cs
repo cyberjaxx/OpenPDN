@@ -11,12 +11,8 @@ using PaintDotNet.HistoryMementos;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Reflection;
-using System.Resources;
 using System.Windows.Forms;
 
 namespace PaintDotNet.Tools
@@ -43,59 +39,20 @@ namespace PaintDotNet.Tools
         private Cursor cursorMouseDown;
         private bool shapeWasCommited = true;
         private CompoundHistoryMemento chaAlreadyOnStack = null;
-        private bool useDashStyle = false; // if set to false, then the DashStyle will always be forced to DashStyle.Flat
-        private bool forceShapeType = false;
-        private ShapeDrawType forcedShapeDrawType = ShapeDrawType.Both;
 
         protected override bool SupportsInk
         {
-            get
-            {
-                return true;
-            }
+            get => true;
         }
 
         // This is for shapes that should only be draw in one ShapeDrawType
         // The line shape, for instance, should only ever be drawn in ShapeDrawType.Outline
-        protected bool ForceShapeDrawType
-        {
-            get
-            {
-                return this.forceShapeType;
-            }
+        protected bool ForceShapeDrawType { get; set; } = false;
 
-            set
-            {
-                this.forceShapeType = value;
-            }
-        }
+        protected ShapeDrawType ForcedShapeDrawType { get; set; } = ShapeDrawType.Both;
 
-        protected ShapeDrawType ForcedShapeDrawType
-        {
-            get
-            {
-                return this.forcedShapeDrawType;
-            }
+        protected bool UseDashStyle { get; set; } = false;
 
-            set
-            {
-                this.forcedShapeDrawType = value;
-            }
-        }
-
-        protected bool UseDashStyle
-        {
-            get
-            {
-                return this.useDashStyle;
-            }
-
-            set
-            {
-                this.useDashStyle = value;
-            }
-        }
-        
         /// <summary>
         /// Different shapes may not require all the points given to them, and as such
         /// if the user is drawing for a long time there may be lots of memory that's
@@ -319,7 +276,7 @@ namespace PaintDotNet.Tools
                 interiorBrush = bi.CreateBrush(primary.ToColor(), secondary.ToColor());
             }
 
-            if (!this.useDashStyle)
+            if (!this.UseDashStyle)
             {
                 outlinePen.DashStyle = DashStyle.Solid;
             }

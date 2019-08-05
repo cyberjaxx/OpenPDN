@@ -74,9 +74,8 @@ namespace PaintDotNet
             Console.WriteLine("done");
 
             // Get its exit code
-            uint dwExitCode = 0;
             Console.Write("Retrieving process exit code ... ");
-            bResult = GetExitCodeProcess(hProcess, out dwExitCode);
+            bResult = GetExitCodeProcess(hProcess, out uint dwExitCode);
 
             if (!bResult)
             {
@@ -115,9 +114,7 @@ namespace PaintDotNet
                 throw new ApplicationException(valueName + " value was retrieved from registry as null");
             }
 
-            string targetDir = targetDirObj as string;
-
-            if (targetDir == null)
+            if (!(targetDirObj is string targetDir))
             {
                 throw new ApplicationException(valueName + " was not a string; its retrieved .NET type was " + targetDirObj.GetType().Name + ", and ToString() value was " + targetDirObj.ToString());
             }

@@ -85,21 +85,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PaintDotNet.Base">
-      <HintPath>..\Base\bin\Debug\PaintDotNet.Base.dll</HintPath>
-    </Reference>
-    <Reference Include="PaintDotNet.Core">
-      <HintPath>..\Core\bin\Debug\PaintDotNet.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="PaintDotNet.Data">
-      <HintPath>..\Data\bin\Debug\PaintDotNet.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="PaintDotNet.Resources">
-      <HintPath>..\Resources\bin\Debug\PaintDotNet.Resources.dll</HintPath>
-    </Reference>
-    <Reference Include="PaintDotNet.SystemLayer">
-      <HintPath>..\SystemLayer\bin\Debug\PaintDotNet.SystemLayer.dll</HintPath>
-    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -297,6 +282,28 @@
       <DependentUpon>CurvesEffectConfigDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{05c4c721-f8e3-42e1-b817-9d165da1a9fb}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{1eade568-a866-4dd4-9898-0a151e3f0e26}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{66681bb0-955d-451d-a466-94c045b1cf4a}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Resources\Resources.csproj">
+      <Project>{0b173113-1f9b-4939-a62f-a176336f13ac}</Project>
+      <Name>Resources</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SystemLayer\SystemLayer.csproj">
+      <Project>{80572820-93a5-4278-a513-d902bea2639c}</Project>
+      <Name>SystemLayer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

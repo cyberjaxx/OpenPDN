@@ -125,9 +125,7 @@ namespace PaintDotNet.SystemLayer
                         }
                     }
 
-                    uint lengthReq = 0;
-                    bResult = NativeMethods.SetupDiGetDeviceInstanceIdW(hDiSet, ref spDevinfoData, IntPtr.Zero, 0, out lengthReq);
-
+                    bResult = NativeMethods.SetupDiGetDeviceInstanceIdW(hDiSet, ref spDevinfoData, IntPtr.Zero, 0, out uint lengthReq);
                     if (bResult)
                     {
                         NativeMethods.ThrowOnWin32Error("SetupDiGetDeviceInstanceIdW(1) returned true");
@@ -174,9 +172,7 @@ namespace PaintDotNet.SystemLayer
                         if (procKey != null)
                         {
                             object valueObj = procKey.GetValue(friendlyName);
-                            string value = valueObj as string;
-
-                            if (value != null)
+                            if (valueObj is string value)
                             {
                                 cpuName = value;
                             }

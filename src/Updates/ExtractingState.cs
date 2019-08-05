@@ -23,23 +23,13 @@ namespace PaintDotNet.Updates
         private Exception exception;
         private string extractMe;
         private string installerPath;
-        private PdnVersionInfo newVersionInfo;
         private SiphonStream abortMeStream = null;
 
-        public PdnVersionInfo NewVersionInfo
-        {
-            get
-            {
-                return this.newVersionInfo;
-            }
-        }
+        public PdnVersionInfo NewVersionInfo { get; }
 
         public override bool CanAbort
         {
-            get
-            {
-                return true;
-            }
+            get => true;
         }
 
         protected override void OnAbort()
@@ -115,26 +105,25 @@ namespace PaintDotNet.Updates
 
                     this.abortMeStream = siphonStream2;
 
-                    IOEventHandler ioFinishedDelegate =
-                        delegate(object sender, IOEventArgs e)
-                        {
-                            bytesSoFar += e.Count;
-                            double percent = 100.0 * ((double)bytesSoFar / (double)maxBytes);
-                            OnProgress(percent);
-                        };
+                    void IOFinishedDelegate(object sender, IOEventArgs e)
+                    {
+                        bytesSoFar += e.Count;
+                        double percent = 100.0 * (bytesSoFar / maxBytes);
+                        OnProgress(percent);
+                    }
 
                     OnProgress(0.0);
 
                     if (maxBytes > 0)
                     {
-                        siphonStream2.IOFinished += ioFinishedDelegate;
+                        siphonStream2.IOFinished += IOFinishedDelegate;
                     }
 
                     Utility.CopyStream(zipStream, siphonStream2);
 
                     if (maxBytes > 0)
                     {
-                        siphonStream2.IOFinished -= ioFinishedDelegate;
+                        siphonStream2.IOFinished -= IOFinishedDelegate;
                     }
 
                     this.abortMeStream = null;
@@ -194,7 +183,7 @@ namespace PaintDotNet.Updates
         {
             if (input.Equals(PrivateInput.GoToReadyToInstall))
             {
-                newState = new ReadyToInstallState(this.installerPath, this.newVersionInfo);
+                newState = new ReadyToInstallState(this.installerPath, this.NewVersionInfo);
             }
             else if (input.Equals(PrivateInput.GoToError))
             {
@@ -215,7 +204,7 @@ namespace PaintDotNet.Updates
             : base(false, false, MarqueeStyle.Smooth)
         {
             this.extractMe = extractMe;
-            this.newVersionInfo = newVersionInfo;
+            this.NewVersionInfo = newVersionInfo;
         }
     }
 }

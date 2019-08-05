@@ -352,9 +352,8 @@ namespace PaintDotNet.SystemLayer
 
                 oldObject = SafeNativeMethods.SelectObject(hdc, pen);
 
-                NativeStructs.POINT pt;
-                bool bResult = SafeNativeMethods.MoveToEx(hdc, points[0].X, points[0].Y, out pt);
-                
+                bool bResult = SafeNativeMethods.MoveToEx(hdc, points[0].X, points[0].Y, out NativeStructs.POINT pt);
+
                 if (!bResult)
                 {
                     NativeMethods.ThrowOnWin32Error("MoveToEx returned false");

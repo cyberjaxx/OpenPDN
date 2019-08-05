@@ -103,11 +103,9 @@ namespace PaintDotNet.SystemLayer
         {
             int hr = NativeConstants.S_OK;
 
-            NativeInterfaces.IShellItemArray results = null;
-            FileOpenDialog.GetResults(out results);
+            FileOpenDialog.GetResults(out NativeInterfaces.IShellItemArray results);
 
-            uint count = 0;
-            results.GetCount(out count);
+            results.GetCount(out uint count);
 
             List<NativeInterfaces.IShellItem> items = new List<NativeInterfaces.IShellItem>();
             List<NativeInterfaces.IShellItem> needLocalCopy = new List<NativeInterfaces.IShellItem>();
@@ -116,21 +114,18 @@ namespace PaintDotNet.SystemLayer
 
             for (uint i = 0; i < count; ++i)
             {
-                NativeInterfaces.IShellItem item = null;
-                results.GetItemAt(i, out item);
+                results.GetItemAt(i, out NativeInterfaces.IShellItem item);
                 items.Add(item);
             }
 
             foreach (NativeInterfaces.IShellItem item in items)
             {
                 // If it's a file system object, nothing special needs to be done.
-                NativeConstants.SFGAO sfgaoAttribs;
-                item.GetAttributes((NativeConstants.SFGAO)0xffffffff, out sfgaoAttribs);
+                item.GetAttributes((NativeConstants.SFGAO)0xffffffff, out NativeConstants.SFGAO sfgaoAttribs);
 
                 if ((sfgaoAttribs & NativeConstants.SFGAO.SFGAO_FILESYSTEM) == NativeConstants.SFGAO.SFGAO_FILESYSTEM)
                 {
-                    string pathName = null;
-                    item.GetDisplayName(NativeConstants.SIGDN.SIGDN_FILESYSPATH, out pathName);
+                    item.GetDisplayName(NativeConstants.SIGDN.SIGDN_FILESYSPATH, out string pathName);
 
                     localPathNames.Add(pathName);
                 }
@@ -156,70 +151,66 @@ namespace PaintDotNet.SystemLayer
 
                 IFileTransferProgressEvents progressEvents = this.FileDialogUICallbacks.CreateFileTransferProgressEvents();
 
-                ThreadStart copyThreadProc =
-                    delegate()
+                void copyThreadProc()
+                {
+                    try
                     {
-                        try
+                        progressEvents.SetItemCount(needLocalCopy.Count);
+
+                        for (int i = 0; i < needLocalCopy.Count; ++i)
                         {
-                            progressEvents.SetItemCount(needLocalCopy.Count);
+                            NativeInterfaces.IShellItem item = needLocalCopy[i];
 
-                            for (int i = 0; i < needLocalCopy.Count; ++i)
+                            progressEvents.SetItemOrdinal(i);
+                            CopyResult result = CreateLocalCopy(item, progressEvents, out string pathName);
+
+                            if (result == CopyResult.Success)
                             {
-                                NativeInterfaces.IShellItem item = needLocalCopy[i];
-
-                                string pathName = null;
-
-                                progressEvents.SetItemOrdinal(i);
-                                CopyResult result = CreateLocalCopy(item, progressEvents, out pathName);
-
-                                if (result == CopyResult.Success)
-                                {
-                                    localPathNames.Add(pathName);
-                                }
-                                else if (result == CopyResult.Skipped)
-                                {
-                                    // do nothing
-                                }
-                                else if (result == CopyResult.CancelOperation)
-                                {
-                                    hr = NativeConstants.S_FALSE;
-                                    break;
-                                }
-                                else
-                                {
-                                    throw new InvalidEnumArgumentException();
-                                }
+                                localPathNames.Add(pathName);
                             }
-                        }
-
-                        finally
-                        {
-                            OperationResult result;
-
-                            if (hr == NativeConstants.S_OK)
+                            else if (result == CopyResult.Skipped)
                             {
-                                result = OperationResult.Finished;
+                                // do nothing
+                            }
+                            else if (result == CopyResult.CancelOperation)
+                            {
+                                hr = NativeConstants.S_FALSE;
+                                break;
                             }
                             else
                             {
-                                result = OperationResult.Canceled;
+                                throw new InvalidEnumArgumentException();
                             }
-
-                            progressEvents.EndOperation(result);
                         }
-                    };
+                    }
+
+                    finally
+                    {
+                        OperationResult result;
+
+                        if (hr == NativeConstants.S_OK)
+                        {
+                            result = OperationResult.Finished;
+                        }
+                        else
+                        {
+                            result = OperationResult.Canceled;
+                        }
+
+                        progressEvents.EndOperation(result);
+                    }
+                }
 
                 Thread copyThread = new Thread(copyThreadProc);
                 copyThread.SetApartmentState(ApartmentState.STA);
 
-                EventHandler onUIShown =
-                    delegate(object sender, EventArgs e)
-                    {
-                        copyThread.Start();
-                    };
+                void OnUIShown(object sender, EventArgs e)
+                {
+                    copyThread.Start();
+                }
 
                 this.cancelSink = new CancelableTearOff();
-                progressEvents.BeginOperation(win32Window, onUIShown, cancelSink);
+                progressEvents.BeginOperation(win32Window, OnUIShown, cancelSink);
                 this.cancelSink = null;
                 copyThread.Join();
 
@@ -263,8 +254,7 @@ namespace PaintDotNet.SystemLayer
             CopyResult returnResult;
             WorkItemResult itemResult;
 
-            string displayName = null;
-            item.GetDisplayName(NativeConstants.SIGDN.SIGDN_NORMALDISPLAY, out displayName);
+            item.GetDisplayName(NativeConstants.SIGDN.SIGDN_NORMALDISPLAY, out string displayName);
             progressEvents.SetItemInfo(displayName);
 
             progressEvents.BeginItem();
@@ -273,8 +263,7 @@ namespace PaintDotNet.SystemLayer
             {
                 // Determine whether to copy from HTTP or from IStream. The heuristic we use here is simple:
                 // if the attributes has SFGAO_CANCOPY, we IStream it. Else, we HTTP it.
-                NativeConstants.SFGAO attribs;
-                item.GetAttributes((NativeConstants.SFGAO)0xfffffff, out attribs);
+                item.GetAttributes((NativeConstants.SFGAO)0xfffffff, out NativeConstants.SFGAO attribs);
 
                 try
                 {
@@ -335,8 +324,7 @@ namespace PaintDotNet.SystemLayer
             IFileTransferProgressEvents progressEvents,
             out string pathNameResult)
         {
-            string url = null;
-            item.GetDisplayName(NativeConstants.SIGDN.SIGDN_URL, out url);
+            item.GetDisplayName(NativeConstants.SIGDN.SIGDN_URL, out string url);
 
             Uri uri = new Uri(url);
 
@@ -390,15 +378,13 @@ namespace PaintDotNet.SystemLayer
             IFileTransferProgressEvents progressEvents,
             out string pathNameResult)
         {
-            string fileName = null;
-            item.GetDisplayName(NativeConstants.SIGDN.SIGDN_NORMALDISPLAY, out fileName);
+            item.GetDisplayName(NativeConstants.SIGDN.SIGDN_NORMALDISPLAY, out string fileName);
 
             string pathName = FileSystem.GetTempPathName(fileName);
 
             Guid bhidStream = NativeConstants.BHID_Stream;
             Guid iid_IStream = new Guid(NativeConstants.IID_IStream);
-            NativeInterfaces.IStream iStream = null;
-            item.BindToHandler(IntPtr.Zero, ref bhidStream, ref iid_IStream, out iStream);
+            item.BindToHandler(IntPtr.Zero, ref bhidStream, ref iid_IStream, out NativeInterfaces.IStream iStream);
 
             try
             {
@@ -431,9 +417,8 @@ namespace PaintDotNet.SystemLayer
                         while (qwBytesLeft > 0)
                         {
                             uint wantToRead = (uint)Math.Min(qwBytesLeft, bufSize);
-                            uint amtRead = 0;
 
-                            iStream.Read(pbBuffer2, wantToRead, out amtRead);
+                            iStream.Read(pbBuffer2, wantToRead, out uint amtRead);
 
                             if (amtRead > qwBytesLeft)
                             {

@@ -7,7 +7,6 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet.SystemLayer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -65,29 +64,14 @@ namespace PaintDotNet.SystemLayer
 
         private class TracePoint
         {
-            private string message;
-            private ulong timestamp;
+            public string Message { get; }
 
-            public string Message
-            {
-                get
-                {
-                    return message;
-                }
-            }
-
-            public ulong Timestamp
-            {
-                get
-                {
-                    return timestamp;
-                }
-            }
+            public ulong Timestamp { get; }
 
             public TracePoint(string message, ulong timestamp)
             {
-                this.message = message;
-                this.timestamp = timestamp;
+                this.Message = message;
+                this.Timestamp = timestamp;
             }
         }
 #endif

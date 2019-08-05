@@ -44,65 +44,33 @@ namespace PaintDotNet.Actions
 
         private sealed class FitSurfaceContext
         {
-            private Surface dstSurface;
-            private Surface srcSurface;
-            private Rectangle[] dstRois;
-            private ResamplingAlgorithm algorithm;
+            public Surface DstSurface { get; }
 
-            public Surface DstSurface
-            {
-                get
-                {
-                    return dstSurface;
-                }
-            }
+            public Surface SrcSurface { get; }
 
-            public Surface SrcSurface
-            {
-                get
-                {
-                    return srcSurface;
-                }
-            }
+            public Rectangle[] DstRois { get; }
 
-            public Rectangle[] DstRois
-            {
-                get
-                {
-                    return dstRois;
-                }
-            }
-
-            public ResamplingAlgorithm Algorithm
-            {
-                get
-                {
-                    return algorithm;
-                }
-            }
+            public ResamplingAlgorithm Algorithm { get; }
 
             public event Procedure RenderedRect;
             private void OnRenderedRect()
             {
-                if (RenderedRect != null)
-                {
-                    RenderedRect();
-                }
+                RenderedRect?.Invoke();
             }
 
             public void FitSurface(object context)
             {
                 int index = (int)context;
-                dstSurface.FitSurface(algorithm, srcSurface, dstRois[index]);
+                DstSurface.FitSurface(Algorithm, SrcSurface, DstRois[index]);
                 OnRenderedRect();
             }
 
             public FitSurfaceContext(Surface dstSurface, Surface srcSurface, Rectangle[] dstRois, ResamplingAlgorithm algorithm)
             {
-                this.dstSurface = dstSurface;
-                this.srcSurface = srcSurface;
-                this.dstRois = dstRois;
-                this.algorithm = algorithm;
+                this.DstSurface = dstSurface;
+                this.SrcSurface = srcSurface;
+                this.DstRois = dstRois;
+                this.Algorithm = algorithm;
             }
         }
 

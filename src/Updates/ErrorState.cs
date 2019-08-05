@@ -20,28 +20,12 @@ namespace PaintDotNet.Updates
             get
             {
                 string infoTextFormat = PdnResources.GetString("UpdatesDialog.InfoText.Text.ErrorState.Format");
-                string infoText = string.Format(infoTextFormat, this.errorMessage);
+                string infoText = string.Format(infoTextFormat, this.ErrorMessage);
                 return infoText;
             }
         }
-
-        private Exception exception;
-        public Exception Exception
-        {
-            get
-            {
-                return this.exception;
-            }
-        }
-
-        private string errorMessage;
-        public string ErrorMessage
-        {
-            get
-            {
-                return this.errorMessage;
-            }
-        }
+        public Exception Exception { get; }
+        public string ErrorMessage { get; }
 
         public override void OnEnteredState()
         {
@@ -56,8 +40,8 @@ namespace PaintDotNet.Updates
         public ErrorState(Exception exception, string errorMessage)
             : base(true, false, MarqueeStyle.None)
         {
-            this.exception = exception;
-            this.errorMessage = errorMessage;
+            this.Exception = exception;
+            this.ErrorMessage = errorMessage;
         }
     }
 }

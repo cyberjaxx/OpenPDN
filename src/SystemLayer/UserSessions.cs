@@ -33,10 +33,7 @@ namespace PaintDotNet.SystemLayer
 
             private void OnWmWtSessionChange()
             {
-                if (WmWtSessionChange != null)
-                {
-                    WmWtSessionChange(this, EventArgs.Empty);
-                }
+                WmWtSessionChange?.Invoke(this, EventArgs.Empty);
             }
 
             protected override void WndProc(ref Message m)
@@ -56,10 +53,7 @@ namespace PaintDotNet.SystemLayer
 
         private static void OnSessionChanged()
         {
-            if (sessionChanged != null)
-            {
-                sessionChanged(null, EventArgs.Empty);
-            }
+            sessionChanged?.Invoke(null, EventArgs.Empty);
         }
 
         /// <summary>

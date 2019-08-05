@@ -11,41 +11,34 @@ namespace PdnBench
     public class GradientBenchmark
         : Benchmark
     {
-        private Surface surface;
-        private GradientRenderer renderer;
-        private PaintDotNet.Threading.ThreadPool threadPool;
-        private Rectangle[] rois;
-        private int iterations;
+        private Surface Surface { get; }
+        private GradientRenderer Renderer { get; }
+        private PaintDotNet.Threading.ThreadPool ThreadPool { get; set; }
+        private Rectangle[] Rois { get; set; }
 
-        public int Iterations
-        {
-            get
-            {
-                return this.iterations;
-            }
-        }
+        public int Iterations { get; }
 
         private void RenderThreadProc(object indexObj)
         {
             int index = (int)indexObj;
-            this.renderer.Render(this.surface, this.rois, index, 1);
+            Renderer.Render(Surface, Rois, index, 1);
         }
 
         protected override void OnBeforeExecute()
         {
-            this.renderer.StartColor = ColorBgra.Black;
-            this.renderer.EndColor = ColorBgra.FromBgra(255, 128, 64, 64);
-            this.renderer.StartPoint = new PointF(surface.Width / 2, surface.Height / 2);
-            this.renderer.EndPoint = new PointF(0, 0);
-            this.renderer.AlphaBlending = true;
-            this.renderer.AlphaOnly = false;
+            Renderer.StartColor = ColorBgra.Black;
+            Renderer.EndColor = ColorBgra.FromBgra(255, 128, 64, 64);
+            Renderer.StartPoint = new PointF(Surface.Width / 2, Surface.Height / 2);
+            Renderer.EndPoint = new PointF(0, 0);
+            Renderer.AlphaBlending = true;
+            Renderer.AlphaOnly = false;
 
-            this.renderer.BeforeRender();
+            Renderer.BeforeRender();
 
-            this.rois = new Rectangle[Processor.LogicalCpuCount];
-            Utility.SplitRectangle(this.surface.Bounds, rois);
+            Rois = new Rectangle[Processor.LogicalCpuCount];
+            Utility.SplitRectangle(Surface.Bounds, Rois);
 
-            this.threadPool = new PaintDotNet.Threading.ThreadPool(Processor.LogicalCpuCount, false);
+            ThreadPool = new PaintDotNet.Threading.ThreadPool(Processor.LogicalCpuCount, false);
 
             base.OnBeforeExecute();
         }
@@ -54,31 +47,31 @@ namespace PdnBench
         {
             WaitCallback wc = new WaitCallback(RenderThreadProc);
 
-            for (int n = 0; n < this.iterations; ++n)
+            for (int n = 0; n < Iterations; ++n)
             {
-                for (int i = 0; i < this.rois.Length; ++i)
+                for (int i = 0; i < Rois.Length; ++i)
                 {
                     object iObj = BoxedConstants.GetInt32(i);
-                    this.threadPool.QueueUserWorkItem(wc, iObj);
+                    ThreadPool.QueueUserWorkItem(wc, iObj);
                 }
             }
 
-            this.threadPool.Drain();
+            ThreadPool.Drain();
         }
 
         protected override void OnAfterExecute()
         {
-            this.renderer.AfterRender();
-            this.threadPool = null;
+            Renderer.AfterRender();
+            ThreadPool = null;
             base.OnAfterExecute();
         }
 
         public GradientBenchmark(string name, Surface surface, GradientRenderer renderer, int iterations)
             : base(name)
         {
-            this.surface = surface;
-            this.renderer = renderer;
-            this.iterations = iterations;
+            Surface = surface;
+            Renderer = renderer;
+            Iterations = iterations;
         }
     }
 }
