@@ -48,7 +48,7 @@ namespace PaintDotNet
         }
 
         /// <summary>
-        /// F(lhs, rhs) = lhs.R,g,b + rhs.A
+        /// F(lhs, rhs) = rhs.R,g,b + lhs.A
         /// </summary>
         public class SetColorChannels
             : BinaryPixelOp

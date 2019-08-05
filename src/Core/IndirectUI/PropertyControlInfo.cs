@@ -116,25 +116,11 @@ namespace PaintDotNet.IndirectUI
             }
         }
 
-        private Property property;
-        private StaticListChoiceProperty controlType;
         private Dictionary<object, string> valueDisplayNames = new Dictionary<object, string>();
 
-        public Property Property
-        {
-            get
-            {
-                return this.property;
-            }
-        }
+        public Property Property { get; }
 
-        public StaticListChoiceProperty ControlType
-        {
-            get
-            {
-                return this.controlType;
-            }
-        }
+        public StaticListChoiceProperty ControlType { get; }
 
         public void SetValueDisplayName(object value, string displayName)
         {
@@ -143,33 +129,32 @@ namespace PaintDotNet.IndirectUI
 
         public string GetValueDisplayName(object value)
         {
-            string valueDisplayName;
-            this.valueDisplayNames.TryGetValue(value, out valueDisplayName);
+            this.valueDisplayNames.TryGetValue(value, out string valueDisplayName);
             return valueDisplayName ?? value.ToString();
         }
 
         private PropertyControlInfo(Property property)
             : base()
         {
-            this.property = property;
-            PropertyControlType defaultControlType = propertyTypeToDefaultControlType[this.property.GetType()];
-            this.controlType = StaticListChoiceProperty.CreateForEnum<PropertyControlType>(ControlInfoPropertyNames.ControlType, defaultControlType, false);
-            this.controlType.ValueChanged += new EventHandler(ControlType_ValueChanged);
-            this.ControlProperties = controlTypeToProperties[Pair.Create(property.GetType(), (PropertyControlType)this.controlType.Value)].Clone();
+            this.Property = property;
+            PropertyControlType defaultControlType = propertyTypeToDefaultControlType[this.Property.GetType()];
+            this.ControlType = StaticListChoiceProperty.CreateForEnum<PropertyControlType>(ControlInfoPropertyNames.ControlType, defaultControlType, false);
+            this.ControlType.ValueChanged += new EventHandler(ControlType_ValueChanged);
+            this.ControlProperties = controlTypeToProperties[Pair.Create(property.GetType(), (PropertyControlType)this.ControlType.Value)].Clone();
         }
 
         private PropertyControlInfo(PropertyControlInfo cloneMe)
             : base(cloneMe)
         {
-            this.property = cloneMe.property;
-            this.controlType = (StaticListChoiceProperty)cloneMe.controlType.Clone();
+            this.Property = cloneMe.Property;
+            this.ControlType = (StaticListChoiceProperty)cloneMe.ControlType.Clone();
             this.valueDisplayNames = new Dictionary<object, string>(cloneMe.valueDisplayNames);
         }
 
         private void ControlType_ValueChanged(object sender, EventArgs e)
         {
             PropertyCollection newProps = controlTypeToProperties[Pair.Create(this.Property.GetType(), 
-                (PropertyControlType)this.controlType.Value)].Clone();
+                (PropertyControlType)this.ControlType.Value)].Clone();
 
             newProps.CopyCompatibleValuesFrom(this.ControlProperties);
 
@@ -184,7 +169,7 @@ namespace PaintDotNet.IndirectUI
         internal override Control CreateWinFormsControl()
         {
             Type propertyControlType = controlTypeToPropertyControlType[Pair.Create(
-                Property.GetType(), (PropertyControlType)this.controlType.Value)];
+                Property.GetType(), (PropertyControlType)this.ControlType.Value)];
 
             PropertyControl propertyControl = (PropertyControl)Activator.CreateInstance(propertyControlType, this);
 

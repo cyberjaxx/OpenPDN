@@ -31,39 +31,17 @@ namespace PaintDotNet
             }
         }
 
-        private Image image;
-        private string actionText;
-        private string explanationText;
+        public Image Image { get; }
 
-        public Image Image
-        {
-            get
-            {
-                return this.image;
-            }
-        }
+        public string ActionText { get; }
 
-        public string ActionText
-        {
-            get
-            {
-                return this.actionText;
-            }
-        }
-
-        public string ExplanationText
-        {
-            get
-            {
-                return this.explanationText;
-            }
-        }
+        public string ExplanationText { get; }
 
         public TaskButton(Image image, string actionText, string explanationText)
         {
-            this.image = image;
-            this.actionText = actionText;
-            this.explanationText = explanationText;
+            this.Image = image;
+            this.ActionText = actionText;
+            this.ExplanationText = explanationText;
         }
     }
 }

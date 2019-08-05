@@ -42,9 +42,7 @@ namespace PaintDotNet
                 Value = Maximum;
             }
 
-            decimal parsedValue;
-
-            if (decimal.TryParse(Text, out parsedValue))
+            if (decimal.TryParse(Text, out decimal parsedValue))
             {
                 Value = parsedValue;
             }

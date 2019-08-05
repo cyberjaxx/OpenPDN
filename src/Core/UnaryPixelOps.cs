@@ -54,18 +54,18 @@ namespace PaintDotNet
         public class Constant
             : UnaryPixelOp
         {
-            private ColorBgra setColor;
+            private ColorBgra SetColor { get; }
 
             public override ColorBgra Apply(ColorBgra color)
             {
-                return setColor;
+                return SetColor;
             }
 
             public unsafe override void Apply(ColorBgra* dst, ColorBgra* src, int length)
             {
                 while (length > 0)
                 {
-                    *dst = setColor;
+                    *dst = SetColor;
                     ++dst;
                     --length;
                 }
@@ -75,7 +75,7 @@ namespace PaintDotNet
             {
                 while (length > 0)
                 {
-                    *ptr = setColor;
+                    *ptr = SetColor;
                     ++ptr;
                     --length;
                 }
@@ -83,7 +83,7 @@ namespace PaintDotNet
 
             public Constant(ColorBgra setColor)
             {
-                this.setColor = setColor;
+                this.SetColor = setColor;
             }
         }
 
@@ -94,24 +94,24 @@ namespace PaintDotNet
         public class BlendConstant
             : UnaryPixelOp
         {
-            private ColorBgra blendColor;
+            private ColorBgra BlendColor { get; }
 
             public override ColorBgra Apply(ColorBgra color)
             {
-                int a = blendColor.A;
+                int a = BlendColor.A;
                 int invA = 255 - a;
 
-                int r = ((color.R * invA) + (blendColor.R * a)) / 256;
-                int g = ((color.G * invA) + (blendColor.G * a)) / 256;
-                int b = ((color.B * invA) + (blendColor.B * a)) / 256;
-                byte a2 = ComputeAlpha(color.A, blendColor.A);
+                int r = ((color.R * invA) + (BlendColor.R * a)) / 256;
+                int g = ((color.G * invA) + (BlendColor.G * a)) / 256;
+                int b = ((color.B * invA) + (BlendColor.B * a)) / 256;
+                byte a2 = ComputeAlpha(color.A, BlendColor.A);
 
                 return ColorBgra.FromBgra((byte)b, (byte)g, (byte)r, a2);
             }
 
             public BlendConstant(ColorBgra blendColor)
             {
-                this.blendColor = blendColor;
+                this.BlendColor = blendColor;
             }
         }
 
@@ -123,12 +123,12 @@ namespace PaintDotNet
         public class SetChannel
             : UnaryPixelOp
         {
-            private int channel;
-            private byte setValue;
+            private int Channel { get; }
+            private byte SetValue { get; }
 
             public override ColorBgra Apply(ColorBgra color)
             {
-                color[channel] = setValue;
+                color[Channel] = SetValue;
                 return color;
             }
 
@@ -137,7 +137,7 @@ namespace PaintDotNet
                 while (length > 0)
                 {
                     *dst = *src;
-                    (*dst)[channel] = setValue;
+                    (*dst)[Channel] = SetValue;
                     ++dst;
                     ++src;
                     --length;
@@ -148,7 +148,7 @@ namespace PaintDotNet
             {
                 while (length > 0)
                 {
-                    (*ptr)[channel] = setValue;
+                    (*ptr)[Channel] = SetValue;
                     ++ptr;
                     --length;
                 }
@@ -157,8 +157,8 @@ namespace PaintDotNet
 
             public SetChannel(int channel, byte setValue)
             {
-                this.channel = channel;
-                this.setValue = setValue;
+                Channel = channel;
+                SetValue = setValue;
             }
         }
 
@@ -173,18 +173,18 @@ namespace PaintDotNet
         public class SetAlphaChannel
             : UnaryPixelOp
         {
-            private UInt32 addValue;
+            private uint AddValue { get; }
 
             public override ColorBgra Apply(ColorBgra color)
             {
-                return ColorBgra.FromUInt32((color.Bgra & 0x00ffffff) + addValue);
+                return ColorBgra.FromUInt32((color.Bgra & 0x00ffffff) + AddValue);
             }
 
             public override unsafe void Apply(ColorBgra* dst, ColorBgra* src, int length)
             {
                 while (length > 0)
                 {
-                    dst->Bgra = (src->Bgra & 0x00ffffff) + addValue;
+                    dst->Bgra = (src->Bgra & 0x00ffffff) + AddValue;
                     ++dst;
                     ++src;
                     --length;
@@ -195,7 +195,7 @@ namespace PaintDotNet
             {
                 while (length > 0)
                 {
-                    ptr->Bgra = (ptr->Bgra & 0x00ffffff) + addValue;
+                    ptr->Bgra = (ptr->Bgra & 0x00ffffff) + AddValue;
                     ++ptr;
                     --length;
                 }
@@ -203,7 +203,7 @@ namespace PaintDotNet
 
             public SetAlphaChannel(byte alphaValue)
             {
-                addValue = (uint)alphaValue << 24;
+                AddValue = (uint)alphaValue << 24;
             }
         }
 
@@ -261,13 +261,13 @@ namespace PaintDotNet
         public class RedEyeRemove
             : UnaryPixelOp
         {
-            private int tolerence;
-            private double setSaturation;
+            private int Tolerence { get; }
+            private double SetSaturation { get; }
 
             public RedEyeRemove(int tol, int sat)
             {
-                tolerence = tol;
-                setSaturation = (double)sat / 100;
+                Tolerence = tol;
+                SetSaturation = (double)sat / 100;
             }
 
             public override ColorBgra Apply(ColorBgra color)
@@ -279,10 +279,10 @@ namespace PaintDotNet
                 int difference = color.R - Math.Max(color.B,color.G);
 
                 // If it is within tolerence, and the saturation is high
-                if ((difference > tolerence) && (saturation > 100)) 
+                if ((difference > Tolerence) && (saturation > 100)) 
                 {
                     double i = 255.0 * color.GetIntensity();
-                    byte ib = (byte)(i * setSaturation); // adjust the red color for user inputted saturation
+                    byte ib = (byte)(i * SetSaturation); // adjust the red color for user inputted saturation
                     return ColorBgra.FromBgra((byte)color.B,(byte)color.G, ib, color.A);
                 }
                 else
@@ -294,19 +294,15 @@ namespace PaintDotNet
             //Saturation formula from RgbColor.cs, public HsvColor ToHsv()
             private int GetSaturation(ColorBgra color)
             {
-                double min;
-                double max;
-                double delta;
-
                 double r = (double) color.R / 255;
                 double g = (double) color.G / 255;
                 double b = (double) color.B / 255;
 
                 double s;
 
-                min = Math.Min(Math.Min(r, g), b);
-                max = Math.Max(Math.Max(r, g), b);
-                delta = max - min;
+                double min = Math.Min(Math.Min(r, g), b);
+                double max = Math.Max(Math.Max(r, g), b);
+                double delta = max - min;
 
                 if (max == 0 || delta == 0) 
                 {
@@ -684,7 +680,7 @@ namespace PaintDotNet
                 UpdateLookupTable();
             }
 
-            public bool isValid = true;
+            public bool IsValid { get; set; } = true;
 
             public static Level AutoFromLoMdHi(ColorBgra lo, ColorBgra md, ColorBgra hi) 
             {
@@ -713,7 +709,7 @@ namespace PaintDotNet
                         colorInHigh[i] <= colorInLow[i] ||
                         gamma[i] < 0)
                     {
-                        isValid = false;
+                        IsValid = false;
                         return;
                     }
 
@@ -810,11 +806,12 @@ namespace PaintDotNet
 
             public object Clone()
             {
-                Level copy = new Level(colorInLow, colorInHigh, (float[])gamma.Clone(), colorOutLow, colorOutHigh);
-
-                copy.CurveB = (byte[])this.CurveB.Clone();
-                copy.CurveG = (byte[])this.CurveG.Clone();
-                copy.CurveR = (byte[])this.CurveR.Clone();
+                Level copy = new Level(colorInLow, colorInHigh, (float[])gamma.Clone(), colorOutLow, colorOutHigh)
+                {
+                    CurveB = (byte[])this.CurveB.Clone(),
+                    CurveG = (byte[])this.CurveG.Clone(),
+                    CurveR = (byte[])this.CurveR.Clone()
+                };
 
                 return copy;
             }
@@ -824,14 +821,14 @@ namespace PaintDotNet
         public class HueSaturationLightness
             : UnaryPixelOp
         {
-            private int hueDelta;
-            private int satFactor;
+            private int HueDelta { get; }
+            private int SatFactor { get; }
             private UnaryPixelOp blendOp;
 
             public HueSaturationLightness(int hueDelta, int satDelta, int lightness)
             {
-                this.hueDelta = hueDelta;
-                this.satFactor = (satDelta * 1024) / 100;
+                this.HueDelta = hueDelta;
+                this.SatFactor = (satDelta * 1024) / 100;
 
                 if (lightness == 0)
                 {
@@ -851,14 +848,14 @@ namespace PaintDotNet
             {
                 //adjust saturation
                 byte intensity = color.GetIntensityByte();
-                color.R = Utility.ClampToByte((intensity * 1024 + (color.R - intensity) * satFactor) >> 10);
-                color.G = Utility.ClampToByte((intensity * 1024 + (color.G - intensity) * satFactor) >> 10);
-                color.B = Utility.ClampToByte((intensity * 1024 + (color.B - intensity) * satFactor) >> 10);
+                color.R = Utility.ClampToByte((intensity * 1024 + (color.R - intensity) * SatFactor) >> 10);
+                color.G = Utility.ClampToByte((intensity * 1024 + (color.G - intensity) * SatFactor) >> 10);
+                color.B = Utility.ClampToByte((intensity * 1024 + (color.B - intensity) * SatFactor) >> 10);
 
                 HsvColor hsvColor = HsvColor.FromColor(color.ToColor());
                 int hue = hsvColor.Hue;
 
-                hue += hueDelta;
+                hue += HueDelta;
 
                 while (hue < 0)
                 {

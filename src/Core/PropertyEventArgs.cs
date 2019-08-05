@@ -14,18 +14,11 @@ namespace PaintDotNet
     public class PropertyEventArgs
         : System.EventArgs
     {
-        private string propertyName;
-        public string PropertyName
-        {
-            get
-            {
-                return propertyName;
-            }
-        }
+        public string PropertyName { get; }
 
         public PropertyEventArgs(string propertyName)
         {
-            this.propertyName = propertyName;
+            this.PropertyName = propertyName;
         }
     }
 }

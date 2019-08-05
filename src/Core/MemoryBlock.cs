@@ -11,13 +11,9 @@ using PaintDotNet.SystemLayer;
 using System;
 using System.Collections;
 using System.Drawing;
-using System.Globalization;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Security;
 using System.Threading;
 
 namespace PaintDotNet
@@ -49,8 +45,6 @@ namespace PaintDotNet
         [NonSerialized]
         private bool valid; // if voidStar is null, and this is false, we know that it's null because allocation failed. otherwise we have a real error
 
-        private MemoryBlock parentBlock = null;
-
         [NonSerialized]
         private IntPtr bitmapHandle = IntPtr.Zero; // if allocated using the "width, height" constructor, we keep track of a bitmap handle
         private int bitmapWidth;
@@ -58,13 +52,7 @@ namespace PaintDotNet
 
         private bool disposed = false;
 
-        public MemoryBlock Parent
-        {
-            get
-            {
-                return this.parentBlock;
-            }
-        }
+        public MemoryBlock Parent { get; private set; } = null;
 
         public long Length
         {
@@ -166,9 +154,9 @@ namespace PaintDotNet
                     throw new ObjectDisposedException("MemoryBlock");
                 }
 
-                if (this.parentBlock != null)
+                if (this.Parent != null)
                 {
-                    return this.parentBlock.MaySetAllowWrites;
+                    return this.Parent.MaySetAllowWrites;
                 }
                 else
                 {
@@ -279,7 +267,7 @@ namespace PaintDotNet
             }
 
             this.length = bytes;
-            this.parentBlock = null;
+            this.Parent = null;
             this.voidStar = Allocate(bytes).ToPointer();
             this.valid = true;
         }
@@ -300,7 +288,7 @@ namespace PaintDotNet
             }
 
             this.length = width * height * ColorBgra.SizeOf;
-            this.parentBlock = null;
+            this.Parent = null;
             this.voidStar = Allocate(width, height, out this.bitmapHandle).ToPointer();
             this.valid = true;
             this.bitmapWidth = width;
@@ -318,7 +306,7 @@ namespace PaintDotNet
                 throw new ArgumentOutOfRangeException();
             }   
 
-            this.parentBlock = parentBlock;
+            this.Parent = parentBlock;
             byte *bytePointer = (byte *)parentBlock.VoidStar;
             bytePointer += offset;
             this.voidStar = (void *)bytePointer;
@@ -347,7 +335,7 @@ namespace PaintDotNet
                 {
                 }
 
-                if (this.valid && parentBlock == null)
+                if (this.valid && Parent == null)
                 {
                     if (this.bitmapHandle != IntPtr.Zero)
                     {
@@ -363,7 +351,7 @@ namespace PaintDotNet
                     }
                 }
 
-                parentBlock = null;
+                Parent = null;
                 voidStar = null;
                 this.valid = false;
             }
@@ -538,7 +526,7 @@ namespace PaintDotNet
 
             if (hasParent)
             {
-                this.parentBlock = (MemoryBlock)info.GetValue("parentBlock", typeof(MemoryBlock));
+                this.Parent = (MemoryBlock)info.GetValue("parentBlock", typeof(MemoryBlock));
 
                 // Try to read a 64-bit value, and for backwards compatibility fall back on a 32-bit value.
                 long parentOffset;
@@ -553,7 +541,7 @@ namespace PaintDotNet
                     parentOffset = (long)info.GetInt32("parentOffset");
                 }
 
-                this.voidStar = (void *)((byte *)parentBlock.VoidStar + parentOffset);
+                this.voidStar = (void *)((byte *)Parent.VoidStar + parentOffset);
                 this.valid = true;
             }
             else
@@ -607,9 +595,7 @@ namespace PaintDotNet
 
         public void WriteFormat2Data(SerializationInfo info, StreamingContext context)
         {
-            DeferredFormatter deferred = context.Context as DeferredFormatter;
-
-            if (deferred != null)
+            if (context.Context is DeferredFormatter deferred)
             {
                 info.AddValue("deferred", true);
                 deferred.AddDeferredObject(this, this.length);
@@ -672,59 +658,23 @@ namespace PaintDotNet
 
         private class DecompressChunkParms
         {
-            private byte[] compressedBytes;
-            private uint chunkSize;
-            private long chunkOffset;
-            private DeferredFormatter deferredFormatter;
-            private ArrayList exceptions;
+            public byte[] CompressedBytes { get; }
 
-            public byte[] CompressedBytes
-            {
-                get
-                {
-                    return compressedBytes;
-                }
-            }
+            public uint ChunkSize { get; }
 
-            public uint ChunkSize
-            {
-                get
-                {
-                    return chunkSize;
-                }
-            }
+            public long ChunkOffset { get; }
 
-            public long ChunkOffset
-            {
-                get
-                {
-                    return chunkOffset;
-                }
-            }
+            public DeferredFormatter DeferredFormatter { get; }
 
-            public DeferredFormatter DeferredFormatter
-            {
-                get
-                {
-                    return deferredFormatter;
-                }
-            }
-
-            public ArrayList Exceptions
-            {
-                get
-                {
-                    return exceptions;
-                }
-            }
+            public ArrayList Exceptions { get; }
 
             public DecompressChunkParms(byte[] compressedBytes, uint chunkSize, long chunkOffset, DeferredFormatter deferredFormatter, ArrayList exceptions)
             {
-                this.compressedBytes = compressedBytes;
-                this.chunkSize = chunkSize;
-                this.chunkOffset = chunkOffset;
-                this.deferredFormatter = deferredFormatter;
-                this.exceptions = exceptions;
+                this.CompressedBytes = compressedBytes;
+                this.ChunkSize = chunkSize;
+                this.ChunkOffset = chunkOffset;
+                this.DeferredFormatter = deferredFormatter;
+                this.Exceptions = exceptions;
             }
         }
 
@@ -872,45 +822,15 @@ namespace PaintDotNet
 
         private class SerializeChunkParms
         {
-            private Stream output;
-            private uint chunkNumber;
-            private long chunkOffset;
-            private long chunkSize;
             private object previousLock;
-            private DeferredFormatter deferredFormatter;
-            private ArrayList exceptions;
 
-            public Stream Output
-            {
-                get
-                {
-                    return output;
-                }
-            }
+            public Stream Output { get; }
 
-            public uint ChunkNumber
-            {
-                get
-                {
-                    return chunkNumber;
-                }
-            }
+            public uint ChunkNumber { get; }
 
-            public long ChunkOffset
-            {
-                get
-                {
-                    return chunkOffset;
-                }
-            }
+            public long ChunkOffset { get; }
 
-            public long ChunkSize
-            {
-                get
-                {
-                    return chunkSize;
-                }
-            }
+            public long ChunkSize { get; }
 
             public object PreviousLock
             {
@@ -920,32 +840,20 @@ namespace PaintDotNet
                 }
             }
 
-            public DeferredFormatter DeferredFormatter
-            {
-                get
-                {
-                    return deferredFormatter;
-                }
-            }
+            public DeferredFormatter DeferredFormatter { get; }
 
-            public ArrayList Exceptions
-            {
-                get
-                {
-                    return exceptions;
-                }
-            }
+            public ArrayList Exceptions { get; }
 
             public SerializeChunkParms(Stream output, uint chunkNumber, long chunkOffset, long chunkSize, object previousLock,
                 DeferredFormatter deferredFormatter, ArrayList exceptions)
             {
-                this.output = output;
-                this.chunkNumber = chunkNumber;
-                this.chunkOffset = chunkOffset;
-                this.chunkSize = chunkSize;
+                this.Output = output;
+                this.ChunkNumber = chunkNumber;
+                this.ChunkOffset = chunkOffset;
+                this.ChunkSize = chunkSize;
                 this.previousLock = previousLock;
-                this.deferredFormatter = deferredFormatter;
-                this.exceptions = exceptions;
+                this.DeferredFormatter = deferredFormatter;
+                this.Exceptions = exceptions;
             }
         }
 
@@ -1079,16 +987,16 @@ namespace PaintDotNet
                 info.AddValue("bitmapHeight", bitmapHeight);
             }
 
-            info.AddValue("hasParent", this.parentBlock != null);
+            info.AddValue("hasParent", this.Parent != null);
 
-            if (parentBlock == null)
+            if (Parent == null)
             {
                 WriteFormat2Data(info, context);
             }
             else
             {
-                info.AddValue("parentBlock", parentBlock, typeof(MemoryBlock));
-                info.AddValue("parentOffset64", (long)((byte *)voidStar - (byte *)parentBlock.VoidStar));
+                info.AddValue("parentBlock", Parent, typeof(MemoryBlock));
+                info.AddValue("parentOffset64", (long)((byte *)voidStar - (byte *)Parent.VoidStar));
             }
         }
     }

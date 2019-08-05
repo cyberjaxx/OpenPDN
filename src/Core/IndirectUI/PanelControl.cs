@@ -66,9 +66,7 @@ namespace PaintDotNet.IndirectUI
         {
             foreach (Control control in this.controls)
             {
-                IFirstSelection asIFS = control as IFirstSelection;
-
-                if (asIFS != null)
+                if (control is IFirstSelection asIFS)
                 {
                     if (asIFS.FirstSelect())
                     {

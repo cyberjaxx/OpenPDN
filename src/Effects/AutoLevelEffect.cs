@@ -38,7 +38,7 @@ namespace PaintDotNet.Effects
 
         protected override void OnRender(Rectangle[] rois, int startIndex, int length)
         {
-            if (this.levels.isValid)
+            if (this.levels.IsValid)
             {
                 this.levels.Apply(DstArgs.Surface, SrcArgs.Surface, rois, startIndex, length);
             }

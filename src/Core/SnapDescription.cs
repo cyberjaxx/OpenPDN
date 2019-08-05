@@ -17,71 +17,15 @@ namespace PaintDotNet
 {
     public sealed class SnapDescription
     {
-        private SnapObstacle snappedTo;
-        private HorizontalSnapEdge horizontalEdge;
-        private VerticalSnapEdge verticalEdge;
-        private int xOffset;
-        private int yOffset;
+        public SnapObstacle SnappedTo { get; }
 
-        public SnapObstacle SnappedTo
-        {
-            get
-            {
-                return this.snappedTo;
-            }
-        }
+        public HorizontalSnapEdge HorizontalEdge { get; set; }
 
-        public HorizontalSnapEdge HorizontalEdge
-        {
-            get
-            {
-                return this.horizontalEdge;
-            }
+        public VerticalSnapEdge VerticalEdge { get; set; }
 
-            set
-            {
-                this.horizontalEdge = value;
-            }
-        }
+        public int XOffset { get; set; }
 
-        public VerticalSnapEdge VerticalEdge
-        {
-            get
-            {
-                return this.verticalEdge;
-            }
-
-            set
-            {
-                this.verticalEdge = value;
-            }
-        }
-
-        public int XOffset
-        {
-            get
-            {
-                return this.xOffset;
-            }
-
-            set
-            {
-                this.xOffset = value;
-            }
-        }
-
-        public int YOffset
-        {
-            get
-            {
-                return this.yOffset;
-            }
-
-            set
-            {
-                this.yOffset = value;
-            }
-        }
+        public int YOffset { get; set; }
 
         public SnapDescription(
             SnapObstacle snappedTo,
@@ -95,11 +39,11 @@ namespace PaintDotNet
                 throw new ArgumentNullException("snappedTo");
             }
 
-            this.snappedTo = snappedTo;
-            this.horizontalEdge = horizontalEdge;
-            this.verticalEdge = verticalEdge;
-            this.xOffset = xOffset;
-            this.yOffset = yOffset;
+            this.SnappedTo = snappedTo;
+            this.HorizontalEdge = horizontalEdge;
+            this.VerticalEdge = verticalEdge;
+            this.XOffset = xOffset;
+            this.YOffset = yOffset;
         }
     }
 }

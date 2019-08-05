@@ -35,8 +35,6 @@ namespace PaintDotNet
           IDisposable,
           IDeserializationCallback
     {
-        private bool disposed = false;
-        private Surface surface;
 
         // Use one of these
         private PdnRegion region;
@@ -70,21 +68,9 @@ namespace PaintDotNet
         /// <summary>
         /// Do not modify the surface. Treat it as immutable.
         /// </summary>
-        public Surface SurfaceReadOnly
-        {
-            get
-            {
-                return this.surface;
-            }
-        }
+        public Surface SurfaceReadOnly { get; private set; }
 
-        public bool IsDisposed
-        {
-            get
-            {
-                return this.disposed;
-            }
-        }
+        public bool IsDisposed { get; private set; } = false;
 
         private PdnRegion GetRegion()
         {
@@ -98,7 +84,7 @@ namespace PaintDotNet
 
         public PdnRegion CreateRegion()
         {
-            if (this.disposed)
+            if (this.IsDisposed)
             {
                 throw new ObjectDisposedException("MaskedSurface");
             }
@@ -120,7 +106,7 @@ namespace PaintDotNet
 
         public PdnGraphicsPath CreatePath()
         {
-            if (this.disposed)
+            if (this.IsDisposed)
             {
                 throw new ObjectDisposedException("MaskedSurface");
             }
@@ -143,12 +129,12 @@ namespace PaintDotNet
             roiClipped.Intersect(source.Bounds);
 
             Rectangle boundsClipped = roiClipped.GetBoundsInt();
-            this.surface = new Surface(boundsClipped.Size);
-            this.surface.Clear(ColorBgra.FromUInt32(0x00ffffff));
+            this.SurfaceReadOnly = new Surface(boundsClipped.Size);
+            this.SurfaceReadOnly.Clear(ColorBgra.FromUInt32(0x00ffffff));
 
             Rectangle rect = boundsClipped;
             Point dstOffset = new Point(rect.X - boundsClipped.X, rect.Y - boundsClipped.Y);
-            this.surface.CopySurface(source, dstOffset, rect);
+            this.SurfaceReadOnly.CopySurface(source, dstOffset, rect);
 
             this.region = roiClipped;
             // TODO: FromRegion() is a VERY expensive call for what we are doing!
@@ -181,12 +167,12 @@ namespace PaintDotNet
 
             if (boundsRead.Width > 0 && boundsRead.Height > 0)
             {
-                this.surface = new Surface(boundsRead.Size);
-                this.surface.CopySurface(source, boundsRead);
+                this.SurfaceReadOnly = new Surface(boundsRead.Size);
+                this.SurfaceReadOnly.CopySurface(source, boundsRead);
             }
             else
             {
-                this.surface = null;
+                this.SurfaceReadOnly = null;
             }
         }
 
@@ -202,7 +188,7 @@ namespace PaintDotNet
 
         public MaskedSurface Clone()
         {
-            if (this.disposed)
+            if (this.IsDisposed)
             {
                 throw new ObjectDisposedException("MaskedSurface");
             }
@@ -219,9 +205,9 @@ namespace PaintDotNet
                 ms.SetPathField(this.shadowPath.Clone());
             }
 
-            if (this.surface != null)
+            if (this.SurfaceReadOnly != null)
             {
-                ms.surface = this.surface.Clone();
+                ms.SurfaceReadOnly = this.SurfaceReadOnly.Clone();
             }
 
             return ms;
@@ -459,7 +445,7 @@ namespace PaintDotNet
 
         public void Draw(Surface dst, int tX, int tY)
         {
-            if (this.disposed)
+            if (this.IsDisposed)
             {
                 throw new ObjectDisposedException("MaskedSurface");
             }
@@ -474,12 +460,12 @@ namespace PaintDotNet
 
         public unsafe void Draw(Surface dst, Matrix transform, ResamplingAlgorithm sampling)
         {
-            if (this.disposed)
+            if (this.IsDisposed)
             {
                 throw new ObjectDisposedException("MaskedSurface");
             }
 
-            if (this.surface == null || !transform.IsInvertible)
+            if (this.SurfaceReadOnly == null || !transform.IsInvertible)
             {
                 return;
             }
@@ -561,7 +547,7 @@ namespace PaintDotNet
             dc.fp_dsyddy = (int)(dc.dsyddy * fp_MultFactor);
 
             dc.dst = dst;
-            dc.src = this.surface;
+            dc.src = this.SurfaceReadOnly;
             Rectangle[] scans = theRegion.GetRegionScansReadOnlyInt();
 
             if (scans.Length == 1)
@@ -627,10 +613,10 @@ namespace PaintDotNet
         {
             if (disposing)
             {
-                if (this.surface != null)
+                if (this.SurfaceReadOnly != null)
                 {
-                    this.surface.Dispose();
-                    this.surface = null;
+                    this.SurfaceReadOnly.Dispose();
+                    this.SurfaceReadOnly = null;
                 }
 
                 if (this.region != null)
@@ -652,7 +638,7 @@ namespace PaintDotNet
                 }
             }
 
-            this.disposed = true;
+            this.IsDisposed = true;
         }
     }
 }

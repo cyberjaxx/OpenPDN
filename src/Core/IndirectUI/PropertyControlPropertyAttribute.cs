@@ -19,19 +19,18 @@ namespace PaintDotNet.IndirectUI
         : Attribute
     {
         private object defaultValue;
-        private string defaultValueResourceName;
 
         public object DefaultValue
         {
             get
             {
-                if (string.IsNullOrEmpty(this.defaultValueResourceName))
+                if (string.IsNullOrEmpty(this.DefaultValueResourceName))
                 {
                     return this.defaultValue;
                 }
                 else
                 {
-                    return PdnResources.GetString(this.defaultValueResourceName);
+                    return PdnResources.GetString(this.DefaultValueResourceName);
                 }
             }
 
@@ -41,18 +40,7 @@ namespace PaintDotNet.IndirectUI
             }
         }
 
-        public string DefaultValueResourceName
-        {
-            get
-            {
-                return this.defaultValueResourceName;
-            }
-
-            set
-            {
-                this.defaultValueResourceName = value;
-            }
-        }
+        public string DefaultValueResourceName { get; set; }
 
         public PropertyControlPropertyAttribute()
         {

@@ -44,9 +44,8 @@ namespace PaintDotNet.IndirectUI
 
         private static PropertyControlInfo FindControlForPropertyName(object propertyName, ControlInfo control)
         {
-            PropertyControlInfo asPCI = control as PropertyControlInfo;
 
-            if (asPCI != null && asPCI.Property.Name == propertyName.ToString())
+            if (control is PropertyControlInfo asPCI && asPCI.Property.Name == propertyName.ToString())
             {
                 return asPCI;
             }

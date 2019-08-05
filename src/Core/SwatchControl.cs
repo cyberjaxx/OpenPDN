@@ -49,10 +49,7 @@ namespace PaintDotNet
         public event EventHandler ColorsChanged;
         private void OnColorsChanged()
         {
-            if (ColorsChanged != null)
-            {
-                ColorsChanged(this, EventArgs.Empty);
-            }
+            ColorsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         [Browsable(false)]
@@ -92,10 +89,7 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<Pair<int, MouseButtons>>> ColorClicked;
         private void OnColorClicked(int index, MouseButtons buttons)
         {
-            if (ColorClicked != null)
-            {
-                ColorClicked(this, new EventArgs<Pair<int, MouseButtons>>(Pair.Create(index, buttons)));
-            }
+            ColorClicked?.Invoke(this, new EventArgs<Pair<int, MouseButtons>>(Pair.Create(index, buttons)));
         }
 
         public SwatchControl()

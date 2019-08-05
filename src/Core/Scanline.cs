@@ -14,58 +14,28 @@ namespace PaintDotNet
 {
     public struct Scanline
     {
-        private int x;
-        private int y;
-        private int length;
+        public int X { get; }
 
-        public int X
-        {
-            get
-            {
-                return x;
-            }
-        }
+        public int Y { get; }
 
-        public int Y
-        {
-            get
-            {
-                return y;
-            }
-        }
-
-        public int Length
-        {
-            get
-            {
-                return length;
-            }
-        }
+        public int Length { get; }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return length.GetHashCode() + x.GetHashCode() + y.GetHashCode();
+                return Length.GetHashCode() + X.GetHashCode() + Y.GetHashCode();
             }
         }
         
         public override bool Equals(object obj)
         {
-            if (obj is Scanline)
-            {
-                Scanline rhs = (Scanline)obj;
-                return x == rhs.x && y == rhs.y && length == rhs.length;
-            }
-            else
-            {
-                return false;
-            }
+            return obj is Scanline rhs ? X == rhs.X && Y == rhs.Y && Length == rhs.Length : false;
         }
 
         public static bool operator== (Scanline lhs, Scanline rhs)
         {
-            return lhs.x == rhs.x && lhs.y == rhs.y && lhs.length == rhs.length;
+            return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Length == rhs.Length;
         }
 
         public static bool operator!= (Scanline lhs, Scanline rhs)
@@ -75,14 +45,14 @@ namespace PaintDotNet
 
         public override string ToString()
         {
-            return "(" + x + "," + y + "):[" + length.ToString() + "]";
+            return "(" + X + "," + Y + "):[" + Length.ToString() + "]";
         }
 
         public Scanline(int x, int y, int length)
         {
-            this.x = x;
-            this.y = y;
-            this.length = length;
+            this.X = x;
+            this.Y = y;
+            this.Length = length;
         }
     }
 }

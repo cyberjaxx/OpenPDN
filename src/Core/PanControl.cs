@@ -8,6 +8,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -28,6 +29,8 @@ namespace PaintDotNet.Core
         private Bitmap cachedUnderlay;
         private Rectangle dragAreaRect;
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ImageResource StaticImageUnderlay
         {
             get
@@ -130,7 +133,8 @@ namespace PaintDotNet.Core
         }
 
         private PointF position = new PointF(0, 0);
-
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public PointF Position
         {
             get
@@ -154,10 +158,7 @@ namespace PaintDotNet.Core
         public event EventHandler PositionChanged;
         private void OnPositionChanged()
         {
-            if (PositionChanged != null)
-            {
-                PositionChanged(this, EventArgs.Empty);
-            }
+            PositionChanged?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void OnMouseEnter(EventArgs e)

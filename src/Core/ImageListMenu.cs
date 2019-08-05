@@ -34,77 +34,37 @@ namespace PaintDotNet
 
         public sealed class Item
         {
-            private Image image;
-            private string name;
-            private bool selected;
-            private object tag;
+            public Image Image { get; }
 
-            public Image Image
-            {
-                get
-                {
-                    return this.image;
-                }
-            }
+            public string Name { get; }
 
-            public string Name
-            {
-                get
-                {
-                    return this.name;
-                }
-            }
+            public bool Selected { get; }
 
-            public bool Selected
-            {
-                get
-                {
-                    return this.selected;
-                }
-            }
-
-            public object Tag
-            {
-                get
-                {
-                    return this.tag;
-                }
-
-                set
-                {
-                    this.tag = value;
-                }
-            }
+            public object Tag { get; set; }
 
             public override string ToString()
             {
-                return this.name;
+                return this.Name;
             }
 
             public Item(Image image, string name, bool selected)
             {
-                this.image = image;
-                this.name = name;
-                this.selected = selected;
+                this.Image = image;
+                this.Name = name;
+                this.Selected = selected;
             }
         }
 
         public event EventHandler<EventArgs<Item>> ItemClicked;
         private void OnItemClicked(Item item)
         {
-            if (ItemClicked != null)
-            {
-                ItemClicked(this, new EventArgs<Item>(item));
-            }
+            ItemClicked?.Invoke(this, new EventArgs<Item>(item));
         }
 
         public event EventHandler Closed;
         private void OnClosed()
         {
-            if (Closed != null)
-            {
-                Closed(this, EventArgs.Empty);
-            }
+            Closed?.Invoke(this, EventArgs.Empty);
         }
 
         public bool IsImageListVisible

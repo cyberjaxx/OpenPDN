@@ -13,39 +13,11 @@ namespace PaintDotNet
 {
     public abstract class State
     {
-        private StateMachine stateMachine;
-        private bool isFinalState;
+        protected bool AbortRequested { get; private set; } = false;
 
-        private bool abortedRequested = false;
+        public StateMachine StateMachine { get; set; }
 
-        protected bool AbortRequested
-        {
-            get
-            {
-                return this.abortedRequested;
-            }
-        }
-
-        public StateMachine StateMachine
-        {
-            get
-            {
-                return this.stateMachine;
-            }
-
-            set
-            {
-                this.stateMachine = value;
-            }
-        }
-
-        public bool IsFinalState
-        {
-            get
-            {
-                return this.isFinalState;
-            }
-        }
+        public bool IsFinalState { get; }
 
         protected virtual void OnAbort()
         {
@@ -63,7 +35,7 @@ namespace PaintDotNet
         {
             if (CanAbort)
             {
-                this.abortedRequested = true;
+                this.AbortRequested = true;
                 OnAbort();
             }
         }
@@ -89,7 +61,7 @@ namespace PaintDotNet
 
         protected State(bool isFinalState)
         {
-            this.isFinalState = isFinalState;
+            this.IsFinalState = isFinalState;
         }
     }
 }

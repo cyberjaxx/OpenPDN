@@ -15,19 +15,12 @@ namespace PaintDotNet
     public class HandledEventArgs<T>
         : HandledEventArgs
     {
-        private T data;
-        public T Data
-        {
-            get
-            {
-                return this.data;
-            }
-        }
+        public T Data { get; }
 
         public HandledEventArgs(bool handled, T data)
             : base(handled)
         {
-            this.data = data;
+            this.Data = data;
         }
     }
 }

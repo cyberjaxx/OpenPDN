@@ -62,10 +62,7 @@ namespace PaintDotNet
             public event EventHandler Changed;
             private void OnChanged()
             {
-                if (Changed != null)
-                {
-                    Changed(this, EventArgs.Empty);
-                }
+                Changed?.Invoke(this, EventArgs.Empty);
             }
 
             public Image Image
@@ -288,11 +285,7 @@ namespace PaintDotNet
             }
         }
 
-        private bool managedFocus = false;
         private bool showScrollButtons = false;
-        private ArrowButton leftScrollButton;
-        private ArrowButton rightScrollButton;
-
         private int scrollOffset = 0;
         private bool showCloseButtons = false;
         private const int closeButtonLength = 13;
@@ -351,21 +344,9 @@ namespace PaintDotNet
 
         private List<Item> items = new List<Item>();
 
-        protected ArrowButton LeftScrollButton
-        {
-            get
-            {
-                return this.leftScrollButton;
-            }
-        }
+        protected ArrowButton LeftScrollButton { get; private set; }
 
-        protected ArrowButton RightScrollButton
-        {
-            get
-            {
-                return this.rightScrollButton;
-            }
-        }
+        protected ArrowButton RightScrollButton { get; private set; }
 
         private void MouseStatesToItemStates()
         {
@@ -421,32 +402,32 @@ namespace PaintDotNet
 
         private void InitializeComponent()
         {
-            this.leftScrollButton = new ArrowButton();
-            this.rightScrollButton = new ArrowButton();
+            this.LeftScrollButton = new ArrowButton();
+            this.RightScrollButton = new ArrowButton();
             SuspendLayout();
             //
             // leftScrollButton
             //
-            this.leftScrollButton.Name = "leftScrollButton";
-            this.leftScrollButton.ArrowDirection = ArrowDirection.Left;
-            this.leftScrollButton.ArrowOutlineWidth = 1.0f;
-            this.leftScrollButton.Click += new EventHandler(LeftScrollButton_Click);
-            this.leftScrollButton.DrawWithGradient = true;
+            this.LeftScrollButton.Name = "leftScrollButton";
+            this.LeftScrollButton.ArrowDirection = ArrowDirection.Left;
+            this.LeftScrollButton.ArrowOutlineWidth = 1.0f;
+            this.LeftScrollButton.Click += new EventHandler(LeftScrollButton_Click);
+            this.LeftScrollButton.DrawWithGradient = true;
             //
             // rightScrollButton
             //
-            this.rightScrollButton.Name = "rightScrollButton";
-            this.rightScrollButton.ArrowDirection = ArrowDirection.Right;
-            this.rightScrollButton.ArrowOutlineWidth = 1.0f;
-            this.rightScrollButton.Click += new EventHandler(RightScrollButton_Click);
-            this.rightScrollButton.DrawWithGradient = true;
+            this.RightScrollButton.Name = "rightScrollButton";
+            this.RightScrollButton.ArrowDirection = ArrowDirection.Right;
+            this.RightScrollButton.ArrowOutlineWidth = 1.0f;
+            this.RightScrollButton.Click += new EventHandler(RightScrollButton_Click);
+            this.RightScrollButton.DrawWithGradient = true;
             //
             // ImageStrip
             //
             this.Name = "ImageStrip";
             this.TabStop = false;
-            this.Controls.Add(this.leftScrollButton);
-            this.Controls.Add(this.rightScrollButton);
+            this.Controls.Add(this.LeftScrollButton);
+            this.Controls.Add(this.RightScrollButton);
             ResumeLayout();
             PerformLayout();
         }
@@ -454,10 +435,7 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<ArrowDirection>> ScrollArrowClicked;
         protected virtual void OnScrollArrowClicked(ArrowDirection arrowDirection)
         {
-            if (ScrollArrowClicked != null)
-            {
-                ScrollArrowClicked(this, new EventArgs<ArrowDirection>(arrowDirection));
-            }
+            ScrollArrowClicked?.Invoke(this, new EventArgs<ArrowDirection>(arrowDirection));
         }
 
         private void LeftScrollButton_Click(object sender, EventArgs e)
@@ -479,12 +457,9 @@ namespace PaintDotNet
 
         private void OnRelinquishFocus()
         {
-            if (RelinquishFocus != null)
-            {
-                RelinquishFocus(this, EventArgs.Empty);
-            }
-        }   
-        
+            RelinquishFocus?.Invoke(this, EventArgs.Empty);
+        }
+
         /// <summary>
         /// Gets or sets whether the control manages focus.
         /// </summary>
@@ -493,18 +468,7 @@ namespace PaintDotNet
         /// relinquish focus (via the RelinquishFocus event) when the mouse leaves. It will not capture or
         /// attempt to relinquish focus if MenuStripEx.IsAnyMenuActive returns true.
         /// </remarks>
-        public bool ManagedFocus
-        {
-            get
-            {
-                return this.managedFocus;
-            }
-
-            set
-            {
-                this.managedFocus = value;
-            }
-        }
+        public bool ManagedFocus { get; set; } = false;
 
         public void AddItem(Item newItem)
         {
@@ -566,11 +530,8 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<Triple<Item, ItemPart, MouseButtons>>> ItemClicked;
         protected virtual void OnItemClicked(Item item, ItemPart itemPart, MouseButtons mouseButtons)
         {
-            if (ItemClicked != null)
-            {
-                ItemClicked(this, new EventArgs<Triple<Item, ItemPart, MouseButtons>>(
-                    Triple.Create(item, itemPart, mouseButtons)));
-            }
+            ItemClicked?.Invoke(this, new EventArgs<Triple<Item, ItemPart, MouseButtons>>(
+    Triple.Create(item, itemPart, mouseButtons)));
         }
 
         public void PerformItemClick(int itemIndex, ItemPart itemPart, MouseButtons mouseButtons)
@@ -663,10 +624,7 @@ namespace PaintDotNet
         {
             PerformLayout();
 
-            if (ScrollOffsetChanged != null)
-            {
-                ScrollOffsetChanged(this, EventArgs.Empty);
-            }
+            ScrollOffsetChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -688,20 +646,20 @@ namespace PaintDotNet
             ScrollOffset = Utility.Clamp(this.scrollOffset, MinScrollOffset, MaxScrollOffset);
 
             // Determine arrow visibility / position
-            this.leftScrollButton.Size = new Size(arrowWidth, ClientSize.Height);
-            this.leftScrollButton.Location = new Point(0, 0);
+            this.LeftScrollButton.Size = new Size(arrowWidth, ClientSize.Height);
+            this.LeftScrollButton.Location = new Point(0, 0);
 
-            this.rightScrollButton.Size = new Size(arrowWidth, ClientSize.Height);
-            this.rightScrollButton.Location = new Point(ClientSize.Width - this.rightScrollButton.Width, 0);
+            this.RightScrollButton.Size = new Size(arrowWidth, ClientSize.Height);
+            this.RightScrollButton.Location = new Point(ClientSize.Width - this.RightScrollButton.Width, 0);
 
             bool showEitherButton = this.showScrollButtons && (this.ViewRectangle.Width > ClientRectangle.Width);
             bool showRightButton = (this.scrollOffset < MaxScrollOffset) && showEitherButton;
             bool showLeftButton = (this.scrollOffset > MinScrollOffset) && showEitherButton;
 
-            this.rightScrollButton.Enabled = showRightButton;
-            this.rightScrollButton.Visible = showRightButton;
-            this.leftScrollButton.Enabled = showLeftButton;
-            this.leftScrollButton.Visible = showLeftButton;
+            this.RightScrollButton.Enabled = showRightButton;
+            this.RightScrollButton.Visible = showRightButton;
+            this.LeftScrollButton.Enabled = showLeftButton;
+            this.LeftScrollButton.Visible = showLeftButton;
 
             base.OnLayout(levent);
         }
@@ -735,10 +693,10 @@ namespace PaintDotNet
 
                 int minWidth = ItemSize.Width;
 
-                if (this.leftScrollButton.Visible || this.rightScrollButton.Visible)
+                if (this.LeftScrollButton.Visible || this.RightScrollButton.Visible)
                 {
-                    minWidth += this.leftScrollButton.Width;
-                    minWidth += this.rightScrollButton.Width;
+                    minWidth += this.LeftScrollButton.Width;
+                    minWidth += this.RightScrollButton.Width;
                 }
 
                 minWidth = Math.Min(minWidth, ViewRectangle.Width);
@@ -751,10 +709,8 @@ namespace PaintDotNet
         {
             get
             {
-                Rectangle itemRect;
-                Rectangle imageRect;
 
-                MeasureItemPartRectangles(out itemRect, out imageRect);
+                MeasureItemPartRectangles(out Rectangle itemRect, out Rectangle imageRect);
                 return new Size(imageRect.Width - imagePadding * 2, imageRect.Height - imagePadding * 2);
             }
         }
@@ -763,10 +719,7 @@ namespace PaintDotNet
         {
             get
             {
-                Rectangle itemRect;
-                Rectangle imageRect;
-
-                MeasureItemPartRectangles(out itemRect, out imageRect);
+                MeasureItemPartRectangles(out Rectangle itemRect, out Rectangle imageRect);
                 return itemRect.Size;
             }
         }
@@ -932,19 +885,13 @@ namespace PaintDotNet
 
         private void DrawItem(Graphics g, Item item, Point offset)
         {
-            Rectangle itemRect;
-            Rectangle imageRect;
-            Rectangle imageInsetRect;
-            Rectangle closeButtonRect;
-            Rectangle dirtyOverlayRect;
-
             MeasureItemPartRectangles(
                 item, 
-                out itemRect, 
-                out imageRect, 
-                out imageInsetRect,
-                out closeButtonRect,
-                out dirtyOverlayRect);
+                out Rectangle itemRect, 
+                out Rectangle imageRect, 
+                out Rectangle imageInsetRect,
+                out Rectangle closeButtonRect,
+                out Rectangle dirtyOverlayRect);
 
             itemRect.X += offset.X;
             itemRect.Y += offset.Y;
@@ -1103,19 +1050,13 @@ namespace PaintDotNet
 
         private ItemPart ItemPointToItemPart(Item item, Point pt)
         {
-            Rectangle itemRect;
-            Rectangle imageRect;
-            Rectangle imageInsetRect;
-            Rectangle closeButtonRect;
-            Rectangle dirtyOverlayRect;
-
             MeasureItemPartRectangles(
                 item,
-                out itemRect,
-                out imageRect,
-                out imageInsetRect,
-                out closeButtonRect,
-                out dirtyOverlayRect);
+                out Rectangle itemRect,
+                out Rectangle imageRect,
+                out Rectangle imageInsetRect,
+                out Rectangle closeButtonRect,
+                out Rectangle dirtyOverlayRect);
 
             if (closeButtonRect.Contains(pt))
             {
@@ -1157,16 +1098,16 @@ namespace PaintDotNet
             minFullyShownOffset = itemClientRect.Right - ClientSize.Width;
             maxFullyShownOffset = itemClientRect.Left;
 
-            if (this.leftScrollButton.Visible)
+            if (this.LeftScrollButton.Visible)
             {
-                maxOffset -= this.leftScrollButton.Width;
-                maxFullyShownOffset -= this.leftScrollButton.Width;
+                maxOffset -= this.LeftScrollButton.Width;
+                maxFullyShownOffset -= this.LeftScrollButton.Width;
             }
 
-            if (this.rightScrollButton.Visible)
+            if (this.RightScrollButton.Visible)
             {
-                minOffset += this.rightScrollButton.Width;
-                minFullyShownOffset += this.rightScrollButton.Width;
+                minOffset += this.RightScrollButton.Width;
+                minFullyShownOffset += this.RightScrollButton.Width;
             }
         }
 
@@ -1190,15 +1131,15 @@ namespace PaintDotNet
             Rectangle itemRect = ItemIndexToClientRect(index);
             Rectangle svRect = ScrolledViewRect;
 
-            if (this.leftScrollButton.Visible)
+            if (this.LeftScrollButton.Visible)
             {
-                svRect.X += this.leftScrollButton.Width;
-                svRect.Width -= this.leftScrollButton.Width;
+                svRect.X += this.LeftScrollButton.Width;
+                svRect.Width -= this.LeftScrollButton.Width;
             }
 
-            if (this.rightScrollButton.Visible)
+            if (this.RightScrollButton.Visible)
             {
-                svRect.Width -= this.rightScrollButton.Width;
+                svRect.Width -= this.RightScrollButton.Width;
             }
 
             Rectangle intersect = Rectangle.Intersect(itemRect, svRect);
@@ -1218,13 +1159,8 @@ namespace PaintDotNet
                 return;
             }
 
-            int minOffset;
-            int maxOffset;
-            int minFullyShownOffset;
-            int maxFullyShownOffset;
-
-            CalculateVisibleScrollOffsets(index, out minOffset, out maxOffset, 
-                out minFullyShownOffset, out maxFullyShownOffset);
+            CalculateVisibleScrollOffsets(index, out int minOffset, out int maxOffset,
+                out int minFullyShownOffset, out int maxFullyShownOffset);
 
             // Pick the offset that moves the image the fewest number of pixels
             int oldOffset = this.scrollOffset;
@@ -1439,7 +1375,7 @@ namespace PaintDotNet
 
         private void GetFocus()
         {
-            if (this.managedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive)
+            if (this.ManagedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive)
             {
                 this.Focus();
             }
@@ -1453,7 +1389,7 @@ namespace PaintDotNet
             MouseStatesToItemStates();
             Refresh();
 
-            if (this.managedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive)
+            if (this.ManagedFocus && !MenuStripEx.IsAnyMenuActive && UI.IsOurAppActive)
             {
                 OnRelinquishFocus();
             }

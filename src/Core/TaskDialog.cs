@@ -119,8 +119,6 @@ namespace PaintDotNet
             private HeaderLabel separator;
             private TaskButton acceptTaskButton;
             private TaskButton cancelTaskButton;
-            private TaskButton dialogResult;
-
             private Button auxButton;
 
             public string AuxButtonText
@@ -140,19 +138,10 @@ namespace PaintDotNet
             public event EventHandler AuxButtonClick;
             private void OnAuxButtonClick()
             {
-                if (AuxButtonClick != null)
-                {
-                    AuxButtonClick(this, EventArgs.Empty);
-                }
+                AuxButtonClick?.Invoke(this, EventArgs.Empty);
             }
 
-            public new TaskButton DialogResult
-            {
-                get
-                {
-                    return this.dialogResult;
-                }
-            }
+            public new TaskButton DialogResult { get; private set; }
 
             public Image TaskImage
             {
@@ -461,7 +450,7 @@ namespace PaintDotNet
             private void CommandButton_Click(object sender, EventArgs e)
             {
                 CommandButton commandButton = (CommandButton)sender;
-                this.dialogResult = (TaskButton)commandButton.Tag;
+                this.DialogResult = (TaskButton)commandButton.Tag;
                 Close();
             }
         }

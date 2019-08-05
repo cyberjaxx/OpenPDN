@@ -27,29 +27,9 @@ namespace PaintDotNet
     public sealed class ThumbnailManager
         : IDisposable
     {
-        private bool disposed = false;
-        private int updateLatency = 67;
+        public bool IsDisposed { get; private set; } = false;
 
-        public bool IsDisposed
-        {
-            get
-            {
-                return this.disposed;
-            }
-        }
-
-        public int UpdateLatency
-        {
-            get
-            {
-                return this.updateLatency;
-            }
-
-            set
-            {
-                this.updateLatency = value;
-            }
-        }
+        public int UpdateLatency { get; set; } = 67;
 
         private Stack<ThumbnailStackItem> renderQueue;
         private ISynchronizeInvoke syncContext;
@@ -141,7 +121,7 @@ namespace PaintDotNet
 
         private void Dispose(bool disposing)
         {
-            this.disposed = true;
+            this.IsDisposed = true;
 
             if (disposing)
             {
@@ -168,8 +148,8 @@ namespace PaintDotNet
 
         public void DrainQueue()
         {
-            int oldLatency = this.updateLatency;
-            this.updateLatency = 0;
+            int oldLatency = this.UpdateLatency;
+            this.UpdateLatency = 0;
 
             int count = 1;
             while (count > 0)
@@ -182,7 +162,7 @@ namespace PaintDotNet
                 this.renderingInactive.WaitOne();
             }
 
-            this.updateLatency = oldLatency;
+            this.UpdateLatency = oldLatency;
             DrainThumbnailReadyInvokeList();
         }
 
@@ -212,8 +192,8 @@ namespace PaintDotNet
 
         public void ClearQueue()
         {
-            int oldUpdateLatency = this.updateLatency;
-            this.updateLatency = 0;
+            int oldUpdateLatency = this.UpdateLatency;
+            this.UpdateLatency = 0;
 
             lock (this.updateLock)
             {
@@ -221,7 +201,7 @@ namespace PaintDotNet
             }
 
             this.renderingInactive.WaitOne();
-            this.updateLatency = oldUpdateLatency;
+            this.UpdateLatency = oldUpdateLatency;
         }
 
         public void QueueThumbnailUpdate(IThumbnailProvider updateMe, int thumbSideLength, ThumbnailReadyHandler callback)
@@ -304,7 +284,7 @@ namespace PaintDotNet
                 // Sleep for a short while. Our main goal is to ensure that the
                 // item is not re-queued for updating very soon after we start
                 // rendering it.
-                Thread.Sleep(this.updateLatency);
+                Thread.Sleep(this.UpdateLatency);
 
                 bool doRender = true;
 

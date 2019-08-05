@@ -24,7 +24,6 @@ namespace PaintDotNet
         : Control,
           IButtonControl
     {
-        private bool isDefault = false;
         private bool drawPressed = false;
         private bool drawHover = false;
         private DialogResult dialogResult = DialogResult.None;
@@ -32,10 +31,7 @@ namespace PaintDotNet
         public event EventHandler DialogResultChanged;
         protected virtual void OnDialogResultChanged()
         {
-            if (DialogResultChanged != null)
-            {
-                DialogResultChanged(this, EventArgs.Empty);
-            }
+            DialogResultChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public DialogResult DialogResult
@@ -58,19 +54,10 @@ namespace PaintDotNet
         public event EventHandler IsDefaultChanged;
         protected virtual void OnIsDefaultChanged()
         {
-            if (IsDefaultChanged != null)
-            {
-                IsDefaultChanged(this, EventArgs.Empty);
-            }
+            IsDefaultChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public bool IsDefault
-        {
-            get
-            {
-                return this.isDefault;
-            }
-        }
+        public bool IsDefault { get; private set; } = false;
 
         protected internal ButtonBase()
         {
@@ -96,9 +83,9 @@ namespace PaintDotNet
 
         public void NotifyDefault(bool value)
         {
-            if (this.isDefault != value)
+            if (this.IsDefault != value)
             {
-                this.isDefault = value;
+                this.IsDefault = value;
                 OnIsDefaultChanged();
                 Invalidate(true);
             }

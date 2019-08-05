@@ -15,23 +15,11 @@ namespace PaintDotNet
     public sealed class MovingEventArgs
         : EventArgs
     {
-        private Rectangle rectangle;
-        public Rectangle Rectangle
-        {
-            get
-            {
-                return this.rectangle;
-            }
-
-            set
-            {
-                this.rectangle = value;
-            }
-        }
+        public Rectangle Rectangle { get; set; }
 
         public MovingEventArgs(Rectangle rect)
         {
-            this.rectangle = rect;
+            this.Rectangle = rect;
         }
     }
 }

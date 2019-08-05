@@ -112,8 +112,10 @@ namespace PaintDotNet
         /// <param name="roi">Defines the Rectangle from which to copy pixels from the Image.</param>
         public IrregularSurface (Surface source, Rectangle roi)
         {
-            this.placedSurfaces = new ArrayList();
-            this.placedSurfaces.Add(new PlacedSurface(source, roi));
+            this.placedSurfaces = new ArrayList
+            {
+                new PlacedSurface(source, roi)
+            };
             this.region = new PdnRegion(roi);
         }
 

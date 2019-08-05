@@ -19,28 +19,13 @@ namespace PaintDotNet
     public sealed class PaintEventArgs2
         : EventArgs
     {
-        private Graphics graphics;
-        public Graphics Graphics
-        {
-            get
-            {
-                return graphics;
-            }
-        }
-
-        private Rectangle clipRectangle;
-        public Rectangle ClipRectangle
-        {
-            get
-            {
-                return clipRectangle;
-            }
-        }
+        public Graphics Graphics { get; }
+        public Rectangle ClipRectangle { get; }
 
         public PaintEventArgs2(Graphics graphics, Rectangle clipRectangle)
         {
-            this.graphics = graphics;
-            this.clipRectangle = clipRectangle;
+            this.Graphics = graphics;
+            this.ClipRectangle = clipRectangle;
         }
     }
 }

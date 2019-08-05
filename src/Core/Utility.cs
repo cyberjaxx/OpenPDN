@@ -14,19 +14,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -339,20 +335,7 @@ namespace PaintDotNet
 
             return errorMessage;
         }
-
-        private static bool allowGCFullCollect = true;
-        public static bool AllowGCFullCollect
-        {
-            get
-            {
-                return allowGCFullCollect;
-            }
-
-            set
-            {
-                allowGCFullCollect = value;
-            }
-        }
+        public static bool AllowGCFullCollect { get; set; } = true;
 
         public static void GCFullCollect()
         {
@@ -364,20 +347,7 @@ namespace PaintDotNet
                 GC.WaitForPendingFinalizers();
             }
         }
-
-        private static int defaultSimplificationFactor = 50;
-        public static int DefaultSimplificationFactor
-        {
-            get
-            {
-                return defaultSimplificationFactor;
-            }
-
-            set
-            {
-                defaultSimplificationFactor = value;
-            }
-        }
+        public static int DefaultSimplificationFactor { get; set; } = 50;
 
         public static bool IsArrowKey(Keys keyData)
         {
@@ -430,7 +400,11 @@ namespace PaintDotNet
         public static string GetStaticName(Type type)
         {
             PropertyInfo pi = type.GetProperty("StaticName", BindingFlags.Static | BindingFlags.Public | BindingFlags.GetProperty);
-            return (string)pi.GetValue(null, null);
+            if (pi != null)
+            {
+                return (string)pi.GetValue(null, null);
+            }
+            return null;
         }
 
         public static readonly float[][] Identity5x5F = new float[][] {
@@ -613,17 +587,9 @@ namespace PaintDotNet
 
         public static bool CheckNumericUpDown(NumericUpDown upDown)
         {
-            int a;
-            bool result = int.TryParse(upDown.Text, out a);
+            bool result = int.TryParse(upDown.Text, out int a);
 
-            if (result && (a <= (int)upDown.Maximum) && (a >= (int)upDown.Minimum))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return result && (a <= (int)upDown.Maximum) && (a >= (int)upDown.Minimum);
         }
 
         public static void SetNumericUpDownValue(NumericUpDown upDown, decimal newValue)
@@ -848,8 +814,7 @@ namespace PaintDotNet
             {
                 for (int y = 0; y < rect.Height; ++y)
                 {
-                    scans[scanIndex] = new Scanline(rect.X, rect.Y + y, rect.Width);
-                    ++scanIndex;
+                    scans[scanIndex++] = new Scanline(rect.X, rect.Y + y, rect.Width);
                 }
             }
 
@@ -1222,7 +1187,7 @@ namespace PaintDotNet
         }
 
         /// <summary>
-        /// Converts a RectangleF to RectangleF by rounding down the Location and rounding
+        /// Converts a RectangleF to Rectangle by rounding down the Location and rounding
         /// up the Size.
         /// </summary>
         public static Rectangle RoundRectangle(RectangleF rectF)
@@ -1594,7 +1559,7 @@ namespace PaintDotNet
 
         public static RectangleF[] SimplifyTrace(PointF[] pointsF)
         {
-            return SimplifyTrace(pointsF, defaultSimplificationFactor);
+            return SimplifyTrace(pointsF, DefaultSimplificationFactor);
         }
 
         public static Rectangle[] SimplifyAndInflateRegion(Rectangle[] rects, int complexity, int inflationAmount)
@@ -1611,7 +1576,7 @@ namespace PaintDotNet
 
         public static Rectangle[] SimplifyAndInflateRegion(Rectangle[] rects)
         {
-            return SimplifyAndInflateRegion(rects, defaultSimplificationFactor, 1);
+            return SimplifyAndInflateRegion(rects, DefaultSimplificationFactor, 1);
         }
 
         public static PdnRegion SimplifyAndInflateRegion(PdnRegion region, int complexity, int inflationAmount)
@@ -1628,7 +1593,7 @@ namespace PaintDotNet
 
         public static PdnRegion SimplifyAndInflateRegion(PdnRegion region)
         {
-            return SimplifyAndInflateRegion(region, defaultSimplificationFactor, 1);
+            return SimplifyAndInflateRegion(region, DefaultSimplificationFactor, 1);
         }
 
         public static RectangleF[] TranslateRectangles(RectangleF[] rectsF, PointF offset)
@@ -2130,9 +2095,8 @@ namespace PaintDotNet
         {
             DialogResult dr;
 
-            if (showMe is PdnBaseForm)
+            if (showMe is PdnBaseForm showMe2)
             {
-                PdnBaseForm showMe2 = (PdnBaseForm)showMe;
                 double oldOpacity = showMe2.Opacity;
                 showMe2.Opacity = 0.9;
                 dr = showMe2.ShowDialog(owner);
@@ -2146,8 +2110,7 @@ namespace PaintDotNet
                 showMe.Opacity = oldOpacity;
             }
 
-            Control control = owner as Control;
-            if (control != null)
+            if (owner is Control control)
             {
                 Form form = control.FindForm();
 
@@ -2158,7 +2121,7 @@ namespace PaintDotNet
 
                 control.Update();
             }
-            
+
             return dr;
         }
 
@@ -2866,9 +2829,7 @@ namespace PaintDotNet
 
             if (exception != null)
             {
-                WebException we = exception as WebException;
-
-                if (we != null)
+                if (exception is WebException we)
                 {
                     throw new WebException(null, we, we.Status, we.Response);
                 }
@@ -2974,9 +2935,7 @@ namespace PaintDotNet
 
             if (exception != null)
             {
-                WebException we = exception as WebException;
-
-                if (we != null)
+                if (exception is WebException we)
                 {
                     throw new WebException(null, we, we.Status, we.Response);
                 }
@@ -3010,7 +2969,7 @@ namespace PaintDotNet
 
         // i = z * 3;
         // (x / z) = ((x * masTable[i]) + masTable[i + 1]) >> masTable[i + 2)
-        private static readonly uint[] masTable = 
+        public static readonly uint[] masTable = 
         {
             0x00000000, 0x00000000, 0,  // 0
             0x00000001, 0x00000000, 0,  // 1

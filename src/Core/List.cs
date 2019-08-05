@@ -17,28 +17,13 @@ namespace PaintDotNet
     /// </summary>
     public sealed class List
     {
-        private object head;
-        public object Head
-        {
-            get
-            {
-                return head;
-            }
-        }
-
-        private List tail;
-        public List Tail
-        {
-            get
-            {
-                return tail;
-            }
-        }
+        public object Head { get; }
+        public List Tail { get; }
 
         public List(object head, List tail)
         {
-            this.head = head;
-            this.tail = tail;
+            this.Head = head;
+            this.Tail = tail;
         }
     }
 }

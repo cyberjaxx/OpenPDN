@@ -14,18 +14,11 @@ namespace PaintDotNet
     public class ProgressEventArgs
         : System.EventArgs
     {
-        private double percent;
-        public double Percent
-        {
-            get
-            {
-                return percent;
-            }
-        }
+        public double Percent { get; }
 
         public ProgressEventArgs(double percent)
         {
-            this.percent = percent;
+            this.Percent = percent;
         }
     }
 }

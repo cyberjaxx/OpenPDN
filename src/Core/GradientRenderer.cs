@@ -17,11 +17,6 @@ namespace PaintDotNet
         private BinaryPixelOp normalBlendOp;
         private ColorBgra startColor;
         private ColorBgra endColor;
-        private PointF startPoint;
-        private PointF endPoint;
-        private bool alphaBlending;
-        private bool alphaOnly;
-
         private bool lerpCacheIsValid = false;
         private byte[] lerpAlphas;
         private ColorBgra[] lerpColors;
@@ -60,57 +55,13 @@ namespace PaintDotNet
             }
         }
 
-        public PointF StartPoint
-        {
-            get
-            {
-                return this.startPoint;
-            }
+        public PointF StartPoint { get; set; }
 
-            set
-            {
-                this.startPoint = value;
-            }
-        }
+        public PointF EndPoint { get; set; }
 
-        public PointF EndPoint
-        {
-            get
-            {
-                return this.endPoint;
-            }
+        public bool AlphaBlending { get; set; }
 
-            set
-            {
-                this.endPoint = value;
-            }
-        }
-
-        public bool AlphaBlending
-        {
-            get
-            {
-                return this.alphaBlending;
-            }
-
-            set
-            {
-                this.alphaBlending = value;
-            }
-        }
-
-        public bool AlphaOnly
-        {
-            get
-            {
-                return this.alphaOnly;
-            }
-
-            set
-            {
-                this.alphaOnly = value;
-            }
-        }
+        public bool AlphaOnly { get; set; }
 
         public virtual void BeforeRender()
         {
@@ -119,7 +70,7 @@ namespace PaintDotNet
                 byte startAlpha;
                 byte endAlpha;
 
-                if (this.alphaOnly)
+                if (this.AlphaOnly)
                 {
                     ComputeAlphaOnlyValuesFromColors(this.startColor, this.endColor, out startAlpha, out endAlpha);
                 }
@@ -161,7 +112,7 @@ namespace PaintDotNet
             byte startAlpha;
             byte endAlpha;
 
-            if (this.alphaOnly)
+            if (this.AlphaOnly)
             {
                 ComputeAlphaOnlyValuesFromColors(this.startColor, this.endColor, out startAlpha, out endAlpha);
             }
@@ -175,7 +126,7 @@ namespace PaintDotNet
             {
                 Rectangle rect = rois[ri];
 
-                if (this.startPoint == this.endPoint)
+                if (this.StartPoint == this.EndPoint)
                 {
                     // Start and End point are the same ... fill with solid color.
                     for (int y = rect.Top; y < rect.Bottom; ++y)
@@ -186,18 +137,18 @@ namespace PaintDotNet
                         {
                             ColorBgra result;
 
-                            if (this.alphaOnly && this.alphaBlending)
+                            if (this.AlphaOnly && this.AlphaBlending)
                             {
                                 byte resultAlpha = (byte)Utility.FastDivideShortByByte((ushort)(pixelPtr->A * endAlpha), 255);
                                 result = *pixelPtr;
                                 result.A = resultAlpha;
                             }
-                            else if (this.alphaOnly && !this.alphaBlending)
+                            else if (this.AlphaOnly && !this.AlphaBlending)
                             {
                                 result = *pixelPtr;
                                 result.A = endAlpha;
                             }
-                            else if (!this.alphaOnly && this.alphaBlending)
+                            else if (!this.AlphaOnly && this.AlphaBlending)
                             {
                                 result = this.normalBlendOp.Apply(*pixelPtr, this.endColor);
                             }
@@ -217,7 +168,7 @@ namespace PaintDotNet
                     {
                         ColorBgra* pixelPtr = surface.GetPointAddress(rect.Left, y);
 
-                        if (this.alphaOnly && this.alphaBlending)
+                        if (this.AlphaOnly && this.AlphaBlending)
                         {
                             for (int x = rect.Left; x < rect.Right; ++x)
                             {
@@ -230,7 +181,7 @@ namespace PaintDotNet
                                 ++pixelPtr;
                             }
                         }
-                        else if (this.alphaOnly && !this.alphaBlending)
+                        else if (this.AlphaOnly && !this.AlphaBlending)
                         {
                             for (int x = rect.Left; x < rect.Right; ++x)
                             {
@@ -242,7 +193,7 @@ namespace PaintDotNet
                                 ++pixelPtr;
                             }
                         }
-                        else if (!this.alphaOnly && (this.alphaBlending && (startAlpha != 255 || endAlpha != 255)))
+                        else if (!this.AlphaOnly && (this.AlphaBlending && (startAlpha != 255 || endAlpha != 255)))
                         {
                             // If we're doing all color channels, and we're doing alpha blending, and if alpha blending is necessary
                             for (int x = rect.Left; x < rect.Right; ++x)
@@ -278,7 +229,7 @@ namespace PaintDotNet
         protected internal GradientRenderer(bool alphaOnly, BinaryPixelOp normalBlendOp)
         {
             this.normalBlendOp = normalBlendOp;
-            this.alphaOnly = alphaOnly;
+            this.AlphaOnly = alphaOnly;
         }
     }
 }

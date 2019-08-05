@@ -17,113 +17,87 @@ namespace PaintDotNet
     public sealed class StateMachineExecutor
         : IDisposable
     {
-        private bool disposed = false;
-        private bool isStarted = false;
-        private Thread stateMachineThread;
-        private Exception threadException;
-        private StateMachine stateMachine;
-        private ISynchronizeInvoke syncContext;
-        private ManualResetEvent stateMachineInitialized = new ManualResetEvent(false);
-        private ManualResetEvent stateMachineNotBusy = new ManualResetEvent(false); // non-signaled when busy, signaled when not busy
-        private ManualResetEvent inputAvailable = new ManualResetEvent(false); // non-signaled when no input sent from main thread, signaled when there is input or an abort signal
-        private volatile bool pleaseAbort = false;
-        private object queuedInput;
-        private bool lowPriorityExecution = false;
+        private bool Disposed = false;
+        private Thread StateMachineThread;
+        private Exception ThreadException;
+        private StateMachine StateMachine { get; set; }
+        private ManualResetEvent StateMachineInitialized = new ManualResetEvent(false);
+        private ManualResetEvent StateMachineNotBusy = new ManualResetEvent(false); // non-signaled when busy, signaled when not busy
+        private ManualResetEvent InputAvailable = new ManualResetEvent(false); // non-signaled when no input sent from main thread, signaled when there is input or an abort signal
+        private volatile bool PleaseAbort = false;
+        private object QueuedInput;
 
         public event EventHandler StateMachineBegin;
         private void OnStateMachineBegin()
         {
-            if (this.syncContext != null && this.syncContext.InvokeRequired)
+            if (SyncContext != null && SyncContext.InvokeRequired)
             {
-                this.syncContext.BeginInvoke(new Procedure(OnStateMachineBegin), null);
+                SyncContext.BeginInvoke(new Procedure(OnStateMachineBegin), null);
             }
             else
             {
-                if (StateMachineBegin != null)
-                {
-                    StateMachineBegin(this, EventArgs.Empty);
-                }
+                StateMachineBegin?.Invoke(this, EventArgs.Empty);
             }
         }
 
         public event EventHandler<EventArgs<State>> StateBegin;
         private void OnStateBegin(State state)
         {
-            if (this.syncContext != null && this.syncContext.InvokeRequired)
+            if (SyncContext != null && SyncContext.InvokeRequired)
             {
-                this.syncContext.BeginInvoke(new Procedure<State>(OnStateBegin), new object[] { state });
+                SyncContext.BeginInvoke(new Procedure<State>(OnStateBegin), new object[] { state });
             }
             else
             {
-                if (StateBegin != null)
-                {
-                    StateBegin(this, new EventArgs<State>(state));
-                }
+                StateBegin?.Invoke(this, new EventArgs<State>(state));
             }
         }
 
         public event ProgressEventHandler StateProgress;
         private void OnStateProgress(double percent)
         {
-            if (this.syncContext != null && this.syncContext.InvokeRequired)
+            if (SyncContext != null && SyncContext.InvokeRequired)
             {
-                this.syncContext.BeginInvoke(new Procedure<double>(OnStateProgress), new object[] { percent });
+                SyncContext.BeginInvoke(new Procedure<double>(OnStateProgress), new object[] { percent });
             }
             else
             {
-                if (StateProgress != null)
-                {
-                    StateProgress(this, new ProgressEventArgs(percent));
-                }
+                StateProgress?.Invoke(this, new ProgressEventArgs(percent));
             }
         }
 
         public event EventHandler<EventArgs<State>> StateWaitingForInput;
         private void OnStateWaitingForInput(State state)
         {
-            if (this.syncContext != null && this.syncContext.InvokeRequired)
+            if (SyncContext != null && SyncContext.InvokeRequired)
             {
-                this.syncContext.BeginInvoke(new Procedure<State>(OnStateWaitingForInput), new object[] { state });
+                SyncContext.BeginInvoke(new Procedure<State>(OnStateWaitingForInput), new object[] { state });
             }
             else
             {
-                if (StateWaitingForInput != null)
-                {
-                    StateWaitingForInput(this, new EventArgs<State>(state));
-                }
+                StateWaitingForInput?.Invoke(this, new EventArgs<State>(state));
             }
         }
 
         public event EventHandler StateMachineFinished;
         private void OnStateMachineFinished()
         {
-            if (this.syncContext != null && this.syncContext.InvokeRequired)
+            if (SyncContext != null && SyncContext.InvokeRequired)
             {
-                this.syncContext.BeginInvoke(new Procedure(OnStateMachineFinished), null);
+                SyncContext.BeginInvoke(new Procedure(OnStateMachineFinished), null);
             }
             else
             {
-                if (StateMachineFinished != null)
-                {
-                    StateMachineFinished(this, EventArgs.Empty);
-                }
+                StateMachineFinished?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        public bool IsStarted
-        {
-            get
-            {
-                return this.isStarted;
-            }
-        }
+        public bool IsStarted { get; private set; } = false;
 
+        private bool lowPriorityExecution = false;
         public bool LowPriorityExecution
         {
-            get
-            {
-                return this.lowPriorityExecution;
-            }
+            get => lowPriorityExecution;
 
             set
             {
@@ -132,46 +106,29 @@ namespace PaintDotNet
                     throw new InvalidOperationException("Can only enable low priority execution before the state machine begins execution");
                 }
 
-                this.lowPriorityExecution = value;
+                lowPriorityExecution = value;
             }
         }
 
-        public ISynchronizeInvoke SyncContext
-        {
-            get
-            {
-                return this.syncContext;
-            }
-
-            set
-            {
-                this.syncContext = value;
-            }
-        }
+        public ISynchronizeInvoke SyncContext { get; set; }
 
         public State CurrentState
         {
-            get
-            {
-                return this.stateMachine.CurrentState;
-            }
+            get => StateMachine.CurrentState;
         }
 
         public bool IsInFinalState
         {
-            get
-            {
-                return this.stateMachine.IsInFinalState;
-            }
+            get => StateMachine.IsInFinalState;
         }
 
-        private void StateMachineThread()
+        private void StateMachineThreadProc()
         {
             ThreadBackground tbm = null;
 
             try
             {
-                if (this.lowPriorityExecution)
+                if (LowPriorityExecution)
                 {
                     tbm = new ThreadBackground(ThreadBackgroundFlags.Cpu);
                 }
@@ -181,132 +138,127 @@ namespace PaintDotNet
 
             finally
             {
-                if (tbm != null)
-                {
-                    tbm.Dispose();
-                    tbm = null;
-                }
+                tbm?.Dispose();
+                tbm = null;
             }
         }
 
         private void StateMachineThreadImpl()
         {
-            this.threadException = null;
+            ThreadException = null;
 
-            EventHandler<EventArgs<State>> newStateHandler =
-                delegate(object sender, EventArgs<State> e)
-                {
-                    this.stateMachineInitialized.Set();
-                    OnStateBegin(e.Data);
-                };
+            void NewStateHandler(object sender, EventArgs<State> e)
+            {
+                StateMachineInitialized.Set();
+                OnStateBegin(e.Data);
+            }
 
-            ProgressEventHandler stateProgressHandler =
-                delegate(object sender, ProgressEventArgs e)
-                {
-                    OnStateProgress(e.Percent);
-                };
+            void StateProgressHandler(object sender, ProgressEventArgs e)
+            {
+                OnStateProgress(e.Percent);
+            }
 
             try
             {
-                this.stateMachineNotBusy.Set();
+                StateMachineNotBusy.Set();
 
                 OnStateMachineBegin();
 
-                this.stateMachineNotBusy.Reset();
-                this.stateMachine.NewState += newStateHandler;                
-                this.stateMachine.StateProgress += stateProgressHandler;
-                this.stateMachine.Start();
+                StateMachineNotBusy.Reset();
+                StateMachine.NewState += NewStateHandler;                
+                StateMachine.StateProgress += StateProgressHandler;
+                StateMachine.Start();
 
                 while (true)
                 {
-                    this.stateMachineNotBusy.Set();
-                    OnStateWaitingForInput(this.stateMachine.CurrentState);
-                    this.inputAvailable.WaitOne();
-                    this.inputAvailable.Reset();
+                    StateMachineNotBusy.Set();
+                    OnStateWaitingForInput(StateMachine.CurrentState);
+                    InputAvailable.WaitOne();
+                    InputAvailable.Reset();
                     // main thread should call Reset() on stateMachineNotBusy
 
-                    if (this.pleaseAbort)
+                    if (PleaseAbort)
                     {
                         break;
                     }
 
-                    this.stateMachine.ProcessInput(this.queuedInput);
+                    StateMachine.ProcessInput(QueuedInput);
 
-                    if (this.stateMachine.IsInFinalState)
+                    if (StateMachine.IsInFinalState)
                     {
                         break;
                     }
                 }
 
-                this.stateMachineNotBusy.Set();
+                StateMachineNotBusy.Set();
             }
 
             catch (Exception ex)
             {
-                this.threadException = ex;
+                ThreadException = ex;
             }
 
             finally
             {
-                this.stateMachineNotBusy.Set();
-                this.stateMachineInitialized.Set();
-                this.stateMachine.NewState -= newStateHandler;
-                this.stateMachine.StateProgress -= stateProgressHandler;
+                StateMachineNotBusy.Set();
+                StateMachineInitialized.Set();
+                StateMachine.NewState -= NewStateHandler;
+                StateMachine.StateProgress -= StateProgressHandler;
                 OnStateMachineFinished();
             }
         }
 
         public void Start()
         {
-            if (this.isStarted)
+            if (IsStarted)
             {
                 throw new InvalidOperationException("State machine thread is already executing");
             }
 
-            this.isStarted = true;
+            IsStarted = true;
 
-            this.stateMachineThread = new Thread(new ThreadStart(StateMachineThread));
-            this.stateMachineInitialized.Reset();
-            this.stateMachineThread.Start();
-            this.stateMachineInitialized.WaitOne();
+            StateMachineThread = new Thread(new ThreadStart(StateMachineThreadProc));
+            StateMachineInitialized.Reset();
+            StateMachineThread.Start();
+            StateMachineInitialized.WaitOne();
         }
 
         public void ProcessInput(object input)
         {
-            this.stateMachineNotBusy.WaitOne();
-            this.stateMachineNotBusy.Reset();
-            this.queuedInput = input;
-            this.inputAvailable.Set();
+            StateMachineNotBusy.WaitOne();
+            StateMachineNotBusy.Reset();
+            QueuedInput = input;
+            InputAvailable.Set();
         }
 
         public void Abort()
         {
-            if (this.disposed)
+            if (Disposed)
             {
                 return;
             }
 
-            this.pleaseAbort = true;
+            PleaseAbort = true;
 
-            State currentState2 = this.stateMachine.CurrentState;
+            State currentState2 = StateMachine.CurrentState;
             if (currentState2 != null && currentState2.CanAbort)
             {
-                this.stateMachine.CurrentState.Abort();
+                StateMachine.CurrentState.Abort();
             }
 
-            this.stateMachineNotBusy.WaitOne();
-            this.inputAvailable.Set();
-            this.stateMachineThread.Join();
+            StateMachineNotBusy.WaitOne();
+            InputAvailable.Set();
+            StateMachineThread.Join();
 
-            if (this.threadException != null)
+            if (ThreadException != null)
             {
-                throw new WorkerThreadException("State machine thread threw an exception", this.threadException);
+                throw new WorkerThreadException("State machine thread threw an exception", ThreadException);
             }
         }
 
         public StateMachineExecutor(StateMachine stateMachine)
         {
-            this.stateMachine = stateMachine;
+            StateMachine = stateMachine;
         }
 
         ~StateMachineExecutor()
@@ -326,26 +278,17 @@ namespace PaintDotNet
             {
                 Abort();
 
-                if (this.stateMachineInitialized != null)
-                {
-                    this.stateMachineInitialized.Close();
-                    this.stateMachineInitialized = null;
-                }
+                StateMachineInitialized?.Close();
+                StateMachineInitialized = null;
 
-                if (this.stateMachineNotBusy != null)
-                {
-                    this.stateMachineNotBusy.Close();
-                    this.stateMachineNotBusy = null;
-                }
+                StateMachineNotBusy?.Close();
+                StateMachineNotBusy = null;
 
-                if (this.inputAvailable != null)
-                {
-                    this.inputAvailable.Close();
-                    this.inputAvailable = null;
-                }
+                InputAvailable?.Close();
+                InputAvailable = null;
             }
 
-            this.disposed = true;
+            Disposed = true;
         }
     }
 }

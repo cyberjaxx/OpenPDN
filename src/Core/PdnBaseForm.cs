@@ -9,15 +9,10 @@
 
 using PaintDotNet.SystemLayer;
 using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using System.Resources;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -91,20 +86,13 @@ namespace PaintDotNet
 
         protected override void OnShown(EventArgs e)
         {
-            isShown = true;
+            IsShown = true;
             Tracing.LogFeature("ShowDialog(" + GetType().FullName + ")");
             base.OnShown(e);
         }
 
-        public bool IsShown
-        {
-            get
-            {
-                return this.isShown;
-            }
-        }
+        public bool IsShown { get; private set; } = false;
 
-        private bool isShown = false;
         private bool enableOpacity = true;
         private double ourOpacity = 1.0; // store opacity setting so that when we go from disabled->enabled opacity we can set the correct value
         private SnapManager snapManager = null;
@@ -231,14 +219,12 @@ namespace PaintDotNet
                 theDelegate -= callback;
                 hotkeyRegistrar[keys] = theDelegate;
 
-                IComponent targetAsComponent = callback.Target as IComponent;
-                if (targetAsComponent != null)
+                if (callback.Target is IComponent targetAsComponent)
                 {
                     targetAsComponent.Disposed -= TargetAsComponent_Disposed;
                 }
 
-                IHotKeyTarget targetAsHotKeyTarget = callback.Target as IHotKeyTarget;
-                if (targetAsHotKeyTarget != null)
+                if (callback.Target is IHotKeyTarget targetAsHotKeyTarget)
                 {
                     targetAsHotKeyTarget.Disposed -= TargetAsHotKeyTarget_Disposed;
                 }
@@ -325,9 +311,7 @@ namespace PaintDotNet
 
             if (targetControl == null)
             {
-                Control asControl = target as Control;
-
-                if (asControl != null)
+                if (target is Control asControl)
                 {
                     targetControl = asControl;
                 }
@@ -335,9 +319,7 @@ namespace PaintDotNet
 
             if (targetControl == null)
             {
-                IFormAssociate asIFormAssociate = target as IFormAssociate;
-
-                if (asIFormAssociate != null)
+                if (target is IFormAssociate asIFormAssociate)
                 {
                     targetControl = asIFormAssociate.AssociatedForm;
                 }
@@ -371,16 +353,7 @@ namespace PaintDotNet
 
         private static object GetConcreteTarget(object target)
         {
-            Delegate asDelegate = target as Delegate;
-
-            if (asDelegate == null)
-            {
-                return target;
-            }
-            else
-            {
-                return GetConcreteTarget(asDelegate.Target);
-            }
+            return target is Delegate asDelegate ? GetConcreteTarget(asDelegate.Target) : target;
         }
 
         private bool ProcessFormHotKey(Keys keyData)
@@ -510,10 +483,7 @@ namespace PaintDotNet
         public static EventHandler EnableOpacityChanged;
         private static void OnEnableOpacityChanged()
         {
-            if (EnableOpacityChanged != null)
-            {
-                EnableOpacityChanged(null, EventArgs.Empty);
-            }
+            EnableOpacityChanged?.Invoke(null, EventArgs.Empty);
         }
 
         public bool EnableInstanceOpacity
@@ -673,10 +643,7 @@ namespace PaintDotNet
             {
                 try
                 {
-                    int x;
-                    int y;
-
-                    ParsePair(locationString, out x, out y);
+                    ParsePair(locationString, out int x, out int y);
                     control.Location = new Point(x, y);
                 }
 
@@ -694,10 +661,7 @@ namespace PaintDotNet
             {
                 try
                 {
-                    int width;
-                    int height;
-
-                    ParsePair(sizeString, out width, out height);
+                    ParsePair(sizeString, out int width, out int height);
                     control.Size = new Size(width, height);
                 }
 
@@ -880,19 +844,13 @@ namespace PaintDotNet
         public event MovingEventHandler Moving;
         protected virtual void OnMoving(MovingEventArgs mea)
         {
-            if (Moving != null)
-            {
-                Moving(this, mea);
-            }
+            Moving?.Invoke(this, mea);
         }
         
         public event CancelEventHandler QueryEndSession;
         protected virtual void OnQueryEndSession(CancelEventArgs e)
         {
-            if (QueryEndSession != null)
-            {
-                QueryEndSession(this, e);
-            }
+            QueryEndSession?.Invoke(this, e);
         }
 
         private void UserSessions_SessionChanged(object sender, EventArgs e)

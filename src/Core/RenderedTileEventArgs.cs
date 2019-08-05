@@ -15,38 +15,15 @@ namespace PaintDotNet
     public sealed class RenderedTileEventArgs
         : EventArgs
     {
-        private PdnRegion renderedRegion;
-        public PdnRegion RenderedRegion
-        {
-            get
-            {
-                return renderedRegion;
-            }
-        }
-
-        private int tileNumber;
-        public int TileNumber
-        {
-            get
-            {
-                return tileNumber;
-            }
-        }
-
-        private int tileCount;
-        public int TileCount
-        {
-            get
-            {
-                return tileCount;
-            }
-        }
+        public PdnRegion RenderedRegion { get; }
+        public int TileNumber { get; }
+        public int TileCount { get; }
 
         public RenderedTileEventArgs(PdnRegion renderedRegion, int tileCount, int tileNumber)
         {
-            this.renderedRegion = renderedRegion;
-            this.tileCount = tileCount;
-            this.tileNumber = tileNumber;
+            this.RenderedRegion = renderedRegion;
+            this.TileCount = tileCount;
+            this.TileNumber = tileNumber;
         }
     }
 }

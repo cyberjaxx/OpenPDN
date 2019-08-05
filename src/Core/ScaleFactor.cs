@@ -19,30 +19,15 @@ namespace PaintDotNet
     /// </summary>
     public struct ScaleFactor
     {
-        private int denominator;
-        private int numerator;
+        public int Denominator { get; }
 
-        public int Denominator 
-        {
-            get 
-            {
-                return denominator;
-            }
-        }
-
-        public int Numerator 
-        {
-            get 
-            {
-                return numerator;
-            }
-        }
+        public int Numerator { get; }
 
         public double Ratio
         {
             get
             {
-                return (double)numerator / (double)denominator;
+                return (double)Numerator / (double)Denominator;
             }
         }
 
@@ -114,7 +99,7 @@ namespace PaintDotNet
 
         public static bool operator==(ScaleFactor lhs, ScaleFactor rhs)
         {
-            return (lhs.numerator * rhs.denominator) == (rhs.numerator * lhs.denominator);
+            return (lhs.Numerator * rhs.Denominator) == (rhs.Numerator * lhs.Denominator);
         }
 
         public static bool operator!=(ScaleFactor lhs, ScaleFactor rhs)
@@ -124,29 +109,28 @@ namespace PaintDotNet
 
         public static bool operator<(ScaleFactor lhs, ScaleFactor rhs)
         {
-            return (lhs.numerator * rhs.denominator) < (rhs.numerator * lhs.denominator);
+            return (lhs.Numerator * rhs.Denominator) < (rhs.Numerator * lhs.Denominator);
         }
 
         public static bool operator<=(ScaleFactor lhs, ScaleFactor rhs)
         {
-            return (lhs.numerator * rhs.denominator) <= (rhs.numerator * lhs.denominator);
+            return (lhs.Numerator * rhs.Denominator) <= (rhs.Numerator * lhs.Denominator);
         }
 
         public static bool operator>(ScaleFactor lhs, ScaleFactor rhs)
         {
-            return (lhs.numerator * rhs.denominator) > (rhs.numerator * lhs.denominator);
+            return (lhs.Numerator * rhs.Denominator) > (rhs.Numerator * lhs.Denominator);
         }
 
         public static bool operator>=(ScaleFactor lhs, ScaleFactor rhs)
         {
-            return (lhs.numerator * rhs.denominator) >= (rhs.numerator * lhs.denominator);
+            return (lhs.Numerator * rhs.Denominator) >= (rhs.Numerator * lhs.Denominator);
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is ScaleFactor) 
+            if (obj is ScaleFactor rhs) 
             {
-                ScaleFactor rhs = (ScaleFactor)obj;
                 return this == rhs;
             }
             else
@@ -157,10 +141,10 @@ namespace PaintDotNet
 
         public override int GetHashCode()
         {
-            return numerator.GetHashCode() ^ denominator.GetHashCode();
+            return Numerator.GetHashCode() ^ Denominator.GetHashCode();
         }
 
-        private static string percentageFormat = PdnResources.GetString("ScaleFactor.Percentage.Format");
+        private static readonly string percentageFormat = PdnResources.GetString("ScaleFactor.Percentage.Format");
         public override string ToString()
         {
             try
@@ -176,32 +160,32 @@ namespace PaintDotNet
 
         public int ScaleScalar(int x)
         {
-            return (int)(((long)x * numerator) / denominator);
+            return (int)(((long)x * Numerator) / Denominator);
         }
 
         public int UnscaleScalar(int x)
         {
-            return (int)(((long)x * denominator) / numerator);
+            return (int)(((long)x * Denominator) / Numerator);
         }
 
         public float ScaleScalar(float x)
         {
-            return (x * (float)numerator) / (float)denominator;
+            return (x * (float)Numerator) / (float)Denominator;
         }
 
         public float UnscaleScalar(float x)
         {
-            return (x * (float)denominator) / (float)numerator;
+            return (x * (float)Denominator) / (float)Numerator;
         }
 
         public double ScaleScalar(double x)
         {
-            return (x * (double)numerator) / (double)denominator;
+            return (x * (double)Numerator) / (double)Denominator;
         }
 
         public double UnscaleScalar(double x)
         {
-            return (x * (double)denominator) / (double)numerator;
+            return (x * (double)Denominator) / (double)Numerator;
         }
 
         public Point ScalePoint(Point p)
@@ -414,8 +398,8 @@ namespace PaintDotNet
                 throw new ArgumentOutOfRangeException("numerator", "must be greater than 0");
             }
 
-            this.numerator = numerator;
-            this.denominator = denominator;
+            this.Numerator = numerator;
+            this.Denominator = denominator;
             this.Clamp();
         }
     }

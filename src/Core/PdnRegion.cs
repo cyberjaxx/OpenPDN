@@ -8,13 +8,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Security;
 
 namespace PaintDotNet
 {
@@ -29,7 +25,6 @@ namespace PaintDotNet
         : ISerializable,
           IDisposable
     {
-        private object lockObject = new object();
         private Region gdiRegion;
         private bool changed = true;
         private int cachedArea = -1;
@@ -37,13 +32,7 @@ namespace PaintDotNet
         private RectangleF[] cachedRectsF = null;
         private Rectangle[] cachedRects = null;
 
-        public object SyncRoot
-        {
-            get
-            {
-                return lockObject;
-            }
-        }
+        public object SyncRoot { get; } = new object();
 
         public int GetArea()
         {
@@ -210,7 +199,7 @@ namespace PaintDotNet
                 this.gdiRegion = new Region(regionData);
             }
 
-            this.lockObject = new object();
+            this.SyncRoot = new object();
             this.cachedArea = -1;
             this.cachedBounds = Rectangle.Empty;
             this.changed = true;

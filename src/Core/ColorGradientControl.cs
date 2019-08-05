@@ -206,10 +206,7 @@ namespace PaintDotNet
         public event IndexEventHandler ValueChanged;
         private void OnValueChanged(int index)
         {
-            if (ValueChanged != null)
-            {
-                ValueChanged(this, new IndexEventArgs(index));
-            }
+            ValueChanged?.Invoke(this, new IndexEventArgs(index));
         }
 
         [Obsolete("Use MinColor property instead", true)]

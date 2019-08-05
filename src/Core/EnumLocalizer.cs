@@ -19,18 +19,11 @@ namespace PaintDotNet
     /// </summary>
     public sealed class EnumLocalizer
     {
-        private Type enumType;
         private Hashtable valueToName;
         private Hashtable nameToValue;
         private static Hashtable typeToWrapper;
 
-        public Type EnumType
-        {
-            get
-            {
-                return this.enumType;
-            }
-        }
+        public Type EnumType { get; }
 
         public object[] GetEnumValues()
         {
@@ -40,7 +33,7 @@ namespace PaintDotNet
             int index = 0;
             foreach (string valueName in valueNames)
             {
-                values[index] = Enum.Parse(this.enumType, valueName);
+                values[index] = Enum.Parse(this.EnumType, valueName);
                 ++index;
             }           
 
@@ -94,7 +87,7 @@ namespace PaintDotNet
             }
             else
             {
-                object enumValue = Enum.Parse(this.enumType, (string)enumValueName);
+                object enumValue = Enum.Parse(this.EnumType, (string)enumValueName);
                 return enumValue;
             }
         }
@@ -134,14 +127,14 @@ namespace PaintDotNet
 
         private EnumLocalizer(Type enumType)
         {
-            this.enumType = enumType;
+            this.EnumType = enumType;
             
             this.valueToName = new Hashtable();
             this.nameToValue = new Hashtable();
 
-            foreach (string enumValueName in Enum.GetNames(this.enumType))
+            foreach (string enumValueName in Enum.GetNames(this.EnumType))
             {
-                string resourceName = this.enumType.Name + "." + enumValueName;
+                string resourceName = this.EnumType.Name + "." + enumValueName;
                 string localizedName = PdnResources.GetString(resourceName);
                 this.valueToName.Add(enumValueName, localizedName);
                 this.nameToValue.Add(localizedName, enumValueName);

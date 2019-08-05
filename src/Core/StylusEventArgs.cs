@@ -36,15 +36,7 @@ namespace PaintDotNet
                 return position.Y;
             }
         }
-
-        private float pressure;
-        public float Pressure 
-        {
-            get
-            {
-                return pressure;
-            }
-        }
+        public float Pressure { get; }
 
         /// <summary>
         /// Constructs a new StylusEventArgs object
@@ -58,7 +50,7 @@ namespace PaintDotNet
             : base(e.Button, e.Clicks, e.X, e.Y, e.Delta)
         {
             this.position = new PointF(e.X, e.Y);
-            this.pressure = 1.0f;
+            this.Pressure = 1.0f;
         }
 
         /// <summary>
@@ -87,7 +79,7 @@ namespace PaintDotNet
             : base(button, clicks, (int)Math.Round(fx), (int)Math.Round(fy), delta)
         {
             this.position = new PointF(fx, fy);
-            this.pressure = pressure;
+            this.Pressure = pressure;
         }
     }
 }

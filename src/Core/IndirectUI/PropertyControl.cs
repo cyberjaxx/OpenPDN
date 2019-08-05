@@ -19,18 +19,11 @@ namespace PaintDotNet.IndirectUI
           IPropertyRef,
           IFirstSelection
     {
-        private Property property;
         private string displayName;
         private string description;
         private ToolTip toolTip;
 
-        public Property Property
-        {
-            get
-            {
-                return this.property;
-            }
-        }
+        public Property Property { get; }
 
         protected ToolTip ToolTip
         {
@@ -90,9 +83,9 @@ namespace PaintDotNet.IndirectUI
 
         internal PropertyControl(PropertyControlInfo propInfo)
         {
-            this.property = propInfo.Property;
-            this.property.ValueChanged += new EventHandler(Property_ValueChanged);
-            this.property.ReadOnlyChanged += new EventHandler(Property_ReadOnlyChanged);
+            this.Property = propInfo.Property;
+            this.Property.ValueChanged += new EventHandler(Property_ValueChanged);
+            this.Property.ReadOnlyChanged += new EventHandler(Property_ReadOnlyChanged);
             this.displayName = (string)propInfo.ControlProperties[ControlInfoPropertyNames.DisplayName].Value;
             this.description = (string)propInfo.ControlProperties[ControlInfoPropertyNames.Description].Value;
         }

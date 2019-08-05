@@ -17,31 +17,18 @@ namespace PaintDotNet
     public class PanelEx : 
         PaintDotNet.SystemLayer.ScrollPanel
     {
-        private bool hideHScroll = false;
-
-        public bool HideHScroll
-        {
-            get
-            {
-                return this.hideHScroll;
-            }
-
-            set
-            {
-                this.hideHScroll = value;
-            }
-        }
+        public bool HideHScroll { get; set; } = false;
 
         protected override void OnSizeChanged(EventArgs e)
         {
-            if (this.hideHScroll)
+            if (this.HideHScroll)
             {
                 SystemLayer.UI.SuspendControlPainting(this);
             }
 
             base.OnSizeChanged(e);
 
-            if (this.hideHScroll)
+            if (this.HideHScroll)
             {
                 SystemLayer.UI.HideHorizontalScrollBar(this);
                 SystemLayer.UI.ResumeControlPainting(this);

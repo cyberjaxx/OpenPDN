@@ -7,8 +7,6 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using System;
-
 namespace PaintDotNet
 {
     public enum ColorTransferMode

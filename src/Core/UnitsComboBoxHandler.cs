@@ -18,22 +18,14 @@ namespace PaintDotNet
     public sealed class UnitsComboBoxHandler
         : IUnitsComboBox
     {
-        private ComboBox comboBox;
-
         [Browsable(false)]
-        public ComboBox ComboBox
-        {
-            get
-            {
-                return this.comboBox;
-            }
-        }
+        public ComboBox ComboBox { get; }
 
         public UnitsComboBoxHandler(ComboBox comboBox)
         {
-            this.comboBox = comboBox;
-            this.comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            this.comboBox.SelectedIndexChanged += ComboBox_SelectedIndexChanged;
+            this.ComboBox = comboBox;
+            this.ComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.ComboBox.SelectedIndexChanged += ComboBox_SelectedIndexChanged;
             ReloadItems();
         }
 
@@ -187,10 +179,12 @@ namespace PaintDotNet
         {
             if (this.measurementItems == null)
             {
-                this.measurementItems = new Hashtable();
-                this.measurementItems.Add(MeasurementUnit.Pixel, true);
-                this.measurementItems.Add(MeasurementUnit.Centimeter, true);
-                this.measurementItems.Add(MeasurementUnit.Inch, true);
+                this.measurementItems = new Hashtable
+                {
+                    { MeasurementUnit.Pixel, true },
+                    { MeasurementUnit.Centimeter, true },
+                    { MeasurementUnit.Inch, true }
+                };
             }
         }
 
@@ -244,10 +238,12 @@ namespace PaintDotNet
                 centimetersString = centimetersString.ToLower();
             }
 
-            this.unitsToString = new Hashtable();
-            this.unitsToString.Add(MeasurementUnit.Pixel, pixelsString);
-            this.unitsToString.Add(MeasurementUnit.Inch, inchesString);
-            this.unitsToString.Add(MeasurementUnit.Centimeter, centimetersString);
+            this.unitsToString = new Hashtable
+            {
+                { MeasurementUnit.Pixel, pixelsString },
+                { MeasurementUnit.Inch, inchesString },
+                { MeasurementUnit.Centimeter, centimetersString }
+            };
 
             this.stringToUnits = new Hashtable();
 
@@ -290,10 +286,7 @@ namespace PaintDotNet
 
         private void OnUnitsChanged()
         {
-            if (UnitsChanged != null)
-            {
-                UnitsChanged(this, EventArgs.Empty);
-            }
+            UnitsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)

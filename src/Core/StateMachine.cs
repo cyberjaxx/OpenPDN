@@ -19,57 +19,44 @@ namespace PaintDotNet
     {
         private ArrayList inputAlphabet;
         private State initialState;
-        private State currentState;
         private bool processingInput = false;
         private Queue inputQueue = new Queue();
 
         public event EventHandler<EventArgs<State>> NewState;
         private void OnNewState(State newState)
         {
-            if (NewState != null)
-            {
-                NewState(this, new EventArgs<State>(newState));
-            }
+            NewState?.Invoke(this, new EventArgs<State>(newState));
         }
 
         public event ProgressEventHandler StateProgress;
         public void OnStateProgress(double percent)
         {
-            if (StateProgress != null)
-            {
-                StateProgress(this, new ProgressEventArgs(percent));
-            }
+            StateProgress?.Invoke(this, new ProgressEventArgs(percent));
         }
 
-        public State CurrentState
-        {
-            get
-            {
-                return this.currentState;
-            }
-        }
+        public State CurrentState { get; private set; }
 
         public bool IsInFinalState
         {
             get
             {
-                return this.currentState.IsFinalState;
+                return this.CurrentState.IsFinalState;
             }
         }
 
         private void SetCurrentState(State newState)
         {
-            if (this.currentState != null && this.currentState.IsFinalState)
+            if (this.CurrentState != null && this.CurrentState.IsFinalState)
             {
                 throw new InvalidOperationException("state machine is already in a final state");
             }
 
-            this.currentState = newState;
-            this.currentState.StateMachine = this;
-            OnNewState(this.currentState);
-            this.currentState.OnEnteredState();
+            this.CurrentState = newState;
+            this.CurrentState.StateMachine = this;
+            OnNewState(this.CurrentState);
+            this.CurrentState.OnEnteredState();
 
-            if (!this.currentState.IsFinalState)
+            if (!this.CurrentState.IsFinalState)
             {
                 ProcessQueuedInput();
             }
@@ -87,7 +74,7 @@ namespace PaintDotNet
                 throw new InvalidOperationException("already processing input");
             }
 
-            if (this.currentState.IsFinalState)
+            if (this.CurrentState.IsFinalState)
             {
                 throw new InvalidOperationException("state machine is already in a final state");
             }
@@ -107,10 +94,9 @@ namespace PaintDotNet
             {
                 object processMe = this.inputQueue.Dequeue();
 
-                State newState;
-                this.currentState.ProcessInput(processMe, out newState);
+                this.CurrentState.ProcessInput(processMe, out State newState);
 
-                if (newState == currentState)
+                if (newState == CurrentState)
                 {
                     throw new InvalidOperationException("must provide a clean, newly constructed state");
                 }
@@ -121,7 +107,7 @@ namespace PaintDotNet
 
         public void Start()
         {
-            if (this.currentState != null)
+            if (this.CurrentState != null)
             {
                 throw new InvalidOperationException("may only call Start() once after construction");
             }

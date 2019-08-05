@@ -10,11 +10,8 @@
 using PaintDotNet.SystemLayer;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 namespace PaintDotNet
 {
@@ -31,18 +28,8 @@ namespace PaintDotNet
           ICloneable
     {
         private MemoryBlock scan0;
-        private int width;
-        private int height;
-        private int stride;
-        private bool disposed = false;
 
-        public bool IsDisposed
-        {
-            get
-            {
-                return this.disposed;
-            }
-        }
+        public bool IsDisposed { get; private set; } = false;
 
         /// <summary>
         /// Gets a MemoryBlock which is the buffer holding the pixels associated
@@ -52,7 +39,7 @@ namespace PaintDotNet
         {
             get
             {
-                if (this.disposed)
+                if (this.IsDisposed)
                 {
                     throw new ObjectDisposedException("Surface");
                 }
@@ -67,13 +54,7 @@ namespace PaintDotNet
         /// <remarks>
         /// This property will never throw an ObjectDisposedException.
         /// </remarks>
-        public int Width
-        {
-            get
-            {
-                return this.width;
-            }
-        }
+        public int Width { get; private set; }
 
         /// <summary>
         /// Gets the height, in pixels, of this Surface.
@@ -81,13 +62,7 @@ namespace PaintDotNet
         /// <remarks>
         /// This property will never throw an ObjectDisposedException.
         /// </remarks>
-        public int Height
-        {
-            get
-            {
-                return this.height;
-            }
-        }
+        public int Height { get; private set; }
 
         /// <summary>
         /// Gets the stride, in bytes, for this Surface.
@@ -98,13 +73,7 @@ namespace PaintDotNet
         /// Stride will always be equal to <b>or greater than</b> Width * ColorBgra.SizeOf.
         /// This property will never throw an ObjectDisposedException.
         /// </remarks>
-        public int Stride
-        {
-            get
-            {
-                return this.stride;
-            }
-        }
+        public int Stride { get; private set; }
 
         /// <summary>
         /// Gets the size, in pixels, of this Surface.
@@ -118,7 +87,7 @@ namespace PaintDotNet
         {
             get
             {
-                return new Size(this.width, this.height);
+                return new Size(this.Width, this.Height);
             }
         }
 
@@ -148,7 +117,7 @@ namespace PaintDotNet
         {
             get
             {
-                return new Rectangle(0, 0, width, height);
+                return new Rectangle(0, 0, Width, Height);
             }
         }
 
@@ -204,9 +173,9 @@ namespace PaintDotNet
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1500:VariableNamesShouldNotMatchFieldNames", MessageId = "scan0")]
         private void Create(int width, int height, int stride, MemoryBlock scan0)
         {
-            this.width = width;
-            this.height = height;
-            this.stride = stride;
+            this.Width = width;
+            this.Height = height;
+            this.Stride = stride;
             this.scan0 = scan0;
         }
 
@@ -229,7 +198,7 @@ namespace PaintDotNet
 
         public Surface CreateWindow(int x, int y, int windowWidth, int windowHeight)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -249,10 +218,10 @@ namespace PaintDotNet
                     "bounds parameters must be a subset of this Surface's bounds");
             }
 
-            long offset = ((long)stride * (long)y) + ((long)ColorBgra.SizeOf * (long)x);
-            long length = ((windowHeight - 1) * (long)stride) + (long)windowWidth * (long)ColorBgra.SizeOf;
+            long offset = ((long)Stride * (long)y) + ((long)ColorBgra.SizeOf * (long)x);
+            long length = ((windowHeight - 1) * (long)Stride) + (long)windowWidth * (long)ColorBgra.SizeOf;
             MemoryBlock block = new MemoryBlock(this.scan0, offset, length);
-            return new Surface(windowWidth, windowHeight, this.stride, block);
+            return new Surface(windowWidth, windowHeight, this.Stride, block);
         }
 
         /// <summary>
@@ -262,12 +231,12 @@ namespace PaintDotNet
         /// <returns>The number of bytes between (0,0) and (0,y).</returns>
         public long GetRowByteOffset(int y)
         {
-            if (y < 0 || y >= height)
+            if (y < 0 || y >= Height)
             {
                 throw new ArgumentOutOfRangeException("y", "Out of bounds: y=" + y.ToString());
             }
 
-            return (long)y * (long)stride;
+            return (long)y * (long)Stride;
         }
 
         /// <summary>
@@ -282,13 +251,13 @@ namespace PaintDotNet
         public unsafe long GetRowByteOffsetUnchecked(int y)
         {
 #if DEBUG
-            if (y < 0 || y >= this.height)
+            if (y < 0 || y >= this.Height)
             {
-                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.height.ToString() + ")");
+                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.Height.ToString() + ")");
             }
 #endif
 
-            return (long)y * (long)stride;
+            return (long)y * (long)Stride;
         }
 
         /// <summary>
@@ -314,9 +283,9 @@ namespace PaintDotNet
         public unsafe ColorBgra *GetRowAddressUnchecked(int y)
         {
 #if DEBUG
-            if (y < 0 || y >= this.height)
+            if (y < 0 || y >= this.Height)
             {
-                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.height.ToString() + ")");
+                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.Height.ToString() + ")");
             }
 #endif
 
@@ -332,7 +301,7 @@ namespace PaintDotNet
         /// </returns>
         public long GetColumnByteOffset(int x)
         {
-            if (x < 0 || x >= this.width)
+            if (x < 0 || x >= this.Width)
             {
                 throw new ArgumentOutOfRangeException("x", x, "Out of bounds");
             }
@@ -354,9 +323,9 @@ namespace PaintDotNet
         public long GetColumnByteOffsetUnchecked(int x)
         {
 #if DEBUG
-            if (x < 0 || x >= this.width)
+            if (x < 0 || x >= this.Width)
             {
-                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.width.ToString() + ")");
+                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.Width.ToString() + ")");
             }
 #endif
 
@@ -393,14 +362,14 @@ namespace PaintDotNet
         public long GetPointByteOffsetUnchecked(int x, int y)
         {
 #if DEBUG
-            if (x < 0 || x >= this.width)
+            if (x < 0 || x >= this.Width)
             {
-                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.width.ToString() + ")");
+                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.Width.ToString() + ")");
             }
 
-            if (y < 0 || y >= this.height)
+            if (y < 0 || y >= this.Height)
             {
-                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.height.ToString() + ")");
+                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.Height.ToString() + ")");
             }
 #endif
 
@@ -431,18 +400,18 @@ namespace PaintDotNet
         public unsafe ColorBgra GetPointUnchecked(int x, int y)
         {
 #if DEBUG
-            if (x < 0 || x >= this.width)
+            if (x < 0 || x >= this.Width)
             {
-                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.width.ToString() + ")");
+                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.Width.ToString() + ")");
             }
 
-            if (y < 0 || y >= this.height)
+            if (y < 0 || y >= this.Height)
             {
-                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.height.ToString() + ")");
+                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.Height.ToString() + ")");
             }
 #endif
 
-            return *(x + (ColorBgra *)(((byte *)scan0.VoidStar) + (y * stride)));
+            return *(x + (ColorBgra *)(((byte *)scan0.VoidStar) + (y * Stride)));
         }
 
         /// <summary>
@@ -500,18 +469,18 @@ namespace PaintDotNet
         public unsafe ColorBgra *GetPointAddressUnchecked(int x, int y)
         {
 #if DEBUG
-            if (x < 0 || x >= this.width)
+            if (x < 0 || x >= this.Width)
             {
-                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.width.ToString() + ")");
+                Tracing.Ping("x=" + x.ToString() + " is out of bounds of [0, " + this.Width.ToString() + ")");
             }
 
-            if (y < 0 || y >= this.height)
+            if (y < 0 || y >= this.Height)
             {
-                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.height.ToString() + ")");
+                Tracing.Ping("y=" + y.ToString() + " is out of bounds of [0, " + this.Height.ToString() + ")");
             }
 #endif
 
-            return unchecked(x + (ColorBgra *)(((byte *)scan0.VoidStar) + (y * stride)));
+            return unchecked(x + (ColorBgra *)(((byte *)scan0.VoidStar) + (y * Stride)));
         }
 
         /// <summary>
@@ -536,7 +505,7 @@ namespace PaintDotNet
         /// <remarks>This method is the safest to use for direct memory access to a row's pixel data.</remarks>
         public MemoryBlock GetRow(int y)
         {
-            return new MemoryBlock(scan0, GetRowByteOffset(y), (long)width * (long)ColorBgra.SizeOf);
+            return new MemoryBlock(scan0, GetRowByteOffset(y), (long)Width * (long)ColorBgra.SizeOf);
         }
 
         public bool IsContiguousMemoryRegion(Rectangle bounds)
@@ -556,7 +525,7 @@ namespace PaintDotNet
         /// <returns>true if (x,y) is in bounds, false if it's not.</returns>
         public bool IsVisible(int x, int y)
         {
-            return x >= 0 && x < width && y >= 0 && y < height;
+            return x >= 0 && x < Width && y >= 0 && y < Height;
         }
 
         /// <summary>
@@ -623,27 +592,27 @@ namespace PaintDotNet
                 int sx = iu;
                 if (sx < 0)
                 {
-                    sx = (width - 1) + ((sx + 1) % width);
+                    sx = (Width - 1) + ((sx + 1) % Width);
                 }
-                else if (sx > (width - 1))
+                else if (sx > (Width - 1))
                 {
-                    sx = sx % width;
+                    sx = sx % Width;
                 }
 
                 int sy = iv;
                 if (sy < 0)
                 {
-                    sy = (height - 1) + ((sy + 1) % height);
+                    sy = (Height - 1) + ((sy + 1) % Height);
                 }
-                else if (sy > (height - 1))
+                else if (sy > (Height - 1))
                 {
-                    sy = sy % height;
+                    sy = sy % Height;
                 }
 
                 int sleft = sx;
                 int sright;
 
-                if (sleft == (width - 1))
+                if (sleft == (Width - 1))
                 {
                     sright = 0;
                 }
@@ -655,7 +624,7 @@ namespace PaintDotNet
                 int stop = sy;
                 int sbottom;
 
-                if (stop == (height - 1))
+                if (stop == (Height - 1))
                 {
                     sbottom = 0;
                 }
@@ -691,7 +660,7 @@ namespace PaintDotNet
             float u = x;
             float v = y;
 
-            if (u >= 0 && v >= 0 && u < width && v < height)
+            if (u >= 0 && v >= 0 && u < Width && v < Height)
             {
                 unchecked
                 {
@@ -713,7 +682,7 @@ namespace PaintDotNet
                     int sleft = sx;
                     int sright;
 
-                    if (sleft == (width - 1))
+                    if (sleft == (Width - 1))
                     {
                         sright = sleft;
                     }
@@ -725,7 +694,7 @@ namespace PaintDotNet
                     int stop = sy;
                     int sbottom;
 
-                    if (stop == (height - 1))
+                    if (stop == (Height - 1))
                     {
                         sbottom = stop;
                     }
@@ -803,7 +772,7 @@ namespace PaintDotNet
                 int sleft = sx;
                 int sright;
 
-                if (sleft == (width - 1))
+                if (sleft == (Width - 1))
                 {
                     sright = sleft;
                 }
@@ -815,7 +784,7 @@ namespace PaintDotNet
                 int stop = sy;
                 int sbottom;
 
-                if (stop == (height - 1))
+                if (stop == (Height - 1))
                 {
                     sbottom = stop;
                 }
@@ -845,14 +814,14 @@ namespace PaintDotNet
         {
             get
             {
-                if (disposed)
+                if (IsDisposed)
                 {
                     throw new ObjectDisposedException("Surface");
                 }
 
-                if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+                if (x < 0 || y < 0 || x >= this.Width || y >= this.Height)
                 {
-                    throw new ArgumentOutOfRangeException("(x,y)", new Point(x, y), "Coordinates out of range, max=" + new Size(width - 1, height - 1).ToString());
+                    throw new ArgumentOutOfRangeException("(x,y)", new Point(x, y), "Coordinates out of range, max=" + new Size(Width - 1, Height - 1).ToString());
                 }
 
                 unsafe
@@ -863,14 +832,14 @@ namespace PaintDotNet
 
             set
             {
-                if (disposed)
+                if (IsDisposed)
                 {
                     throw new ObjectDisposedException("Surface");
                 }
 
-                if (x < 0 || y < 0 || x >= this.width || y >= this.height)
+                if (x < 0 || y < 0 || x >= this.Width || y >= this.Height)
                 {
-                    throw new ArgumentOutOfRangeException("(x,y)", new Point(x, y), "Coordinates out of range, max=" + new Size(width - 1, height - 1).ToString());
+                    throw new ArgumentOutOfRangeException("(x,y)", new Point(x, y), "Coordinates out of range, max=" + new Size(Width - 1, Height - 1).ToString());
                 }
 
                 unsafe
@@ -912,7 +881,7 @@ namespace PaintDotNet
         /// <summary>
         /// Helper function. Same as calling CreateAliasedBounds(bounds, true).
         /// </summary>
-        /// <returns>A GDI+ Bitmap that aliases the entire Surface.</returns>
+        /// <returns>A GDI+ Bitmap that aliases the Surface within the rectangle bounds </returns>
         public Bitmap CreateAliasedBitmap(Rectangle bounds)
         {
             return CreateAliasedBitmap(bounds, true);
@@ -935,7 +904,7 @@ namespace PaintDotNet
         /// <exception cref="ObjectDisposedException">This Surface instance is already disposed.</exception>
         public Bitmap CreateAliasedBitmap(Rectangle bounds, bool alpha)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -954,7 +923,7 @@ namespace PaintDotNet
 
             unsafe
             {
-                return new Bitmap(bounds.Width, bounds.Height, stride, alpha ? this.PixelFormat : PixelFormat.Format32bppRgb, 
+                return new Bitmap(bounds.Width, bounds.Height, Stride, alpha ? this.PixelFormat : PixelFormat.Format32bppRgb, 
                     new IntPtr((void *)((byte *)scan0.VoidStar + GetPointByteOffsetUnchecked(bounds.X, bounds.Y))));
             }
         }
@@ -992,27 +961,27 @@ namespace PaintDotNet
         /// </remarks>
         public void CopySurface(Surface source)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
 
-            if (this.stride == source.stride &&
-                (this.width * ColorBgra.SizeOf) == this.stride &&
-                this.width == source.width &&
-                this.height == source.height)
+            if (this.Stride == source.Stride &&
+                (this.Width * ColorBgra.SizeOf) == this.Stride &&
+                this.Width == source.Width &&
+                this.Height == source.Height)
             {
                 unsafe
                 {
                     Memory.Copy(this.scan0.VoidStar, 
                                 source.scan0.VoidStar, 
-                                ((ulong)(height - 1) * (ulong)stride) + ((ulong)width * (ulong)ColorBgra.SizeOf));
+                                ((ulong)(Height - 1) * (ulong)Stride) + ((ulong)Width * (ulong)ColorBgra.SizeOf));
                 }
             }
             else
             {
-                int copyWidth = Math.Min(width, source.width);
-                int copyHeight = Math.Min(height, source.height);
+                int copyWidth = Math.Min(Width, source.Width);
+                int copyHeight = Math.Min(Height, source.Height);
 
                 unsafe
                 {
@@ -1037,7 +1006,7 @@ namespace PaintDotNet
         /// </remarks>
         public void CopySurface(Surface source, Point dstOffset)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -1072,13 +1041,13 @@ namespace PaintDotNet
         /// </param>
         public void CopySurface(Surface source, Rectangle sourceRoi)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
 
             sourceRoi.Intersect(source.Bounds);
-            int copiedWidth = Math.Min(this.width, sourceRoi.Width);
+            int copiedWidth = Math.Min(this.Width, sourceRoi.Width);
             int copiedHeight = Math.Min(this.Height, sourceRoi.Height);
 
             if (copiedWidth == 0 || copiedHeight == 0)
@@ -1105,7 +1074,7 @@ namespace PaintDotNet
         /// </remarks>
         public void CopySurface(Surface source, Point dstOffset, Rectangle sourceRoi)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -1142,7 +1111,7 @@ namespace PaintDotNet
         /// </remarks>
         public void CopySurface(Surface source, PdnRegion region)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -1185,7 +1154,7 @@ namespace PaintDotNet
         /// </remarks>
         public void CopySurface(Surface source, Rectangle[] region, int startIndex, int length)
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -1230,7 +1199,7 @@ namespace PaintDotNet
         /// <returns>A new surface that is a clone of the current one.</returns>
         public Surface Clone()
         {
-            if (disposed)
+            if (IsDisposed)
             {
                 throw new ObjectDisposedException("Surface");
             }
@@ -1292,11 +1261,11 @@ namespace PaintDotNet
         {
             unsafe
             {
-                for (int y = 0; y < this.height; ++y)
+                for (int y = 0; y < this.Height; ++y)
                 {
                     ColorBgra* dstPtr = GetRowAddressUnchecked(y);
 
-                    for (int x = 0; x < this.width; ++x)
+                    for (int x = 0; x < this.Width; ++x)
                     {
                         byte v = (byte)((((x ^ y) & 8) * 8) + 191);
                         *dstPtr = ColorBgra.FromBgra(v, v, v, 255);
@@ -1334,7 +1303,7 @@ namespace PaintDotNet
             }
             else if (source.Width <= Width || source.Height <= Height)
             {
-                if (source.width < 2 || source.height < 2 || this.width < 2 || this.height < 2)
+                if (source.Width < 2 || source.Height < 2 || this.Width < 2 || this.Height < 2)
                 {
                     this.NearestNeighborFitSurface(source, dstRoi);
                 }
@@ -1349,12 +1318,12 @@ namespace PaintDotNet
 
                 for (int dstY = dstRoi2.Top; dstY < dstRoi2.Bottom; ++dstY)
                 {
-                    double srcTop = (double)(dstY * source.height) / (double)height;
+                    double srcTop = (double)(dstY * source.Height) / (double)Height;
                     double srcTopFloor = Math.Floor(srcTop);
                     double srcTopWeight = 1 - (srcTop - srcTopFloor);
                     int srcTopInt = (int)srcTopFloor;
 
-                    double srcBottom = (double)((dstY + 1) * source.height) / (double)height;
+                    double srcBottom = (double)((dstY + 1) * source.Height) / (double)Height;
                     double srcBottomFloor = Math.Floor(srcBottom - 0.00001);
                     double srcBottomWeight = srcBottom - srcBottomFloor;
                     int srcBottomInt = (int)srcBottomFloor;
@@ -1363,12 +1332,12 @@ namespace PaintDotNet
 
                     for (int dstX = dstRoi2.Left; dstX < dstRoi2.Right; ++dstX)
                     {
-                        double srcLeft = (double)(dstX * source.width) / (double)width;
+                        double srcLeft = (double)(dstX * source.Width) / (double)Width;
                         double srcLeftFloor = Math.Floor(srcLeft);
                         double srcLeftWeight = 1 - (srcLeft - srcLeftFloor);
                         int srcLeftInt = (int)srcLeftFloor;
 
-                        double srcRight = (double)((dstX + 1) * source.width) / (double)width;
+                        double srcRight = (double)((dstX + 1) * source.Width) / (double)Width;
                         double srcRightFloor = Math.Floor(srcRight - 0.00001);
                         double srcRightWeight = srcRight - srcRightFloor;
                         int srcRightInt = (int)srcRightFloor;
@@ -1388,7 +1357,7 @@ namespace PaintDotNet
                             greenSum += srcLeftPtr->G * srcLeftWeight * a;
                             redSum += srcLeftPtr->R * srcLeftWeight * a;
                             alphaSum += srcLeftPtr->A * srcLeftWeight;
-                            srcLeftPtr = (ColorBgra*)((byte*)srcLeftPtr + source.stride);
+                            srcLeftPtr = (ColorBgra*)((byte*)srcLeftPtr + source.Stride);
                         }
 
                         // right fractional edge
@@ -1400,7 +1369,7 @@ namespace PaintDotNet
                             greenSum += srcRightPtr->G * srcRightWeight * a;
                             redSum += srcRightPtr->R * srcRightWeight * a;
                             alphaSum += srcRightPtr->A * srcRightWeight;
-                            srcRightPtr = (ColorBgra*)((byte*)srcRightPtr + source.stride);
+                            srcRightPtr = (ColorBgra*)((byte*)srcRightPtr + source.Stride);
                         }
 
                         // top fractional edge
@@ -1527,13 +1496,13 @@ namespace PaintDotNet
             {
                 for (int dstY = roi.Top; dstY < roi.Bottom; ++dstY)
                 {
-                    int srcY = (dstY * source.height) / height;
+                    int srcY = (dstY * source.Height) / Height;
                     ColorBgra *srcRow = source.GetRowAddressUnchecked(srcY);
                     ColorBgra *dstPtr = this.GetPointAddressUnchecked(roi.Left, dstY);
 
                     for (int dstX = roi.Left; dstX < roi.Right; ++dstX)
                     {
-                        int srcX = (dstX * source.width) / width;
+                        int srcX = (dstX * source.Width) / Width;
                         *dstPtr = *(srcRow + srcX);
                         ++dstPtr;
                     }
@@ -1587,10 +1556,10 @@ namespace PaintDotNet
         /// </remarks>
         public void BicubicFitSurface(Surface source, Rectangle dstRoi)
         {
-            float leftF = (1 * (float)(width - 1)) / (float)(source.width - 1);
-            float topF = (1 * (height - 1)) / (float)(source.height - 1);
-            float rightF = ((float)(source.width - 3) * (float)(width - 1)) / (float)(source.width - 1);
-            float bottomF = ((float)(source.Height - 3) * (float)(height - 1)) / (float)(source.height - 1);
+            float leftF = (1 * (float)(Width - 1)) / (float)(source.Width - 1);
+            float topF = (1 * (Height - 1)) / (float)(source.Height - 1);
+            float rightF = ((float)(source.Width - 3) * (float)(Width - 1)) / (float)(source.Width - 1);
+            float bottomF = ((float)(source.Height - 3) * (float)(Height - 1)) / (float)(source.Height - 1);
 
             int left = (int)Math.Ceiling((double)leftF);
             int top = (int)Math.Ceiling((double)topF);
@@ -1599,10 +1568,10 @@ namespace PaintDotNet
 
             Rectangle[] rois = new Rectangle[] {
                                                    Rectangle.FromLTRB(left, top, right, bottom),
-                                                   new Rectangle(0, 0, width, top),
-                                                   new Rectangle(0, top, left, height - top),
-                                                   new Rectangle(right, top, width - right, height - top),
-                                                   new Rectangle(left, bottom, right - left, height - bottom)
+                                                   new Rectangle(0, 0, Width, top),
+                                                   new Rectangle(0, top, left, Height - top),
+                                                   new Rectangle(right, top, Width - right, Height - top),
+                                                   new Rectangle(left, bottom, right - left, Height - bottom)
                                                };
 
             for (int i = 0; i < rois.Length; ++i)
@@ -1628,7 +1597,7 @@ namespace PaintDotNet
         /// </summary>
         private void BicubicFitSurfaceChecked(Surface source, Rectangle dstRoi)
         {
-            if (this.width < 2 || this.height < 2 || source.width < 2 || source.height < 2)
+            if (this.Width < 2 || this.Height < 2 || source.Width < 2 || source.Height < 2)
             {
                 SuperSamplingFitSurface(source, dstRoi);
             }
@@ -1637,7 +1606,7 @@ namespace PaintDotNet
                 unsafe
                 {
                     Rectangle roi = Rectangle.Intersect(dstRoi, this.Bounds);
-                    Rectangle roiIn = Rectangle.Intersect(dstRoi, new Rectangle(1, 1, width - 1, height - 1));
+                    Rectangle roiIn = Rectangle.Intersect(dstRoi, new Rectangle(1, 1, Width - 1, Height - 1));
 
                     IntPtr rColCacheIP = Memory.Allocate(4 * (ulong)roi.Width * (ulong)sizeof(double));
                     double* rColCache = (double*)rColCacheIP.ToPointer();
@@ -1645,7 +1614,7 @@ namespace PaintDotNet
                     // Precompute and then cache the value of R() for each column
                     for (int dstX = roi.Left; dstX < roi.Right; ++dstX)
                     {
-                        double srcColumn = (double)(dstX * (source.width - 1)) / (double)(width - 1);
+                        double srcColumn = (double)(dstX * (source.Width - 1)) / (double)(Width - 1);
                         double srcColumnFloor = Math.Floor(srcColumn);
                         double srcColumnFrac = srcColumn - srcColumnFloor;
                         int srcColumnInt = (int)srcColumn;
@@ -1663,7 +1632,7 @@ namespace PaintDotNet
                 
                     for (int dstY = roi.Top; dstY < roi.Bottom; ++dstY)
                     {
-                        double srcRow = (double)(dstY * (source.height - 1)) / (double)(height - 1);
+                        double srcRow = (double)(dstY * (source.Height - 1)) / (double)(Height - 1);
                         double srcRowFloor = (double)Math.Floor(srcRow);
                         double srcRowFrac = srcRow - srcRowFloor;
                         int srcRowInt = (int)srcRow;
@@ -1682,7 +1651,7 @@ namespace PaintDotNet
 
                         for (int dstX = roi.Left; dstX < roi.Right; dstX++)
                         {
-                            double srcColumn = (double)(dstX * (source.width - 1)) / (double)(width - 1);
+                            double srcColumn = (double)(dstX * (source.Width - 1)) / (double)(Width - 1);
                             double srcColumnFloor = Math.Floor(srcColumn);
                             double srcColumnFrac = srcColumn - srcColumnFloor;
                             int srcColumnInt = (int)srcColumn;
@@ -1727,7 +1696,7 @@ namespace PaintDotNet
                                     ++srcPtr;
                                 }
 
-                                srcPtr = (ColorBgra *)((byte *)(srcPtr - 4) + source.stride);
+                                srcPtr = (ColorBgra *)((byte *)(srcPtr - 4) + source.Stride);
                             }
 
                             double alpha = alphaSum / totalWeight;
@@ -1769,7 +1738,7 @@ namespace PaintDotNet
         /// </summary>
         public void BicubicFitSurfaceUnchecked(Surface source, Rectangle dstRoi)
         {
-            if (this.width < 2 || this.height < 2 || source.width < 2 || source.height < 2)
+            if (this.Width < 2 || this.Height < 2 || source.Width < 2 || source.Height < 2)
             {
                 SuperSamplingFitSurface(source, dstRoi);
             }
@@ -1778,7 +1747,7 @@ namespace PaintDotNet
                 unsafe
                 {
                     Rectangle roi = Rectangle.Intersect(dstRoi, this.Bounds);
-                    Rectangle roiIn = Rectangle.Intersect(dstRoi, new Rectangle(1, 1, width - 1, height - 1));
+                    Rectangle roiIn = Rectangle.Intersect(dstRoi, new Rectangle(1, 1, Width - 1, Height - 1));
 
                     IntPtr rColCacheIP = Memory.Allocate(4 * (ulong)roi.Width * (ulong)sizeof(double));
                     double* rColCache = (double*)rColCacheIP.ToPointer();
@@ -1786,7 +1755,7 @@ namespace PaintDotNet
                     // Precompute and then cache the value of R() for each column
                     for (int dstX = roi.Left; dstX < roi.Right; ++dstX)
                     {
-                        double srcColumn = (double)(dstX * (source.width - 1)) / (double)(width - 1);
+                        double srcColumn = (double)(dstX * (source.Width - 1)) / (double)(Width - 1);
                         double srcColumnFloor = Math.Floor(srcColumn);
                         double srcColumnFrac = srcColumn - srcColumnFloor;
                         int srcColumnInt = (int)srcColumn;
@@ -1804,7 +1773,7 @@ namespace PaintDotNet
                 
                     for (int dstY = roi.Top; dstY < roi.Bottom; ++dstY)
                     {
-                        double srcRow = (double)(dstY * (source.height - 1)) / (double)(height - 1);
+                        double srcRow = (double)(dstY * (source.Height - 1)) / (double)(Height - 1);
                         double srcRowFloor = Math.Floor(srcRow);
                         double srcRowFrac = srcRow - srcRowFloor;
                         int srcRowInt = (int)srcRow;
@@ -1822,7 +1791,7 @@ namespace PaintDotNet
 
                         for (int dstX = roi.Left; dstX < roi.Right; dstX++)
                         {
-                            double srcColumn = (double)(dstX * (source.width - 1)) / (double)(width - 1);
+                            double srcColumn = (double)(dstX * (source.Width - 1)) / (double)(Width - 1);
                             double srcColumnFloor = Math.Floor(srcColumn);
                             double srcColumnFrac = srcColumn - srcColumnFloor;
                             int srcColumnInt = (int)srcColumn;
@@ -1853,7 +1822,7 @@ namespace PaintDotNet
                                 greenSum += (a0 * srcPtr[0].G * w0) + (a1 * srcPtr[1].G * w1) + (a2 * srcPtr[2].G * w2) + (a3 * srcPtr[3].G * w3);
                                 redSum += (a0 * srcPtr[0].R * w0) + (a1 * srcPtr[1].R * w1) + (a2 * srcPtr[2].R * w2) + (a3 * srcPtr[3].R * w3);
 
-                                srcPtr = (ColorBgra *)((byte *)srcPtr + source.stride);
+                                srcPtr = (ColorBgra *)((byte *)srcPtr + source.Stride);
                             }
 
                             double alpha = alphaSum / totalWeight;
@@ -1910,7 +1879,7 @@ namespace PaintDotNet
         /// <remarks>This method was implemented with correctness, not performance, in mind.</remarks>
         public void BilinearFitSurface(Surface source, Rectangle dstRoi)
         {
-            if (dstRoi.Width < 2 || dstRoi.Height < 2 || this.width < 2 || this.height < 2)
+            if (dstRoi.Width < 2 || dstRoi.Height < 2 || this.Width < 2 || this.Height < 2)
             {
                 SuperSamplingFitSurface(source, dstRoi);
             }
@@ -1923,11 +1892,11 @@ namespace PaintDotNet
                     for (int dstY = roi.Top; dstY < roi.Bottom; ++dstY)
                     {
                         ColorBgra *dstRowPtr = this.GetRowAddressUnchecked(dstY);
-                        float srcRow = (float)(dstY * (source.height - 1)) / (float)(height - 1);
+                        float srcRow = (float)(dstY * (source.Height - 1)) / (float)(Height - 1);
 
                         for (int dstX = roi.Left; dstX < roi.Right; dstX++)
                         {
-                            float srcColumn = (float)(dstX * (source.width - 1)) / (float)(width - 1);
+                            float srcColumn = (float)(dstX * (source.Width - 1)) / (float)(Width - 1);
                             *dstRowPtr = source.GetBilinearSample(srcColumn, srcRow);
                             ++dstRowPtr;
                         }
@@ -1993,10 +1962,10 @@ namespace PaintDotNet
         {
             MemoryBlock rootBlock = GetRootMemoryBlock(this.scan0);
             long childOffsetBytes = this.scan0.Pointer.ToInt64() - rootBlock.Pointer.ToInt64();
-            int childY = (int)(childOffsetBytes / this.stride);
-            int childX = (int)((childOffsetBytes - (childY * this.stride)) / ColorBgra.SizeOf);
+            int childY = (int)(childOffsetBytes / this.Stride);
+            int childX = (int)((childOffsetBytes - (childY * this.Stride)) / ColorBgra.SizeOf);
             childOffset = new Point(childX, childY);
-            parentSize = new Size(this.stride / ColorBgra.SizeOf, childY + this.height);
+            parentSize = new Size(this.Stride / ColorBgra.SizeOf, childY + this.Height);
             bitmapHandle = rootBlock.BitmapHandle;
         }
 
@@ -2011,9 +1980,9 @@ namespace PaintDotNet
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!IsDisposed)
             {
-                disposed = true;
+                IsDisposed = true;
 
                 if (disposing)
                 {

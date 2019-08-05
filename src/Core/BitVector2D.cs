@@ -19,45 +19,25 @@ namespace PaintDotNet
           ICloneable
     {
         private BitArray bitArray;
-        private int width;
-        private int height;
 
-        public int Width
-        {
-            get
-            {
-                return width;
-            }
-        }
+        public int Width { get; }
 
-        public int Height
-        {
-            get
-            {
-                return height;
-            }
-        }
+        public int Height { get; }
 
-        public bool IsEmpty
-        {
-            get
-            {
-                return (width == 0) || (height == 0);
-            }
-        }
+        public bool IsEmpty => (Width == 0) || (Height == 0);
 
         public bool this[int x, int y]
         {
             get
             {
                 CheckBounds(x, y);
-                return bitArray[x + (y * width)];
+                return bitArray[x + (y * Width)];
             }
 
             set
             {
                 CheckBounds(x, y);
-                bitArray[x + (y * width)] = value;
+                bitArray[x + (y * Width)] = value;
             }
         }
 
@@ -66,33 +46,33 @@ namespace PaintDotNet
             get
             {
                 CheckBounds(pt.X, pt.Y);
-                return bitArray[pt.X + (pt.Y * width)];
+                return bitArray[pt.X + (pt.Y * Width)];
             }
 
             set
             {
                 CheckBounds(pt.X, pt.Y);
-                bitArray[pt.X + (pt.Y * width)] = value;
+                bitArray[pt.X + (pt.Y * Width)] = value;
             }
         }
 
         public BitVector2D(int width, int height)
         {
-            this.width = width;
-            this.height = height;
+            this.Width = width;
+            this.Height = height;
             this.bitArray = new BitArray(width * height, false);
         }
 
         public BitVector2D(BitVector2D copyMe)
         {
-            this.width = copyMe.width;
-            this.height = copyMe.height;
+            this.Width = copyMe.Width;
+            this.Height = copyMe.Height;
             this.bitArray = (BitArray)copyMe.bitArray.Clone();
         }
 
         private void CheckBounds(int x, int y)
         {
-            if (x >= width || y >= height || x < 0 || y < 0)
+            if (x >= Width || y >= Height || x < 0 || y < 0)
             {
                 throw new ArgumentOutOfRangeException();
             }
@@ -110,7 +90,7 @@ namespace PaintDotNet
 
         public bool GetUnchecked(int x, int y)
         {
-            return bitArray[x + (y * width)];
+            return bitArray[x + (y * Width)];
         }
 
         public void Set(int x, int y, bool newValue)
@@ -175,7 +155,7 @@ namespace PaintDotNet
 
         public void SetUnchecked(int x, int y, bool newValue)
         {
-            bitArray[x + (y * width)] = newValue;
+            bitArray[x + (y * Width)] = newValue;
         }
 
         public void Invert(int x, int y)

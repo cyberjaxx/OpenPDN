@@ -17,24 +17,10 @@ namespace PaintDotNet
     {
         public const int DefaultSnapProximity = 15;
         public const int DefaultSnapDistance = 3;
-
-        private string name;
         protected Rectangle previousBounds; // for BoundsChanged event
         protected Rectangle bounds;
-        private SnapRegion snapRegion;
-        private bool stickyEdges;
-        private int snapProximity;
-        private int snapDistance;
-        private bool enabled;
-        private bool enableSave;
 
-        public string Name
-        {
-            get
-            {
-                return this.name;
-            }
-        }
+        public string Name { get; }
 
         /// <summary>
         /// Gets the bounds of this snap obstacle, defined in coordinates relative to its container.
@@ -58,13 +44,7 @@ namespace PaintDotNet
             return handled;
         }
 
-        public SnapRegion SnapRegion
-        {
-            get
-            {
-                return this.snapRegion;
-            }
-        }
+        public SnapRegion SnapRegion { get; }
 
         /// <summary>
         /// Gets whether or not this obstacle has "sticky" edges.
@@ -73,61 +53,21 @@ namespace PaintDotNet
         /// If an obstacle has sticky edges, than any obstacle that is snapped on 
         /// to it will move with this obstacle.
         /// </remarks>
-        public bool StickyEdges
-        {
-            get
-            {
-                return this.stickyEdges;
-            }
-        }
+        public bool StickyEdges { get; }
 
         /// <summary>
         /// Gets how close another obstacle must be to snap to this one, in pixels
         /// </summary>
-        public int SnapProximity
-        {
-            get
-            {
-                return this.snapProximity;
-            }
-        }
+        public int SnapProximity { get; }
 
         /// <summary>
         /// Gets how close another obstacle will be parked when it snaps to this one, in pixels.
         /// </summary>
-        public int SnapDistance
-        {
-            get
-            {
-                return this.snapDistance;
-            }
-        }
+        public int SnapDistance { get; }
 
-        public bool Enabled
-        {
-            get
-            {
-                return this.enabled;
-            }
+        public bool Enabled { get; set; }
 
-            set
-            {
-                this.enabled = value;
-            }
-        }
-
-        public bool EnableSave
-        {
-            get
-            {
-                return this.enableSave;
-            }
-
-            set
-            {
-                this.enableSave = value;
-            }
-        }
+        public bool EnableSave { get; set; }
 
         /// <summary>
         /// Raised before the Bounds is changed.
@@ -138,10 +78,7 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<Rectangle>> BoundsChanging;
         protected virtual void OnBoundsChanging()
         {
-            if (BoundsChanging != null)
-            {
-                BoundsChanging(this, new EventArgs<Rectangle>(this.Bounds));
-            }
+            BoundsChanging?.Invoke(this, new EventArgs<Rectangle>(this.Bounds));
         }
 
         /// <summary>
@@ -153,10 +90,7 @@ namespace PaintDotNet
         public event EventHandler<EventArgs<Rectangle>> BoundsChanged;
         protected virtual void OnBoundsChanged()
         {
-            if (BoundsChanged != null)
-            {
-                BoundsChanged(this, new EventArgs<Rectangle>(this.previousBounds));
-            }
+            BoundsChanged?.Invoke(this, new EventArgs<Rectangle>(this.previousBounds));
         }
 
         internal SnapObstacle(string name, Rectangle bounds, SnapRegion snapRegion, bool stickyEdges)
@@ -166,15 +100,15 @@ namespace PaintDotNet
 
         internal SnapObstacle(string name, Rectangle bounds, SnapRegion snapRegion, bool stickyEdges, int snapProximity, int snapDistance)
         {
-            this.name = name;
+            this.Name = name;
             this.bounds = bounds;
             this.previousBounds = bounds;
-            this.snapRegion = snapRegion;
-            this.stickyEdges = stickyEdges;
-            this.snapProximity = snapProximity;
-            this.snapDistance = snapDistance;
-            this.enabled = true;
-            this.enableSave = true;
+            this.SnapRegion = snapRegion;
+            this.StickyEdges = stickyEdges;
+            this.SnapProximity = snapProximity;
+            this.SnapDistance = snapDistance;
+            this.Enabled = true;
+            this.EnableSave = true;
         }
     }
 }

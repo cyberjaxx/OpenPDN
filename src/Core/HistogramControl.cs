@@ -78,32 +78,8 @@ namespace PaintDotNet
         {
             return selected[channel];
         }
-
-        private bool flipHorizontal;
-        public bool FlipHorizontal
-        {
-            get 
-            {
-                return flipHorizontal;
-            }
-            set 
-            {
-                flipHorizontal = value;
-            }
-        }
-
-        private bool flipVertical;
-        public bool FlipVertical
-        {
-            get 
-            {
-                return flipVertical;
-            }
-            set 
-            {
-                flipVertical = value;
-            }
-        }
+        public bool FlipHorizontal { get; set; }
+        public bool FlipVertical { get; set; }
 
         public EventHandler histogramChangedDelegate;
         public HistogramControl()
@@ -135,12 +111,12 @@ namespace PaintDotNet
 
             ++max;
 
-            if (flipHorizontal)
+            if (FlipHorizontal)
             {
                 Utility.Swap(ref l, ref r);
             }
 
-            if (!flipVertical)
+            if (!FlipVertical)
             {
                 Utility.Swap(ref t, ref b);
             }

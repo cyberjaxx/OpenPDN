@@ -9,13 +9,9 @@
 
 using PaintDotNet.SystemLayer;
 using System;
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PaintDotNet
@@ -29,9 +25,7 @@ namespace PaintDotNet
         public const int MaxSideLength = 32767;
 
         private int justPaintWhite = 0; // when this is non-zero, we just paint white (startup optimization)
-        private ScaleFactor scaleFactor;
         private PaintDotNet.Threading.ThreadPool threadPool = new PaintDotNet.Threading.ThreadPool();
-        private SurfaceBoxRendererList rendererList;
         private SurfaceBoxBaseRenderer baseRenderer;
         private Surface surface;
 
@@ -42,13 +36,7 @@ namespace PaintDotNet
         private static WeakReference<Surface> doubleBufferSurfaceWeakRef = null;
         private Surface doubleBufferSurface = null;
 
-        public SurfaceBoxRendererList RendererList
-        {
-            get
-            {
-                return this.rendererList;
-            }
-        }
+        public SurfaceBoxRendererList RendererList { get; }
 
         public Surface Surface
         {
@@ -65,9 +53,9 @@ namespace PaintDotNet
                 if (this.surface != null)
                 {
                     // Maintain the scalefactor
-                    this.Size = this.scaleFactor.ScaleSize(surface.Size);
-                    this.rendererList.SourceSize = this.surface.Size;
-                    this.rendererList.DestinationSize = this.Size;
+                    this.Size = this.ScaleFactor.ScaleSize(surface.Size);
+                    this.RendererList.SourceSize = this.surface.Size;
+                    this.RendererList.DestinationSize = this.Size;
                 }
 
                 Invalidate();
@@ -93,8 +81,8 @@ namespace PaintDotNet
                                                 fit.Height, surface.Height,
                                                 ScaleFactor.MinValue);
 
-            this.scaleFactor = newSF;
-            this.Size = this.scaleFactor.ScaleSize(surface.Size);
+            this.ScaleFactor = newSF;
+            this.Size = this.ScaleFactor.ScaleSize(surface.Size);
         }
 
         public void RenderTo(Surface dst)
@@ -159,7 +147,7 @@ namespace PaintDotNet
            
             if (surface == null)
             {
-                this.scaleFactor = ScaleFactor.OneToOne;
+                this.ScaleFactor = ScaleFactor.OneToOne;
             }
             else
             {
@@ -167,29 +155,23 @@ namespace PaintDotNet
                                                     this.Height, surface.Height,
                                                     ScaleFactor.OneToOne);
 
-                this.scaleFactor = newSF;
+                this.ScaleFactor = newSF;
             }
 
-            this.rendererList.DestinationSize = this.Size;
+            this.RendererList.DestinationSize = this.Size;
         }
 
-        public ScaleFactor ScaleFactor
-        {
-            get
-            {
-                return this.scaleFactor;
-            }
-        }
+        public ScaleFactor ScaleFactor { get; private set; }
 
         public SurfaceBox()
         {
             InitializeComponent();
-            this.scaleFactor = ScaleFactor.OneToOne;
+            this.ScaleFactor = ScaleFactor.OneToOne;
 
-            this.rendererList = new SurfaceBoxRendererList(this.Size, this.Size);
-            this.rendererList.Invalidated += new InvalidateEventHandler(Renderers_Invalidated);
-            this.baseRenderer = new SurfaceBoxBaseRenderer(this.rendererList, null);
-            this.rendererList.Add(this.baseRenderer, false);
+            this.RendererList = new SurfaceBoxRendererList(this.Size, this.Size);
+            this.RendererList.Invalidated += new InvalidateEventHandler(Renderers_Invalidated);
+            this.baseRenderer = new SurfaceBoxBaseRenderer(this.RendererList, null);
+            this.RendererList.Add(this.baseRenderer, false);
         }
 
         protected override void Dispose(bool disposing)
@@ -198,7 +180,7 @@ namespace PaintDotNet
             {
                 if (this.baseRenderer != null)
                 {
-                    this.rendererList.Remove(this.baseRenderer);
+                    this.RendererList.Remove(this.baseRenderer);
                     this.baseRenderer.Dispose();
                     this.baseRenderer = null;
                 }
@@ -220,19 +202,13 @@ namespace PaintDotNet
         public event PaintEventHandler2 Painted;
         private void OnPainted(PaintEventArgs2 e)
         {
-            if (Painted != null)
-            {
-                Painted(this, e);
-            }
+            Painted?.Invoke(this, e);
         }
 
         public event PaintEventHandler2 PrePaint;
         private void OnPrePaint(PaintEventArgs2 e)
         {
-            if (PrePaint != null)
-            {
-                PrePaint(this, e);
-            }
+            PrePaint?.Invoke(this, e);
         }
 
         private Surface GetDoubleBuffer(Size size)
@@ -356,10 +332,7 @@ namespace PaintDotNet
                     DrawArea(renderArgs, e.ClipRectangle.Location);
                     OnPainted(e);
 
-                    IntPtr tracking;
-                    Point childOffset;
-                    Size parentSize;
-                    doubleBuffer.GetDrawBitmapInfo(out tracking, out childOffset, out parentSize);
+                    doubleBuffer.GetDrawBitmapInfo(out IntPtr tracking, out Point childOffset, out Size parentSize);
 
                     PdnGraphics.DrawBitmap(e.Graphics, e.ClipRectangle, e.Graphics.Transform,
                         tracking, childOffset.X, childOffset.Y);
@@ -385,7 +358,7 @@ namespace PaintDotNet
             public void RenderThreadMethod(object indexObject)
             {
                 int index = (int)indexObject;
-                this.owner.rendererList.Render(windows[index], offsets[index]);
+                this.owner.RendererList.Render(windows[index], offsets[index]);
                 this.windows[index].Dispose();
                 this.windows[index] = null;
             }
@@ -433,7 +406,7 @@ namespace PaintDotNet
                     renderContext.windows[i] = null;
                 }
             }
-            
+
             for (int i = 0; i < renderContext.windows.Length; ++i)
             {
                 if (renderContext.windows[i] != null)

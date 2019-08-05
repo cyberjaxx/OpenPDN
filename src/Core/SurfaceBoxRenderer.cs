@@ -18,8 +18,6 @@ namespace PaintDotNet
     public abstract class SurfaceBoxRenderer
         : IDisposable
     {
-        private bool disposed = false;
-        private SurfaceBoxRendererList ownerList;
         private bool visible;
 
         public const int MinXCoordinate = -131072;
@@ -27,13 +25,7 @@ namespace PaintDotNet
         public const int MinYCoordinate = -131072;
         public const int MaxYCoordinate = +131072;
 
-        public bool IsDisposed
-        {
-            get
-            {
-                return this.disposed;
-            }
-        }
+        public bool IsDisposed { get; private set; } = false;
 
         public static Rectangle MaxBounds
         {
@@ -51,13 +43,7 @@ namespace PaintDotNet
             }
         }
 
-        protected SurfaceBoxRendererList OwnerList
-        {
-            get
-            {
-                return this.ownerList;
-            }
-        }
+        protected SurfaceBoxRendererList OwnerList { get; }
 
         public virtual void OnSourceSizeChanged()
         {
@@ -147,7 +133,7 @@ namespace PaintDotNet
 
         public SurfaceBoxRenderer(SurfaceBoxRendererList ownerList)
         {
-            this.ownerList = ownerList;
+            this.OwnerList = ownerList;
             this.visible = true;
         }
 
@@ -164,7 +150,7 @@ namespace PaintDotNet
 
         protected virtual void Dispose(bool disposing)
         {
-            this.disposed = true;
+            this.IsDisposed = true;
         }
     }
 }

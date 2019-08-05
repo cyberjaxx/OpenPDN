@@ -38,35 +38,27 @@ namespace PaintDotNet
     /// </summary>
     public sealed class Selection
     {
-        private object syncRoot = new object();
-
-        public object SyncRoot
-        {
-            get
-            {
-                return this.syncRoot;
-            }
-        }
+        public object SyncRoot { get; } = new object();
 
         private class Data
             : ICloneable,
               IDisposable
         {
-            public PdnGraphicsPath basePath;
-            public PdnGraphicsPath continuation;
-            public CombineMode continuationCombineMode;
-            public Matrix cumulativeTransform; // resets whenever SetContinuation is called
-            public Matrix interimTransform;
+            public PdnGraphicsPath BasePath { get; set; }
+            public PdnGraphicsPath ContinuationPath { get; set; }
+            public CombineMode ContinuationCombineMode { get; set; }
+            public Matrix CumulativeTransform { get; set; } // resets whenever SetContinuation is called
+            public Matrix InterimTransform { get; set; }
 
             public Data()
             {
-                this.basePath = new PdnGraphicsPath();
-                this.continuation = new PdnGraphicsPath();
-                this.continuationCombineMode = CombineMode.Xor;
-                this.cumulativeTransform = new Matrix();
-                this.cumulativeTransform.Reset();
-                this.interimTransform = new Matrix();
-                this.interimTransform.Reset();            
+                BasePath = new PdnGraphicsPath();
+                ContinuationPath = new PdnGraphicsPath();
+                ContinuationCombineMode = CombineMode.Xor;
+                CumulativeTransform = new Matrix();
+                CumulativeTransform.Reset();
+                InterimTransform = new Matrix();
+                InterimTransform.Reset();            
             }
 
             ~Data()
@@ -84,88 +76,58 @@ namespace PaintDotNet
             {
                 if (disposing)
                 {
-                    if (this.basePath != null)
-                    {
-                        this.basePath.Dispose();
-                        this.basePath = null;
-                    }
+                    BasePath?.Dispose();
+                    BasePath = null;
 
-                    if (this.continuation != null)
-                    {
-                        this.continuation.Dispose();
-                        this.continuation = null;
-                    }
+                    ContinuationPath?.Dispose();
+                    ContinuationPath = null;
 
-                    if (this.cumulativeTransform != null)
-                    {
-                        this.cumulativeTransform.Dispose();
-                        this.cumulativeTransform = null;
-                    }
+                    CumulativeTransform?.Dispose();
+                    CumulativeTransform = null;
 
-                    if (this.interimTransform != null)
-                    {
-                        this.interimTransform.Dispose();
-                        this.interimTransform = null;
-                    }
+                    InterimTransform?.Dispose();
+                    InterimTransform = null;
                 }
             }
 
             public Data Clone()
             {
-                Data newData = new Data();
-                newData.basePath = this.basePath.Clone();
-                newData.continuation = this.continuation.Clone();
-                newData.continuationCombineMode = this.continuationCombineMode;
-                newData.cumulativeTransform = this.cumulativeTransform.Clone();
-                newData.interimTransform = this.interimTransform.Clone();
-                return newData;
+                return new Data
+                {
+                    BasePath = BasePath.Clone(),
+                    ContinuationPath = ContinuationPath.Clone(),
+                    ContinuationCombineMode = ContinuationCombineMode,
+                    CumulativeTransform = CumulativeTransform.Clone(),
+                    InterimTransform = InterimTransform.Clone()
+                };
             }
 
             object ICloneable.Clone()
             {
-                return (object)Clone();
+                return Clone();
             }
         }
 
-        private Data data;
-        private int alreadyChanging; // we don't want to nest Changing events -- consolidate them with this
-        private Rectangle clipRectangle;
-
-        //private PdnGraphicsPath cachedPathTrue;
-        //private PdnGraphicsPath cachedPathFalse;
+        private Data SelectionData { get; set; }
+        private int AlreadyChanging { get; set; } // we don't want to nest Changing events -- consolidate them with this
 
         public Selection()
         {
-            this.data = new Data();
-            this.alreadyChanging = 0;
-            this.clipRectangle = new Rectangle(0, 0, 65535, 65535);
+            SelectionData = new Data();
+            AlreadyChanging = 0;
+            ClipRectangle = new Rectangle(0, 0, 65535, 65535);
         }
 
-        public Rectangle ClipRectangle
-        {
-            get
-            {
-                return this.clipRectangle;
-            }
-
-            set
-            {
-                this.clipRectangle = value;
-            }
-        }
+        public Rectangle ClipRectangle { get; set; }
 
         public bool IsEmpty
         {
-            get
-            {
-                return this.data.basePath.IsEmpty && this.data.continuation.IsEmpty;
-            }
+            get => SelectionData.BasePath.IsEmpty && SelectionData.ContinuationPath.IsEmpty;
         }
 
         public bool IsVisible(Point pt)
         {
             using (PdnGraphicsPath path = CreatePath())
-            //PdnGraphicsPath path = GetPathReadOnly();
             {
                 return path.IsVisible(pt);
             }
@@ -173,19 +135,19 @@ namespace PaintDotNet
 
         public object Save()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                return this.data.Clone();
+                return SelectionData.Clone();
             }
         }
 
         public void Restore(object state)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
-                this.data.Dispose();
-                this.data = ((Data)state).Clone();
+                SelectionData.Dispose();
+                SelectionData = ((Data)state).Clone();
                 OnChanged();
             }
         }
@@ -193,7 +155,6 @@ namespace PaintDotNet
         public PdnGraphicsPath CreatePixelatedPath()
         {
             using (PdnGraphicsPath path = CreatePath())
-            //PdnGraphicsPath path = GetPathReadOnly();
             {
                 using (PdnRegion region = new PdnRegion(path))
                 {
@@ -203,40 +164,6 @@ namespace PaintDotNet
             }
         }
 
-        /*
-        public PdnGraphicsPath GetPathReadOnly()
-        {
-            return GetPathReadOnly(true);
-        }
-         * */
-
-        /*
-        public PdnGraphicsPath GetPathReadOnly(bool applyInterimTransform)
-        {
-            lock (this.syncRoot)
-            {
-                if (applyInterimTransform)
-                {
-                    if (this.cachedPathTrue == null)
-                    {
-                        this.cachedPathTrue = CreatePath(true);
-                    }
-
-                    return this.cachedPathTrue;
-                }
-                else
-                {
-                    if (this.cachedPathFalse == null)
-                    {
-                        this.cachedPathFalse = CreatePath(false);
-                    }
-
-                    return this.cachedPathFalse;
-                }
-            }
-        }
-         * */
-
         public PdnGraphicsPath CreatePath()
         {
             return CreatePath(true);
@@ -244,13 +171,13 @@ namespace PaintDotNet
 
         public PdnGraphicsPath CreatePath(bool applyInterimTransform)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                PdnGraphicsPath returnPath = PdnGraphicsPath.Combine(this.data.basePath, this.data.continuationCombineMode, this.data.continuation);
+                PdnGraphicsPath returnPath = PdnGraphicsPath.Combine(SelectionData.BasePath, SelectionData.ContinuationCombineMode, SelectionData.ContinuationPath);
 
                 if (applyInterimTransform)
                 {
-                    returnPath.Transform(this.data.interimTransform);
+                    returnPath.Transform(SelectionData.InterimTransform);
                 }
 
                 return returnPath;
@@ -259,27 +186,27 @@ namespace PaintDotNet
 
         public void Reset()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
-                this.data.basePath.Dispose();
-                this.data.basePath = new PdnGraphicsPath();
-                this.data.continuation.Dispose();
-                this.data.continuation = new PdnGraphicsPath();
-                this.data.cumulativeTransform.Reset();
-                this.data.interimTransform.Reset();
+                SelectionData.BasePath.Dispose();
+                SelectionData.BasePath = new PdnGraphicsPath();
+                SelectionData.ContinuationPath.Dispose();
+                SelectionData.ContinuationPath = new PdnGraphicsPath();
+                SelectionData.CumulativeTransform.Reset();
+                SelectionData.InterimTransform.Reset();
                 OnChanged();
             }
         }
 
         public void ResetContinuation()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
                 CommitInterimTransform();
                 ResetCumulativeTransform();
-                this.data.continuation.Reset();
+                SelectionData.ContinuationPath.Reset();
                 OnChanged();
             }
         }
@@ -301,7 +228,7 @@ namespace PaintDotNet
 
         public RectangleF GetBoundsF(bool applyInterimTransformation)
         {
-            using (PdnGraphicsPath path = this.CreatePath(applyInterimTransformation))
+            using (PdnGraphicsPath path = CreatePath(applyInterimTransformation))
             //PdnGraphicsPath path = GetPathReadOnly(applyInterimTransformation);
             {
                 RectangleF bounds2 = path.GetBounds2();
@@ -311,70 +238,70 @@ namespace PaintDotNet
 
         public void SetContinuation(Rectangle rect, CombineMode combineMode)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
                 CommitInterimTransform();
                 ResetCumulativeTransform();
-                this.data.continuationCombineMode = combineMode;
-                this.data.continuation.Reset();
-                this.data.continuation.AddRectangle(rect);
+                SelectionData.ContinuationCombineMode = combineMode;
+                SelectionData.ContinuationPath.Reset();
+                SelectionData.ContinuationPath.AddRectangle(rect);
                 OnChanged();
             }
         }
 
         public void SetContinuation(Point[] linePoints, CombineMode combineMode)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
                 CommitInterimTransform();
                 ResetCumulativeTransform();
-                this.data.continuationCombineMode = combineMode;
-                this.data.continuation.Reset();
-                this.data.continuation.AddLines(linePoints);
+                SelectionData.ContinuationCombineMode = combineMode;
+                SelectionData.ContinuationPath.Reset();
+                SelectionData.ContinuationPath.AddLines(linePoints);
                 OnChanged();
             }
         }
 
         public void SetContinuation(PointF[] linePointsF, CombineMode combineMode)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
                 CommitInterimTransform();
                 ResetCumulativeTransform();
-                this.data.continuationCombineMode = combineMode;
-                this.data.continuation.Reset();
-                this.data.continuation.AddLines(linePointsF);
+                SelectionData.ContinuationCombineMode = combineMode;
+                SelectionData.ContinuationPath.Reset();
+                SelectionData.ContinuationPath.AddLines(linePointsF);
                 OnChanged();
             }
         }
 
         public void SetContinuation(PointF[][] polygonSet, CombineMode combineMode)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
                 CommitInterimTransform();
                 ResetCumulativeTransform();
-                this.data.continuationCombineMode = combineMode;
-                this.data.continuation.Reset();
-                this.data.continuation.AddPolygons(polygonSet);
+                SelectionData.ContinuationCombineMode = combineMode;
+                SelectionData.ContinuationPath.Reset();
+                SelectionData.ContinuationPath.AddPolygons(polygonSet);
                 OnChanged();
             }
         }
 
         public void SetContinuation(Point[][] polygonSet, CombineMode combineMode)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
                 CommitInterimTransform();
                 ResetCumulativeTransform();
-                this.data.continuationCombineMode = combineMode;
-                this.data.continuation.Reset();
-                this.data.continuation.AddPolygons(polygonSet);
+                SelectionData.ContinuationCombineMode = combineMode;
+                SelectionData.ContinuationPath.Reset();
+                SelectionData.ContinuationPath.AddPolygons(polygonSet);
                 OnChanged();
             }
         }
@@ -382,9 +309,9 @@ namespace PaintDotNet
         // only works if base is empty 
         public void SetContinuation(PdnGraphicsPath path, CombineMode combineMode, bool takeOwnership)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                if (!this.data.basePath.IsEmpty)
+                if (!SelectionData.BasePath.IsEmpty)
                 {
                     throw new InvalidOperationException("base path must be empty to use this overload of SetContinuation");
                 }
@@ -394,17 +321,17 @@ namespace PaintDotNet
                 CommitInterimTransform();
                 ResetCumulativeTransform();
 
-                this.data.continuationCombineMode = combineMode;
+                SelectionData.ContinuationCombineMode = combineMode;
 
                 if (takeOwnership)
                 {
-                    this.data.continuation.Dispose();
-                    this.data.continuation = path;
+                    SelectionData.ContinuationPath.Dispose();
+                    SelectionData.ContinuationPath = path;
                 }
                 else
                 {
-                    this.data.continuation.Reset();
-                    this.data.continuation.AddPath(path, false);
+                    SelectionData.ContinuationPath.Reset();
+                    SelectionData.ContinuationPath.AddPath(path, false);
                 }
 
                 OnChanged();
@@ -413,24 +340,24 @@ namespace PaintDotNet
 
         public void CommitContinuation()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
-                this.data.continuation.CloseAllFigures();
+                SelectionData.ContinuationPath.CloseAllFigures();
                 PdnGraphicsPath newBasePath = CreatePath();
-                this.data.basePath.Dispose();
-                this.data.basePath = newBasePath;
-                this.data.continuation.Reset();
-                this.data.continuationCombineMode = CombineMode.Xor;
+                SelectionData.BasePath.Dispose();
+                SelectionData.BasePath = newBasePath;
+                SelectionData.ContinuationPath.Reset();
+                SelectionData.ContinuationCombineMode = CombineMode.Xor;
                 OnChanged();
             }
         }
 
         public Matrix GetCumulativeTransformCopy()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                if (this.data.cumulativeTransform == null)
+                if (SelectionData.CumulativeTransform == null)
                 {
                     Matrix m = new Matrix();
                     m.Reset();
@@ -438,37 +365,37 @@ namespace PaintDotNet
                 }
                 else
                 {
-                    return this.data.cumulativeTransform.Clone();
+                    return SelectionData.CumulativeTransform.Clone();
                 }
             }
         }
 
         public Matrix GetCumulativeTransformReadOnly()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                return this.data.cumulativeTransform;
+                return SelectionData.CumulativeTransform;
             }
         }
 
         private void ResetCumulativeTransform()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                if (this.data.cumulativeTransform == null)
+                if (SelectionData.CumulativeTransform == null)
                 {
-                    this.data.cumulativeTransform = new Matrix();
+                    SelectionData.CumulativeTransform = new Matrix();
                 }
 
-                this.data.cumulativeTransform.Reset();
+                SelectionData.CumulativeTransform.Reset();
             }
         }
 
         public Matrix GetInterimTransformCopy()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                if (this.data.interimTransform == null)
+                if (SelectionData.InterimTransform == null)
                 {
                     Matrix m = new Matrix();
                     m.Reset();
@@ -476,41 +403,41 @@ namespace PaintDotNet
                 }
                 else
                 {
-                    return this.data.interimTransform.Clone();
+                    return SelectionData.InterimTransform.Clone();
                 }
             }
         }
 
         public Matrix GetInterimTransformReadOnly()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                return this.data.interimTransform;
+                return SelectionData.InterimTransform;
             }
         }
 
         public void SetInterimTransform(Matrix m)
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
-                this.data.interimTransform.Dispose();
-                this.data.interimTransform = m.Clone();
+                SelectionData.InterimTransform.Dispose();
+                SelectionData.InterimTransform = m.Clone();
                 OnChanged();
             }
         }
 
         public void CommitInterimTransform()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                if (!this.data.interimTransform.IsIdentity)
+                if (!SelectionData.InterimTransform.IsIdentity)
                 {
                     OnChanging();
-                    this.data.basePath.Transform(this.data.interimTransform);
-                    this.data.continuation.Transform(this.data.interimTransform);
-                    this.data.cumulativeTransform.Multiply(this.data.interimTransform, MatrixOrder.Append);
-                    this.data.interimTransform.Reset();
+                    SelectionData.BasePath.Transform(SelectionData.InterimTransform);
+                    SelectionData.ContinuationPath.Transform(SelectionData.InterimTransform);
+                    SelectionData.CumulativeTransform.Multiply(SelectionData.InterimTransform, MatrixOrder.Append);
+                    SelectionData.InterimTransform.Reset();
                     OnChanged();
                 }
             }
@@ -518,10 +445,10 @@ namespace PaintDotNet
 
         public void ResetInterimTransform()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 OnChanging();
-                this.data.interimTransform.Reset();
+                SelectionData.InterimTransform.Reset();
                 OnChanged();
             }
         }
@@ -529,7 +456,6 @@ namespace PaintDotNet
         public PdnRegion CreateRegionRaw()
         {
             using (PdnGraphicsPath path = CreatePath())
-            //PdnGraphicsPath path = GetPathReadOnly();
             {
                 return new PdnRegion(path);
             }
@@ -537,16 +463,16 @@ namespace PaintDotNet
 
         public PdnRegion CreateRegion()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
                 if (IsEmpty)
                 {
-                    return new PdnRegion(this.clipRectangle);
+                    return new PdnRegion(ClipRectangle);
                 }
                 else
                 {
                     PdnRegion region = CreateRegionRaw();
-                    region.Intersect(this.clipRectangle);
+                    region.Intersect(ClipRectangle);
                     return region;
                 }
             }
@@ -555,21 +481,15 @@ namespace PaintDotNet
         public event EventHandler Changing;
         private void OnChanging()
         {
-            lock (this.syncRoot)
+            lock (SyncRoot)
             {
-                if (this.alreadyChanging == 0)
+                if (AlreadyChanging == 0)
                 {
-                    if (Changing != null)
-                    {
-                        Changing(this, EventArgs.Empty);
-                    }
+                    Changing?.Invoke(this, EventArgs.Empty);
                 }
-
-                //this.cachedPathFalse = null;
-                //this.cachedPathTrue = null;
             }
 
-            ++this.alreadyChanging;
+            ++AlreadyChanging;
         }
 
         public void PerformChanging()
@@ -580,25 +500,19 @@ namespace PaintDotNet
         public event EventHandler Changed;
         private void OnChanged()
         {
-            lock (this.SyncRoot)
+            lock (SyncRoot)
             {
-                if (this.alreadyChanging <= 0)
+                if (AlreadyChanging <= 0)
                 {
                     throw new InvalidOperationException("Changed event was raised without corresponding Changing event beforehand");
                 }
 
-                --this.alreadyChanging;
-
-                //this.cachedPathFalse = null;
-                //this.cachedPathTrue = null;
+                --AlreadyChanging;
             }
 
-            if (this.alreadyChanging == 0)
+            if (AlreadyChanging == 0)
             {
-                if (Changed != null)
-                {
-                    Changed(this, EventArgs.Empty);
-                }
+                Changed?.Invoke(this, EventArgs.Empty);
             }
         }
 

@@ -19,56 +19,15 @@ namespace PaintDotNet
         : Attribute,
           IPluginSupportInfo
     {
-        private string displayName;
-        private string author;
-        private string copyright;
-        private Version version = new Version();
-        private Uri websiteUri;
+        public string DisplayName { get; set; }
 
-        public string DisplayName
-        {
-            get
-            {
-                return this.displayName;
-            }
+        public string Author { get; }
 
-            set
-            {
-                this.displayName = value;
-            }
-        }
+        public string Copyright { get; }
 
-        public string Author
-        {
-            get
-            {
-                return this.author;
-            }
-        }
+        public Version Version { get; } = new Version();
 
-        public string Copyright
-        {
-            get
-            {
-                return this.copyright;
-            }
-        }
-
-        public Version Version
-        {
-            get
-            {
-                return this.version;
-            }
-        }
-
-        public Uri WebsiteUri
-        {
-            get
-            {
-                return this.websiteUri;
-            }
-        }
+        public Uri WebsiteUri { get; }
 
         public PluginSupportInfoAttribute()
         {
@@ -77,20 +36,20 @@ namespace PaintDotNet
         public PluginSupportInfoAttribute(Type pluginSupportInfoProvider)
         {
             IPluginSupportInfo ipsi = (IPluginSupportInfo)Activator.CreateInstance(pluginSupportInfoProvider);
-            this.displayName = ipsi.DisplayName;
-            this.author = ipsi.Author;
-            this.copyright = ipsi.Copyright;
-            this.version = ipsi.Version;
-            this.websiteUri = ipsi.WebsiteUri;
+            this.DisplayName = ipsi.DisplayName;
+            this.Author = ipsi.Author;
+            this.Copyright = ipsi.Copyright;
+            this.Version = ipsi.Version;
+            this.WebsiteUri = ipsi.WebsiteUri;
         }
 
         public PluginSupportInfoAttribute(string displayName, string author, string copyright, Version version, Uri websiteUri)
         {
-            this.displayName = displayName;
-            this.author = author;
-            this.copyright = copyright;
-            this.version = version;
-            this.websiteUri = websiteUri;
+            this.DisplayName = displayName;
+            this.Author = author;
+            this.Copyright = copyright;
+            this.Version = version;
+            this.WebsiteUri = websiteUri;
         }
     }
 }

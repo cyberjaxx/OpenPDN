@@ -22,58 +22,34 @@ namespace PaintDotNet.Threading
     /// </summary>
     public class ThreadPool
     {
-        private static ThreadPool global = new ThreadPool(2 * Processor.LogicalCpuCount);
-        public static ThreadPool Global
-        {
-            get
-            {
-                return global;
-            }
-        }
+        public static ThreadPool Global { get; } = new ThreadPool(2 * Processor.LogicalCpuCount);
 
-        private ArrayList exceptions = ArrayList.Synchronized(new ArrayList());
-        private bool useFXTheadPool;
+        private ArrayList ExceptionList { get; } = ArrayList.Synchronized(new ArrayList());
 
-        public static int MinimumCount
-        {
-            get
-            {
-                return WaitableCounter.MinimumCount;
-            }
-        }
+        private bool UseFXThreadPool { get; }
 
-        public static int MaximumCount
-        {
-            get
-            {
-                return WaitableCounter.MaximumCount;
-            }
-        }
+        public static int MinimumCount => WaitableCounter.MinimumCount;
 
-        public Exception[] Exceptions
-        {
-            get
-            {
-                return (Exception[])this.exceptions.ToArray(typeof(Exception));
-            }
-        }
+        public static int MaximumCount => WaitableCounter.MaximumCount;
+
+        public Exception[] Exceptions => (Exception[])ExceptionList.ToArray(typeof(Exception));
 
         public void ClearExceptions()
         {
-            exceptions.Clear();
+            ExceptionList.Clear();
         }
 
         public void DrainExceptions()
         {
-            if (this.exceptions.Count > 0)
+            if (ExceptionList.Count > 0)
             {
-                throw new WorkerThreadException("Worker thread threw an exception", (Exception)this.exceptions[0]);
+                throw new WorkerThreadException("Worker thread threw an exception", (Exception)ExceptionList[0]);
             }
 
             ClearExceptions();
         }
 
-        private WaitableCounter counter;
+        private WaitableCounter Counter { get; }
 
         public ThreadPool()
             : this(Processor.LogicalCpuCount)
@@ -92,8 +68,8 @@ namespace PaintDotNet.Threading
                 throw new ArgumentOutOfRangeException("maxThreads", "must be between " + MinimumCount.ToString() + " and " + MaximumCount.ToString() + " inclusive");
             }
 
-            this.counter = new WaitableCounter(maxThreads);
-            this.useFXTheadPool = useFXThreadPool;
+            Counter = new WaitableCounter(maxThreads);
+            UseFXThreadPool = useFXThreadPool;
         }
 
         /*
@@ -128,10 +104,10 @@ namespace PaintDotNet.Threading
 
         public void QueueUserWorkItem(WaitCallback callback, object state)
         {
-            IDisposable token = counter.AcquireToken();
-            ThreadWrapperContext twc = new ThreadWrapperContext(callback, state, token, this.exceptions);
+            IDisposable token = Counter.AcquireToken();
+            ThreadWrapperContext twc = new ThreadWrapperContext(callback, state, token, ExceptionList);
 
-            if (this.useFXTheadPool)
+            if (UseFXThreadPool)
             {
                 System.Threading.ThreadPool.QueueUserWorkItem(new WaitCallback(twc.ThreadWrapper), twc);
             }
@@ -145,7 +121,7 @@ namespace PaintDotNet.Threading
 
         public bool IsDrained(uint msTimeout)
         {
-            bool result = counter.IsEmpty(msTimeout);
+            bool result = Counter.IsEmpty(msTimeout);
 
             if (result)
             {
@@ -162,38 +138,38 @@ namespace PaintDotNet.Threading
 
         public void Drain()
         {
-            counter.WaitForEmpty();
+            Counter.WaitForEmpty();
             DrainExceptions();
         }
 
         private sealed class ThreadWrapperContext
         {
-            private WaitCallback callback;
-            private object context;
-            private IDisposable counterToken;
-            private ArrayList exceptionsBucket;
+            private WaitCallback Callback { get; }
+            private object Context { get; }
+            private IDisposable CounterToken { get; }
+            private ArrayList ExceptionsBucket { get; }
 
             public ThreadWrapperContext(WaitCallback callback, object context, 
                 IDisposable counterToken, ArrayList exceptionsBucket)
             {
-                this.callback = callback;
-                this.context = context;
-                this.counterToken = counterToken;
-                this.exceptionsBucket = exceptionsBucket;
+                Callback = callback;
+                Context = context;
+                CounterToken = counterToken;
+                ExceptionsBucket = exceptionsBucket;
             }
 
             public void ThreadWrapper()
             {
-                using (IDisposable token = this.counterToken)
+                using (IDisposable token = CounterToken)
                 {
-                    try
+                    //try
                     {
-                        this.callback(this.context);
+                        Callback(Context);
                     }
 
-                    catch (Exception ex)
+                    //catch (Exception ex)
                     {
-                        this.exceptionsBucket.Add(ex);
+                       // ExceptionsBucket.Add(ex);
                     }
                 }
             }

@@ -34,8 +34,7 @@ namespace PaintDotNet
 
         public static PersistedObject<T> Get<T>(Guid guid)
         {
-            WeakReference wr;
-            guidToPO.TryGetValue(guid, out wr);
+            guidToPO.TryGetValue(guid, out WeakReference wr);
             PersistedObject<T> po;
 
             if (wr == null)

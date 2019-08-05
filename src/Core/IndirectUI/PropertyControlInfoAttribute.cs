@@ -17,38 +17,11 @@ namespace PaintDotNet.IndirectUI
     internal class PropertyControlInfoAttribute
         : Attribute
     {
-        private Type propertyType;
-        private PropertyControlType controlType;
-        private bool isDefault;
+        public Type PropertyType { get; }
 
-        public Type PropertyType
-        {
-            get
-            {
-                return this.propertyType;
-            }
-        }
+        public PropertyControlType ControlType { get; }
 
-        public PropertyControlType ControlType
-        {
-            get
-            {
-                return this.controlType;
-            }
-        }
-
-        public bool IsDefault
-        {
-            get
-            {
-                return this.isDefault;
-            }
-
-            set
-            {
-                this.isDefault = value;
-            }
-        }
+        public bool IsDefault { get; set; }
 
         public PropertyControlInfoAttribute(Type propertyType, PropertyControlType controlType)
         {
@@ -57,8 +30,8 @@ namespace PaintDotNet.IndirectUI
                 throw new ArgumentException("propertyType must be a type that derives from Property");
             }
 
-            this.propertyType = propertyType;
-            this.controlType = controlType;
+            this.PropertyType = propertyType;
+            this.ControlType = controlType;
         }
     }
 }

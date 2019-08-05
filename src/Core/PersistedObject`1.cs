@@ -10,14 +10,10 @@
 using PaintDotNet.SystemLayer;
 using System;
 using System.Collections;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security;
-using System.Security.Permissions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -154,9 +150,7 @@ namespace PaintDotNet
 
             // At this point we can now assume the object has been serialized to disk.
             object obj = this.WeakObject;
-            IDisposable disposable = obj as IDisposable;
-
-            if (disposable != null)
+            if (obj is IDisposable disposable)
             {
                 disposable.Dispose();
                 disposable = null;

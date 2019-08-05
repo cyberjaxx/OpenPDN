@@ -18,19 +18,11 @@ namespace PaintDotNet
     public sealed class IndexEventArgs 
         : EventArgs
     {
-        int index;
-
-        public int Index
-        {
-            get
-            {
-                return index;
-            }
-        }
+        public int Index { get; }
 
         public IndexEventArgs(int i)
         {
-            this.index = i;
+            this.Index = i;
         }
     }
 }

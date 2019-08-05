@@ -20,24 +20,10 @@ namespace PaintDotNet
         private SurfaceBoxRenderer[] topList;
         private Size sourceSize;
         private Size destinationSize;
-        private ScaleFactor scaleFactor; // ratio is dst:src
-        private object lockObject = new object();
 
-        public object SyncRoot
-        {
-            get
-            {
-                return this.lockObject;
-            }
-        }
+        public object SyncRoot { get; } = new object();
 
-        public ScaleFactor ScaleFactor
-        {
-            get
-            {
-                return this.scaleFactor;
-            }
-        }
+        public ScaleFactor ScaleFactor { get; private set; }
 
         public SurfaceBoxRenderer[][] Renderers
         {
@@ -49,22 +35,22 @@ namespace PaintDotNet
 
         private void ComputeScaleFactor()
         {
-            scaleFactor = new ScaleFactor(this.DestinationSize.Width, this.SourceSize.Width);
+            ScaleFactor = new ScaleFactor(this.DestinationSize.Width, this.SourceSize.Width);
         }
 
         public Point SourceToDestination(Point pt)
         {
-            return this.scaleFactor.ScalePoint(pt);
+            return this.ScaleFactor.ScalePoint(pt);
         }
 
         public RectangleF SourceToDestination(Rectangle rect)
         {
-            return this.scaleFactor.ScaleRectangle((RectangleF)rect);
+            return this.ScaleFactor.ScaleRectangle((RectangleF)rect);
         }
 
         public Point DestinationToSource(Point pt)
         {
-            return this.scaleFactor.UnscalePoint(pt);
+            return this.ScaleFactor.UnscalePoint(pt);
         }
 
         public void Add(SurfaceBoxRenderer addMe, bool alwaysOnTop)
@@ -427,10 +413,7 @@ namespace PaintDotNet
 
         public void Invalidate(Rectangle rect)
         {
-            if (Invalidated != null)
-            {
-                Invalidated(this, new InvalidateEventArgs(rect));
-            }
+            Invalidated?.Invoke(this, new InvalidateEventArgs(rect));
         }
 
         public void Invalidate()

@@ -9,7 +9,6 @@
 
 using PaintDotNet.SystemLayer;
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace PaintDotNet.Threading
@@ -49,20 +48,13 @@ namespace PaintDotNet.Threading
             : IDisposable
         {
             private WaitableCounter parent;
-            private int index;
 
-            public int Index
-            {
-                get
-                {
-                    return this.index;
-                }
-            }
+            public int Index { get; }
 
             public CounterToken(WaitableCounter parent, int index)
             {
                 this.parent = parent;
-                this.index = index;
+                this.Index = index;
             }
 
             public void Dispose()

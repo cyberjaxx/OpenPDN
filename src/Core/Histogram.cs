@@ -70,10 +70,7 @@ namespace PaintDotNet
         public event EventHandler HistogramChanged;
         protected void OnHistogramUpdated()
         {
-            if (HistogramChanged != null)
-            {
-                HistogramChanged(this, EventArgs.Empty);
-            }
+            HistogramChanged?.Invoke(this, EventArgs.Empty);
         }
 
         protected ColorBgra[] visualColors;
