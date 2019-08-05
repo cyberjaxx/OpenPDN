@@ -339,6 +339,9 @@
     </Compile>
     <Compile Include="SelectionDrawMode.cs" />
     <Compile Include="SelectionDrawModeInfo.cs" />
+    <Compile Include="ToolbarSliderControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TransferProgressDialog.cs">
       <SubType>Form</SubType>
     </Compile>
