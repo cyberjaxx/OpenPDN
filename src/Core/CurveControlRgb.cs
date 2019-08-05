@@ -7,32 +7,26 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-
 namespace PaintDotNet
 {
     /// <summary>
     /// Curve control specialization for RGB curves
     /// </summary>
     public sealed class CurveControlRgb
-        : CurveControl
+        : CurveControlColor
     {
         public CurveControlRgb()
             : base(3, 256)
         {
-            this.mask = new bool[3] { true, true, true };
-            visualColors = new ColorBgra[] {     
-                                               ColorBgra.Red,
-                                               ColorBgra.Green,
-                                               ColorBgra.Blue
-                                           };
-            channelNames = new string[]{
+            Mask = new bool[3] { true, true, true };
+            VisualColors = new ColorBgra[]
+            {     
+                ColorBgra.Red,
+                ColorBgra.Green,
+                ColorBgra.Blue
+            };
+            ChannelNames = new string[]
+            {
                 PdnResources.GetString("CurveControlRgb.Red"),
                 PdnResources.GetString("CurveControlRgb.Green"),
                 PdnResources.GetString("CurveControlRgb.Blue")
@@ -42,10 +36,7 @@ namespace PaintDotNet
 
         public override ColorTransferMode ColorTransferMode
         {
-            get
-            {
-                return ColorTransferMode.Rgb;
-            }
+            get => ColorTransferMode.Rgb;
         }
     }
 }

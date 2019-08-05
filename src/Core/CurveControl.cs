@@ -7,9 +7,7 @@
 // .                                                                           //
 /////////////////////////////////////////////////////////////////////////////////
 
-using PaintDotNet.SystemLayer;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -26,32 +24,26 @@ namespace PaintDotNet
         : UserControl
     {
         private System.ComponentModel.Container components = null;
-        private int[] curvesInvalidRange = new int[] { int.MaxValue, int.MinValue };
-        private Point lastMouseXY = new Point(int.MinValue, int.MinValue);
-        private int lastKey = -1;
-        private int lastValue = -1;
-        private bool tracking = false;
-        private Point[] ptSave;
-        private int[] pointsNearMousePerChannel;
-        private bool[] effectChannel;
 
-        public abstract ColorTransferMode ColorTransferMode
-        {
-            get;
-        }
-
+        private readonly int[] curvesInvalidRange = new int[] { int.MaxValue, int.MinValue };
+        private Point LastMouseXY { get; set; } = new Point(int.MinValue, int.MinValue);
+        private int LastKey { get; set; } = -1;
+        private int LastValue { get; set; } = -1;
+        private bool Tracking { get; set; } = false;
+        private Point[] PtSave { get; set; }
+        private int[] PointsNearMousePerChannel { get; set; }
+        private bool[] EffectChannel { get; set; }
 
         protected SortedList<int, int>[] controlPoints;
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SortedList<int, int>[] ControlPoints
         {
-            get
-            {
-                return this.controlPoints;
-            }
+            get => this.controlPoints;
 
             set
             {
-                if (value.Length != controlPoints.Length)
+                if (value.Length != Channels)
                 {
                     throw new ArgumentException("value must have a matching channel count", "value");
                 }
@@ -61,46 +53,36 @@ namespace PaintDotNet
             }
         }
 
-        protected int channels;
-        public int Channels
-        {
-            get
-            {
-                return this.channels;
-            }
-        }
+        public int Channels { get; protected set; } = 0;
 
-        protected int entries;
-        public int Entries
-        {
-            get
-            {
-                return entries;
-            }
-        }
+        public int Entries { get; protected set; } = 0;
 
-        protected ColorBgra[] visualColors;
+        protected ColorBgra[] VisualColors { get; set; } = null;
         public ColorBgra GetVisualColor(int channel)
         {
-            return visualColors[channel];
+            return VisualColors == null ? ColorBgra.Zero : VisualColors[channel];
         }
 
-        protected string[] channelNames;
+        protected string[] ChannelNames { get; set; }
         public string GetChannelName(int channel)
         {
-            return channelNames[channel];
+            return ChannelNames == null ? string.Empty : ChannelNames[channel];
         }
 
-        protected bool[] mask;
+        protected bool[] Mask { get; set; }
+
         public void SetSelected(int channel, bool val)
         {
-            mask[channel] = val;
-            Invalidate();
+            if (Mask != null)
+            {
+                Mask[channel] = val;
+                Invalidate();
+            }
         }
 
         public bool GetSelected(int channel)
         {
-            return mask[channel];
+            return Mask == null ? false : Mask[channel];
         }
 
         protected internal CurveControl(int channels, int entries)
@@ -108,16 +90,16 @@ namespace PaintDotNet
             this.SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
                 ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
 
-            this.channels = channels;
-            this.entries = entries;
+            Channels = channels;
+            Entries = entries;
 
             // This call is required by the Windows.Forms Form Designer.
             InitializeComponent();
 
-            pointsNearMousePerChannel = new int[channels];
+            PointsNearMousePerChannel = new int[channels];
             for (int i = 0; i < channels; ++i)
             {
-                pointsNearMousePerChannel[i] = -1;
+                PointsNearMousePerChannel[i] = -1;
             }
         }
 
@@ -152,35 +134,30 @@ namespace PaintDotNet
         public event EventHandler ValueChanged;
         protected virtual void OnValueChanged()
         {
-            if (ValueChanged != null)
-            {
-                ValueChanged(this, EventArgs.Empty);
-            }
+            ValueChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler<EventArgs<Point>> CoordinatesChanged;
         protected virtual void OnCoordinatesChanged()
         {
-            if (CoordinatesChanged != null)
-            {
-                CoordinatesChanged(this, new EventArgs<Point>(new Point(lastKey, lastValue)));
-            }
+            CoordinatesChanged?.Invoke(this, new EventArgs<Point>(new Point(LastKey, LastValue)));
         }
 
         public void ResetControlPoints()
         {
-            controlPoints = new SortedList<int, int>[Channels];
+            SortedList<int, int>[] ctrlPoints = new SortedList<int, int>[Channels];
 
             for (int i = 0; i < Channels; ++i)
             {
-                SortedList<int, int> newList = new SortedList<int, int>();
-
-                newList.Add(0, 0);
-                newList.Add(Entries - 1, Entries - 1);
-                controlPoints[i] = newList;
+                SortedList<int, int> newList = new SortedList<int, int>
+                {
+                    { 0, 0 },
+                    { Entries - 1, Entries - 1 }
+                };
+                ctrlPoints[i] = newList;
             }
 
-            Invalidate();
+            ControlPoints = ctrlPoints;
             OnValueChanged();
         }
 
@@ -206,14 +183,14 @@ namespace PaintDotNet
 
             ourRect.Inflate(-1, -1);
 
-            if (lastMouseXY.Y >= 0)
+            if (LastMouseXY.Y >= 0)
             {
-                g.DrawLine(penGuide, 0, lastMouseXY.Y, Width, lastMouseXY.Y);
+                g.DrawLine(penGuide, 0, LastMouseXY.Y, Width, LastMouseXY.Y);
             }
 
-            if (lastMouseXY.X >= 0)
+            if (LastMouseXY.X >= 0)
             {
-                g.DrawLine(penGuide, lastMouseXY.X, 0, lastMouseXY.X, Height);
+                g.DrawLine(penGuide, LastMouseXY.X, 0, LastMouseXY.X, Height);
             }
 
             for (float f = 0.25f; f <= 0.75f; f += 0.25f)
@@ -235,9 +212,9 @@ namespace PaintDotNet
             float width = this.ClientRectangle.Width;
             float height = this.ClientRectangle.Height;
 
-            for (int c = 0; c < channels; ++c)
+            for (int c = 0; c < Channels; ++c)
             {
-                SortedList<int, int> channelControlPoints = controlPoints[c];
+                SortedList<int, int> channelControlPoints = ControlPoints[c];
                 int points = channelControlPoints.Count;
 
                 ColorBgra color = GetVisualColor(c);
@@ -245,7 +222,7 @@ namespace PaintDotNet
 
                 const float penWidthNonSelected = 1;
                 const float penWidthSelected = 2;
-                float penWidth = mask[c] ? penWidthSelected : penWidthNonSelected;
+                float penWidth = Mask[c] ? penWidthSelected : penWidthNonSelected;
                 Pen penSelected = new Pen(color.ToColor(), penWidth);
 
                 color.A = 128;
@@ -266,9 +243,9 @@ namespace PaintDotNet
                 
                 for (int i = 0; i < line.Length; ++i)
                 {
-                    line[i].X = (float)i * (width - 1) / (entries - 1);
-                    line[i].Y = (float)(Utility.Clamp(entries - 1 - interpolator.Interpolate(i), 0, entries - 1)) * 
-                        (height - 1) / (entries - 1);
+                    line[i].X = (float)i * (width - 1) / (Entries - 1);
+                    line[i].Y = (float)(Utility.Clamp(Entries - 1 - interpolator.Interpolate(i), 0, Entries - 1)) * 
+                        (height - 1) / (Entries - 1);
                 }
 
                 pen.LineJoin = LineJoin.Round;
@@ -277,15 +254,15 @@ namespace PaintDotNet
                 for (int i = 0; i < points; ++i)
                 {
                     int k = channelControlPoints.Keys[i];
-                    float x = k * (width - 1) / (entries - 1);
-                    float y = (entries - 1 - channelControlPoints.Values[i]) * (height - 1) / (entries - 1);
+                    float x = k * (width - 1) / (Entries - 1);
+                    float y = (Entries - 1 - channelControlPoints.Values[i]) * (height - 1) / (Entries - 1);
 
                     const float radiusSelected = 4;
                     const float radiusNotSelected = 3;
                     const float radiusUnMasked = 2;
 
-                    bool selected = (mask[c] && pointsNearMousePerChannel[c] == i);
-                    float size = selected ? radiusSelected : (mask[c] ? radiusNotSelected : radiusUnMasked);
+                    bool selected = (Mask[c] && PointsNearMousePerChannel[c] == i);
+                    float size = selected ? radiusSelected : (Mask[c] ? radiusNotSelected : radiusUnMasked);
                     RectangleF rect = Utility.RectangleFromCenter(new PointF(x, y), size);
 
                     g.FillEllipse(selected ? brushSelected : brush, rect.X, rect.Y, rect.Width, rect.Height);
@@ -376,36 +353,36 @@ namespace PaintDotNet
 
             float width = this.ClientRectangle.Width;
             float height = this.ClientRectangle.Height;
-            int mx = (int)Utility.Clamp(0.5f + e.X * (entries - 1) / (width - 1), 0, Entries - 1);
-            int my = (int)Utility.Clamp(0.5f + Entries - 1 - e.Y * (entries - 1) / (height - 1), 0, Entries - 1);
+            int mx = (int)Utility.Clamp(0.5f + e.X * (Entries - 1) / (width - 1), 0, Entries - 1);
+            int my = (int)Utility.Clamp(0.5f + Entries - 1 - e.Y * (Entries - 1) / (height - 1), 0, Entries - 1);
 
-            ptSave = new Point[channels];
-            for (int i = 0; i < channels; ++i)
+            PtSave = new Point[Channels];
+            for (int i = 0; i < Channels; ++i)
             {
-                ptSave[i].X = -1;
+                PtSave[i].X = -1;
             }
 
             if (0 != e.Button)
             {
-                tracking = (e.Button == MouseButtons.Left);
-                lastKey = mx;
+                Tracking = (e.Button == MouseButtons.Left);
+                LastKey = mx;
 
                 bool anyNearMouse = false;
 
-                effectChannel = new bool[channels];
-                for (int c = 0; c < channels; ++c)
+                EffectChannel = new bool[Channels];
+                for (int c = 0; c < Channels; ++c)
                 {
-                    SortedList<int, int> channelControlPoints = controlPoints[c];
-                    int index = pointsNearMousePerChannel[c];
+                    SortedList<int, int> channelControlPoints = ControlPoints[c];
+                    int index = PointsNearMousePerChannel[c];
                     bool hasPoint = (index >= 0);
                     int key = hasPoint ? channelControlPoints.Keys[index] : index;
 
                     anyNearMouse = (anyNearMouse || hasPoint);
 
-                    effectChannel[c] = hasPoint;
+                    EffectChannel[c] = hasPoint;
 
-                    if (mask[c] && hasPoint && 
-                        key > 0 && key < entries - 1)
+                    if (Mask[c] && hasPoint && 
+                        key > 0 && key < Entries - 1)
                     {
                         channelControlPoints.RemoveAt(index);
                         OnValueChanged();
@@ -414,9 +391,9 @@ namespace PaintDotNet
 
                 if (!anyNearMouse)
                 {
-                    for (int c = 0; c < channels; ++c)
+                    for (int c = 0; c < Channels; ++c)
                     {
-                        effectChannel[c] = true;
+                        EffectChannel[c] = true;
                     }
                 }
             }
@@ -428,10 +405,10 @@ namespace PaintDotNet
         {
             base.OnMouseUp(e);
 
-            if (0 != (e.Button & MouseButtons.Left) && tracking)
+            if (0 != (e.Button & MouseButtons.Left) && Tracking)
             {
-                tracking = false;
-                lastKey = -1;
+                Tracking = false;
+                LastKey = -1;
             }
         }
 
@@ -439,39 +416,39 @@ namespace PaintDotNet
         {
             base.OnMouseMove(e);
 
-            lastMouseXY = new Point(e.X, e.Y);
+            LastMouseXY = new Point(e.X, e.Y);
             float width = this.ClientRectangle.Width;
             float height = this.ClientRectangle.Height;
-            int mx = (int)Utility.Clamp(0.5f + e.X * (entries - 1) / (width - 1), 0, Entries - 1);
-            int my = (int)Utility.Clamp(0.5f + Entries - 1 - e.Y * (entries - 1) / (height - 1), 0, Entries - 1);
+            int mx = (int)Utility.Clamp(0.5f + e.X * (Entries - 1) / (width - 1), 0, Entries - 1);
+            int my = (int)Utility.Clamp(0.5f + Entries - 1 - e.Y * (Entries - 1) / (height - 1), 0, Entries - 1);
 
             Invalidate();
 
-            if (tracking && e.Button == MouseButtons.None)
+            if (Tracking && e.Button == MouseButtons.None)
             {
-                tracking = false;
+                Tracking = false;
             }
 
-            if (tracking)
+            if (Tracking)
             {
                 bool changed = false;
-                for (int c = 0; c < channels; ++c)
+                for (int c = 0; c < Channels; ++c)
                 {
-                    SortedList<int, int> channelControlPoints = controlPoints[c];
+                    SortedList<int, int> channelControlPoints = ControlPoints[c];
 
-                    pointsNearMousePerChannel[c] = -1;
-                    if (mask[c] && effectChannel[c])
+                    PointsNearMousePerChannel[c] = -1;
+                    if (Mask[c] && EffectChannel[c])
                     {
-                        int lastIndex = channelControlPoints.IndexOfKey(lastKey);
+                        int lastIndex = channelControlPoints.IndexOfKey(LastKey);
 
-                        if (ptSave[c].X >= 0 && ptSave[c].X != mx)
+                        if (PtSave[c].X >= 0 && PtSave[c].X != mx)
                         {
-                            channelControlPoints[ptSave[c].X] = ptSave[c].Y;
-                            ptSave[c].X = -1;
+                            channelControlPoints[PtSave[c].X] = PtSave[c].Y;
+                            PtSave[c].X = -1;
 
                             changed = true;
                         }
-                        else if (lastKey > 0 && lastKey < Entries - 1 && lastIndex >= 0 && mx != lastKey)
+                        else if (LastKey > 0 && LastKey < Entries - 1 && lastIndex >= 0 && mx != LastKey)
                         {
                             channelControlPoints.RemoveAt(lastIndex);
                         }
@@ -482,11 +459,11 @@ namespace PaintDotNet
                             int oldIndex = channelControlPoints.IndexOfKey(mx);
                             int oldValue = (oldIndex >= 0) ? channelControlPoints.Values[oldIndex] : -1;
 
-                            if (oldIndex >= 0 && mx != lastKey) 
+                            if (oldIndex >= 0 && mx != LastKey) 
                             {
                                 // if we drag onto an existing point, delete it, but save it in case we drag away
-                                ptSave[c].X = mx;
-                                ptSave[c].Y = channelControlPoints.Values[oldIndex];
+                                PtSave[c].X = mx;
+                                PtSave[c].Y = channelControlPoints.Values[oldIndex];
                             }
 
                             if (oldIndex < 0 ||
@@ -496,7 +473,7 @@ namespace PaintDotNet
                                 changed = true;
                             }
 
-                            pointsNearMousePerChannel[c] = channelControlPoints.IndexOfKey(mx);
+                            PointsNearMousePerChannel[c] = channelControlPoints.IndexOfKey(mx);
                         }
                     }
                 }
@@ -509,15 +486,15 @@ namespace PaintDotNet
             }
             else
             {
-                pointsNearMousePerChannel = new int[channels];
+                PointsNearMousePerChannel = new int[Channels];
 
-                for (int c = 0; c < channels; ++c)
+                for (int c = 0; c < Channels; ++c)
                 {
-                    SortedList<int, int> channelControlPoints = controlPoints[c];
+                    SortedList<int, int> channelControlPoints = ControlPoints[c];
                     int minRadiusSq = 30;
                     int bestIndex = -1;
 
-                    if (mask[c])
+                    if (Mask[c])
                     {
                         for (int i = 0; i < channelControlPoints.Count; ++i)
                         {
@@ -538,31 +515,25 @@ namespace PaintDotNet
                         }
                     }
 
-                    pointsNearMousePerChannel[c] = bestIndex;
+                    PointsNearMousePerChannel[c] = bestIndex;
                 }
 
                 Update();
             }
 
-            lastKey = mx;
-            lastValue = my;
+            LastKey = mx;
+            LastValue = my;
             OnCoordinatesChanged();
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
-            lastKey = -1;
-            lastValue = -1;
-            lastMouseXY = new Point(int.MinValue, int.MinValue);
+            LastKey = -1;
+            LastValue = -1;
+            LastMouseXY = new Point(int.MinValue, int.MinValue);
             Invalidate();
             OnCoordinatesChanged();
             base.OnMouseLeave(e);
-        }
-
-        public virtual void InitFromPixelOp(UnaryPixelOp op)
-        {
-            OnValueChanged();
-            Invalidate();
         }
     }
 }

@@ -20,27 +20,26 @@ namespace PaintDotNet
     /// Curve control specialized for luminosity
     /// </summary>
     public sealed class CurveControlLuminosity
-        : CurveControl
+        : CurveControlColor
     {
         public CurveControlLuminosity()
             : base(1, 256)
         {
-            this.mask = new bool[1]{true};
-            visualColors = new ColorBgra[]{     
-                                              ColorBgra.Black
-                                          };
-            channelNames = new string[]{
-                        PdnResources.GetString("CurveControlLuminosity.Luminosity")
+            Mask = new bool[1] {true};
+            VisualColors = new ColorBgra[]
+            {     
+                ColorBgra.Black
+            };
+            ChannelNames = new string[]
+            {
+                PdnResources.GetString("CurveControlLuminosity.Luminosity")
             };
             ResetControlPoints();
         }
 
         public override ColorTransferMode ColorTransferMode
         {
-            get
-            {
-                return ColorTransferMode.Luminosity;
-            }
+            get => ColorTransferMode.Luminosity;
         }
     }
 }

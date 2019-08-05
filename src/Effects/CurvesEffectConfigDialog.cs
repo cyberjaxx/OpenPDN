@@ -21,8 +21,8 @@ namespace PaintDotNet.Effects
     {
         private System.Windows.Forms.Button cancelButton;
         private System.Windows.Forms.Button okButton;
-        private CurveControl curveControl;
-        private Dictionary<ColorTransferMode, CurveControl> curveControls;
+        private CurveControlColor curveControl;
+        private Dictionary<ColorTransferMode, CurveControlColor> curveControls;
         private System.ComponentModel.IContainer components = null;
         private PaintDotNet.HeaderLabel transferHeader;
         private System.Windows.Forms.Button resetButton;
@@ -57,10 +57,11 @@ namespace PaintDotNet.Effects
 
             this.maskCheckChanged = new EventHandler(MaskCheckChanged);
 
-            this.curveControls = new Dictionary<ColorTransferMode, CurveControl>();
-
-            this.curveControls.Add(ColorTransferMode.Luminosity, new CurveControlLuminosity());
-            this.curveControls.Add(ColorTransferMode.Rgb, new CurveControlRgb());
+            this.curveControls = new Dictionary<ColorTransferMode, CurveControlColor>
+            {
+                { ColorTransferMode.Luminosity, new CurveControlLuminosity() },
+                { ColorTransferMode.Rgb, new CurveControlRgb() }
+            };
         }
 
         protected override void InitialInitToken()
@@ -129,8 +130,8 @@ namespace PaintDotNet.Effects
             this.transferHeader = new PaintDotNet.HeaderLabel();
             this.resetButton = new System.Windows.Forms.Button();
             this.modeComboBox = new System.Windows.Forms.ComboBox();
-            this.labelCoordinates = new Label();
-            this.labelHelpText = new Label();
+            this.labelCoordinates = new System.Windows.Forms.Label();
+            this.labelHelpText = new System.Windows.Forms.Label();
             this.tableLayoutMain = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanelMask = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutMain.SuspendLayout();
@@ -140,18 +141,18 @@ namespace PaintDotNet.Effects
             // 
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.cancelButton.Location = new System.Drawing.Point(210, 292);
+            this.cancelButton.Location = new System.Drawing.Point(199, 350);
             this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(81, 23);
+            this.cancelButton.Size = new System.Drawing.Size(68, 23);
             this.cancelButton.TabIndex = 5;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // okButton
             // 
             this.okButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.okButton.Location = new System.Drawing.Point(130, 292);
+            this.okButton.Location = new System.Drawing.Point(125, 350);
             this.okButton.Name = "okButton";
-            this.okButton.Size = new System.Drawing.Size(81, 23);
+            this.okButton.Size = new System.Drawing.Size(68, 23);
             this.okButton.TabIndex = 4;
             this.okButton.Click += new System.EventHandler(this.okButton_Click);
             // 
@@ -159,38 +160,51 @@ namespace PaintDotNet.Effects
             // 
             this.tableLayoutMain.SetColumnSpan(this.transferHeader, 4);
             this.transferHeader.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.transferHeader.Location = new System.Drawing.Point(9, 9);
+            this.transferHeader.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.transferHeader.Location = new System.Drawing.Point(7, 9);
+            this.transferHeader.Margin = new System.Windows.Forms.Padding(1, 3, 1, 1);
             this.transferHeader.Name = "transferHeader";
             this.transferHeader.RightMargin = 0;
-            this.transferHeader.Margin = new Padding(1, 3, 1, 1);
-            this.transferHeader.Size = new System.Drawing.Size(115, 17);
+            this.transferHeader.Size = new System.Drawing.Size(262, 17);
             this.transferHeader.TabIndex = 20;
             this.transferHeader.TabStop = false;
             // 
             // resetButton
             // 
-            this.resetButton.Location = new System.Drawing.Point(9, 292);
+            this.resetButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.resetButton.Location = new System.Drawing.Point(9, 350);
             this.resetButton.Name = "resetButton";
             this.resetButton.Size = new System.Drawing.Size(81, 23);
             this.resetButton.TabIndex = 3;
-            this.resetButton.FlatStyle = FlatStyle.System;
             this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
             // 
             // modeComboBox
             // 
             this.tableLayoutMain.SetColumnSpan(this.modeComboBox, 3);
             this.modeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.modeComboBox.Location = new System.Drawing.Point(130, 9);
+            this.modeComboBox.Location = new System.Drawing.Point(9, 30);
             this.modeComboBox.Name = "modeComboBox";
             this.modeComboBox.Size = new System.Drawing.Size(90, 21);
             this.modeComboBox.TabIndex = 23;
             this.modeComboBox.SelectedIndexChanged += new System.EventHandler(this.modeComboBox_SelectedIndexChanged);
-            //
-            this.labelCoordinates.Dock = DockStyle.Fill;
-            this.labelCoordinates.TextAlign = ContentAlignment.MiddleCenter;
-            //
+            // 
+            // labelCoordinates
+            // 
+            this.labelCoordinates.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelCoordinates.Location = new System.Drawing.Point(199, 27);
+            this.labelCoordinates.Name = "labelCoordinates";
+            this.labelCoordinates.Size = new System.Drawing.Size(68, 27);
+            this.labelCoordinates.TabIndex = 25;
+            this.labelCoordinates.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // labelHelpText
+            // 
             this.tableLayoutMain.SetColumnSpan(this.labelHelpText, 4);
-            this.labelHelpText.Dock = DockStyle.Fill;
+            this.labelHelpText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelHelpText.Location = new System.Drawing.Point(9, 318);
+            this.labelHelpText.Name = "labelHelpText";
+            this.labelHelpText.Size = new System.Drawing.Size(258, 29);
+            this.labelHelpText.TabIndex = 26;
             // 
             // tableLayoutMain
             // 
@@ -209,18 +223,18 @@ namespace PaintDotNet.Effects
             this.tableLayoutMain.Controls.Add(this.labelHelpText, 0, 4);
             this.tableLayoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutMain.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutMain.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutMain.Name = "tableLayoutMain";
             this.tableLayoutMain.Padding = new System.Windows.Forms.Padding(6);
-            this.tableLayoutMain.Margin = new Padding(2);
             this.tableLayoutMain.RowCount = 4;
-            this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
             this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 29F));
-            this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutMain.Size = new System.Drawing.Size(4,4);
+            this.tableLayoutMain.Size = new System.Drawing.Size(276, 382);
             this.tableLayoutMain.TabIndex = 24;
             // 
             // tableLayoutPanelMask
@@ -231,27 +245,29 @@ namespace PaintDotNet.Effects
             this.tableLayoutPanelMask.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanelMask.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanelMask.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanelMask.Location = new System.Drawing.Point(8, 262);
+            this.tableLayoutPanelMask.Location = new System.Drawing.Point(8, 291);
             this.tableLayoutPanelMask.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanelMask.Name = "tableLayoutPanelMask";
             this.tableLayoutPanelMask.RowCount = 1;
             this.tableLayoutPanelMask.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanelMask.Size = new System.Drawing.Size(277, 25);
+            this.tableLayoutPanelMask.Size = new System.Drawing.Size(260, 25);
             this.tableLayoutPanelMask.TabIndex = 24;
             // 
             // CurvesEffectConfigDialog
             // 
             this.AcceptButton = this.okButton;
-            this.CancelButton = this.cancelButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(276, 382);
-            this.MinimumSize = new Size(260, 276);
             this.Controls.Add(this.tableLayoutMain);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.Location = new System.Drawing.Point(0, 0);
+            this.MinimumSize = new System.Drawing.Size(260, 276);
             this.Name = "CurvesEffectConfigDialog";
             this.Controls.SetChildIndex(this.tableLayoutMain, 0);
             this.tableLayoutMain.ResumeLayout(false);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.ResumeLayout(false);
+
         }
         #endregion
 
@@ -320,7 +336,7 @@ namespace PaintDotNet.Effects
 
         private void modeComboBox_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            CurveControl newCurveControl;
+            CurveControlColor newCurveControl;
             ColorTransferMode colorTransferMode;
 
             if (modeComboBox.SelectedIndex >= 0)
