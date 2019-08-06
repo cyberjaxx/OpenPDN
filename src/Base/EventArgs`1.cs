@@ -14,11 +14,18 @@ namespace PaintDotNet
     public class EventArgs<T>
         : EventArgs
     {
-        public T Data { get; }
+        private T data;
+        public T Data
+        {
+            get
+            {
+                return data;
+            }
+        }
 
         public EventArgs(T data)
         {
-            this.Data = data;
+            this.data = data;
         }
     }
 }

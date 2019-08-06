@@ -14,13 +14,42 @@ namespace PaintDotNet
     [Serializable]
     public struct Quadruple<T, U, V, W>
     {
-        public T First { get; }
+        private T first;
+        private U second;
+        private V third;
+        private W fourth;
 
-        public U Second { get; }
+        public T First
+        {
+            get
+            {
+                return this.first;
+            }
+        }
 
-        public V Third { get; }
+        public U Second
+        {
+            get
+            {
+                return this.second;
+            }
+        }
 
-        public W Fourth { get; }
+        public V Third
+        {
+            get
+            {
+                return this.third;
+            }
+        }
+
+        public W Fourth
+        {
+            get
+            {
+                return this.fourth;
+            }
+        }
 
         public override int GetHashCode()
         {
@@ -29,40 +58,40 @@ namespace PaintDotNet
             int thirdHash;
             int fourthHash;
 
-            if (object.ReferenceEquals(this.First, null))
+            if (object.ReferenceEquals(this.first, null))
             {
                 firstHash = 0;
             }
             else
             {
-                firstHash = this.First.GetHashCode();
+                firstHash = this.first.GetHashCode();
             }
 
-            if (object.ReferenceEquals(this.Second, null))
+            if (object.ReferenceEquals(this.second, null))
             {
                 secondHash = 0;
             }
             else
             {
-                secondHash = this.Second.GetHashCode();
+                secondHash = this.second.GetHashCode();
             }
 
-            if (object.ReferenceEquals(this.Third, null))
+            if (object.ReferenceEquals(this.third, null))
             {
                 thirdHash = 0;
             }
             else
             {
-                thirdHash = this.Third.GetHashCode();
+                thirdHash = this.third.GetHashCode();
             }
 
-            if (object.ReferenceEquals(this.Fourth, null))
+            if (object.ReferenceEquals(this.fourth, null))
             {
                 fourthHash = 0;
             }
             else
             {
-                fourthHash = this.Fourth.GetHashCode();
+                fourthHash = this.fourth.GetHashCode();
             }
 
             return firstHash ^ secondHash ^ thirdHash ^ fourthHash;
@@ -142,20 +171,20 @@ namespace PaintDotNet
 
         public Triple<T, U, V> GetTriple123()
         {
-            return Triple.Create<T, U, V>(this.First, this.Second, this.Third);
+            return Triple.Create<T, U, V>(this.first, this.second, this.third);
         }
 
         public Triple<U, V, W> GetTriple234()
         {
-            return Triple.Create<U, V, W>(this.Second, this.Third, this.Fourth);
+            return Triple.Create<U, V, W>(this.second, this.third, this.fourth);
         }
 
         public Quadruple(T first, U second, V third, W fourth)
         {
-            this.First = first;
-            this.Second = second;
-            this.Third = third;
-            this.Fourth = fourth;
+            this.first = first;
+            this.second = second;
+            this.third = third;
+            this.fourth = fourth;
         }
     }
 }

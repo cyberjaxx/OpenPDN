@@ -17,13 +17,27 @@ namespace PaintDotNet
     {
         private ArrayList objects = ArrayList.Synchronized(new ArrayList());
         private bool used = false;
+        private object context;
         private long totalSize;
         private long totalReportedBytes;
+        private bool useCompression;
         private object lockObject = new object();
 
-        public object Context { get; }
+        public object Context
+        {
+            get
+            {
+                return this.context;
+            }
+        }
 
-        public bool UseCompression { get; }
+        public bool UseCompression
+        {
+            get
+            {
+                return this.useCompression;
+            }
+        }
 
         public DeferredFormatter()
             : this(false, null)
@@ -32,8 +46,8 @@ namespace PaintDotNet
 
         public DeferredFormatter(bool useCompression, object context)
         {
-            this.UseCompression = useCompression;
-            this.Context = context;
+            this.useCompression = useCompression;
+            this.context = context;
         }
 
         public void AddDeferredObject(IDeferredSerializable theObject, long objectByteSize)
@@ -50,7 +64,10 @@ namespace PaintDotNet
         public event EventHandler ReportedBytesChanged;
         private void OnReportedBytesChanged()
         {
-            ReportedBytesChanged?.Invoke(this, EventArgs.Empty);
+            if (ReportedBytesChanged != null)
+            {
+                ReportedBytesChanged(this, EventArgs.Empty);
+            }
         }
 
         public long ReportedBytes

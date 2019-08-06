@@ -28,7 +28,20 @@ namespace PaintDotNet
 
         private Stream stream;
         private int siphonSize;
-        public object Tag { get; set; } = null;
+
+        private object tag = null;
+        public object Tag
+        {
+            get
+            {
+                return this.tag;
+            }
+
+            set
+            {
+                this.tag = value;
+            }
+        }
 
         /// <summary>
         /// Causes the next call to Read() or Write() to throw an IOException instead. The
@@ -48,7 +61,10 @@ namespace PaintDotNet
         public event IOEventHandler IOFinished;
         private void OnIOFinished(IOEventArgs e)
         {
-            IOFinished?.Invoke(this, e);
+            if (IOFinished != null)
+            {
+                IOFinished(this, e);
+            }
         }
 
         int readAccumulator = 0;

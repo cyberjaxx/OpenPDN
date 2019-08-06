@@ -14,31 +14,46 @@ namespace PaintDotNet
     [Serializable]
     public struct Pair<T, U>
     {
-        public T First { get; }
+        private T first;
+        private U second;
 
-        public U Second { get; }
+        public T First
+        {
+            get
+            {
+                return this.first;
+            }
+        }
+
+        public U Second
+        {
+            get
+            {
+                return this.second;
+            }
+        }
 
         public override int GetHashCode()
         {
             int firstHash;
             int secondHash;
 
-            if (object.ReferenceEquals(this.First, null))
+            if (object.ReferenceEquals(this.first, null))
             {
                 firstHash = 0;
             }
             else
             {
-                firstHash = this.First.GetHashCode();
+                firstHash = this.first.GetHashCode();
             }
 
-            if (object.ReferenceEquals(this.Second, null))
+            if (object.ReferenceEquals(this.second, null))
             {
                 secondHash = 0;
             }
             else
             {
-                secondHash = this.Second.GetHashCode();
+                secondHash = this.second.GetHashCode();
             }
 
             return firstHash ^ secondHash;
@@ -90,8 +105,8 @@ namespace PaintDotNet
 
         public Pair(T first, U second)
         {
-            this.First = first;
-            this.Second = second;
+            this.first = first;
+            this.second = second;
         }
     }
 }
